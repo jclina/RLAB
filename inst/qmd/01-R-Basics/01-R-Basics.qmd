@@ -1,0 +1,244 @@
+---
+title: "Introduction to R Programming"
+subtitle: "A Statistical Computing Environment"
+author: "Your Name"
+institute: "Your Institution"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss", customReveal.scss]
+    slide-number: true
+    preview-links: auto
+    logo: https://www.r-project.org/logo/Rlogo.svg
+    footer: "R Programming Workshop"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+---
+
+## What is R? {.title-slide}
+
+::: {.highlight-box}
+**R is a language and environment for statistical computing and graphics**
+
+:::
+
+. . .
+
+**Key Strengths:**
+
+- Extensive package ecosystem (CRAN)
+- Powerful data visualization tools
+- Active research community
+- Open source and free
+
+## Getting Started {.pattern-dots}
+
+::: {.columns}
+::: {.column width="60%"}
+**Installation Requirements:**
+
+- **Base R**: Core language
+- **RStudio**: Integrated development environment
+- **Packages**: Extended functionality
+
+::: {.tip-box}
+💡 **Tip**: Always update R and packages regularly for latest features
+:::
+:::
+
+::: {.column width="40%"}
+**Essential Packages:**
+
+| Package | Purpose |
+|---------|---------|
+| tidyverse | Data manipulation |
+| ggplot2 | Visualization |
+| dplyr | Data wrangling |
+| readr | Data import |
+:::
+:::
+
+## R Data Types and Structures {.pattern-grid}
+
+::: {.code-box}
+**Fundamental Data Types**
+:::
+
+```{r}
+#| echo: true
+
+# Numeric data
+numeric_var <- 42.7
+class(numeric_var)
+
+# Character strings  
+text_var <- "Hello, R!"
+nchar(text_var)
+
+# Logical values
+logical_var <- TRUE
+is.logical(logical_var)
+
+# Factors for categories
+factor_var <- factor(c("Low", "Medium", "High"))
+levels(factor_var)
+
+```
+
+## Data Structures in R
+
+**Vector Operations:**
+
+```{r}
+#| echo: true
+#| eval: true
+
+# Creating vectors
+numbers <- c(1, 5, 10, 15, 20)
+names <- c("Alice", "Bob", "Charlie")
+
+# Vector arithmetic (vectorized operations)
+numbers * 2
+```
+
+. . .
+
+::: {.highlight-box}
+**Data Frames - The Heart of R**
+
+Data frames are R's primary data structure for rectangular data, similar to spreadsheets or SQL tables.
+:::
+
+```{r}
+#| echo: true
+#| eval: true
+
+# Creating a data frame
+df <- data.frame(
+  Name = c("Alice", "Bob", "Charlie"),
+  Age = c(25, 30, 35),
+  Score = c(85, 92, 78)
+)
+head(df, 2)
+```
+
+## Data Import and Export
+
+> **Best Practice**: Always examine your data structure with `str()`, `summary()`, and `head()` after importing
+
+::: {.columns}
+::: {.column width="50%"}
+**Reading Data:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Read CSV
+read.csv("data.csv")
+# Read Excel
+readxl::read_excel("data.xlsx")
+```
+:::
+
+::: {.column width="50%"}
+**Writing Data:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Save as CSV
+write.csv(data, "output.csv")
+# Save R objects
+save(data, file = "data.RData")
+
+```
+:::
+:::
+
+## Data Visualization with ggplot2
+
+```{r}
+#| echo: true
+#| eval: true
+#| fig-width: 10
+#| fig-height: 4
+
+library(ggplot2)
+
+# Sample data
+sample_data <- data.frame(
+  x = 1:10,
+  y = c(2, 4, 3, 8, 6, 9, 7, 10, 12, 11),
+  group = rep(c("A", "B"), each = 5)
+)
+
+# Create a professional plot
+ggplot(sample_data, aes(x = x, y = y, color = group)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(title = "Sample Time Series Data",
+       x = "Time", y = "Value", color = "Group") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+```
+
+## Statistical Analysis Workflow {.fade-in-up}
+
+::: {.tip-box}
+**Reproducible Research Principles**: Document your analysis, use version control, and create reproducible scripts
+:::
+
+**Typical R Analysis Pipeline:**
+
+1. **Data Import** → `read.csv()`, `read_excel()`
+2. **Data Cleaning** → `dplyr` functions, missing value handling  
+3. **Exploratory Analysis** → `summary()`, `cor()`, visualizations
+4. **Statistical Modeling** → `lm()`, `glm()`, specialized packages
+5. **Results Interpretation** → Coefficients, p-values, effect sizes
+6. **Reporting** → R Markdown, Quarto, publication-ready outputs
+
+## Next Steps and Resources
+
+::: {.columns}
+::: {.column width="50%"}
+**Learning Path:**
+
+- **Fundamentals**: R syntax, data types, functions
+- **Data Manipulation**: tidyverse
+- **Statistics**: Hypothesis testing, regression
+- **Advanced Topics**: Shiny apps
+
+:::
+
+::: {.column width="50%"}
+**Getting Help:**
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Built-in help
+?function_name
+help("lm")
+
+```
+
+::: {.highlight-box}
+**Remember**: R has a steep learning curve initially, but becomes incredibly powerful once you master the basics.
+:::
+:::
+:::
+
+---
+
+**Questions?** 
+
+Contact: your.email@institution.edu

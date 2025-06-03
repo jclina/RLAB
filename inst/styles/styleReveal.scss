@@ -1,0 +1,409 @@
+/*-- scss:defaults --*/
+
+// Import Google Fonts - Professional academic fonts
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&family=Source+Code+Pro:wght@400;500&display=swap');
+
+// Color palette - Professional research theme with R branding
+$primary-color: #1f4788;       // Deep R blue
+$secondary-color: #2e86ab;     // Professional teal
+$accent-color: #a23b72;        // Muted burgundy
+$success-color: #5a7c65;       // Forest green
+$warning-color: #c18c5d;       // Warm amber
+$info-color: #6096ba;          // Steel blue
+$light-color: #f8f9fa;        // Light gray
+$dark-color: #2c3e50;         // Dark blue-gray
+$code-bg: #f7f7f7;            // Subtle code background
+
+// Typography
+$font-family-sans-serif: 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+$font-family-monospace: 'Source Code Pro', 'Consolas', monospace;
+
+// Presentation settings
+$presentation-font-size-root: 40px;
+$presentation-h1-font-size: 2.5em;
+$presentation-h2-font-size: 1.8em;
+$presentation-h3-font-size: 1.4em;
+
+/*-- scss:rules --*/
+
+.reveal {
+  font-family: $font-family-sans-serif;
+  font-weight: 400;
+  color: $dark-color;
+}
+
+// Headers with clean, academic styling
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+  color: $primary-color;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+
+.reveal h1 {
+  font-size: $presentation-h1-font-size;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.reveal h2 {
+  font-size: $presentation-h2-font-size;
+  border-bottom: 2px solid $primary-color;
+  padding-bottom: 0.3em;
+  display: inline-block;
+}
+
+// Clean slide backgrounds with proper overflow handling
+.reveal .slides section {
+  border-radius: 8px;
+  padding: 1.5em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+// Ensure slides can scroll when content overflows
+.reveal .slides {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.reveal .slides section {
+  height: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+// Professional code styling with responsive sizing
+.reveal pre {
+  background-color: $code-bg;
+  border: 1px solid rgba(31, 71, 136, 0.2);
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  margin: 0.8em 0;
+  padding: 1em;
+  position: relative;
+  font-size: 0.75em;
+  line-height: 1.4;
+  max-height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.reveal pre code {
+  max-height: none;
+  overflow: visible;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.reveal pre::before {
+  content: "R";
+  position: absolute;
+  top: -1px;
+  right: 10px;
+  background: $primary-color;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 0 6px 0 4px;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.reveal code {
+  font-family: $font-family-monospace;
+  background-color: rgba(39, 109, 195, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  color: $primary-color;
+  font-weight: 500;
+}
+
+.reveal pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: $dark-color;
+}
+
+// Links with subtle hover effects
+.reveal a {
+  color: $accent-color;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.reveal a:hover {
+  color: darken($accent-color, 15%);
+  border-bottom: 1px solid $accent-color;
+}
+
+// Lists with professional bullets
+.reveal ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.reveal ul li {
+  position: relative;
+  padding-left: 1.2em;
+  margin-bottom: 0.4em;
+  line-height: 1.5;
+}
+
+.reveal ul li::before {
+  content: "•";
+  color: $primary-color;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+// Fragments with fun animations
+.reveal .fragment.fade-in-then-out,
+.reveal .fragment.current-visible {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.reveal .fragment.fade-in-then-out.current-fragment,
+.reveal .fragment.current-visible.current-fragment {
+  opacity: 1;
+  visibility: inherit;
+}
+
+// Progress bar styling
+.reveal .progress {
+  height: 4px;
+  background: rgba(31, 71, 136, 0.15);
+}
+
+.reveal .progress span {
+  background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+  transition: width 0.3s ease;
+}
+
+// Slide numbers
+.reveal .slide-number {
+  background-color: rgba(31, 71, 136, 0.9);
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-weight: 500;
+  font-size: 0.7em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+// Academic title slide
+.reveal .title-slide {
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  color: white;
+  text-align: center;
+}
+
+.reveal .title-slide h1, 
+.reveal .title-slide h2, 
+.reveal .title-slide h3 {
+  color: white;
+  font-weight: 600;
+}
+
+// Subtle background patterns
+.pattern-dots {
+  background-image: radial-gradient(circle, rgba(31, 71, 136, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.pattern-grid {
+  background-image: 
+    linear-gradient(rgba(31, 71, 136, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 71, 136, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+// Professional highlight boxes
+.highlight-box {
+  background: rgba(31, 71, 136, 0.05);
+  border: 1px solid rgba(31, 71, 136, 0.2);
+  border-radius: 6px;
+  padding: 1.2em;
+  margin: 1em 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.tip-box {
+  background: rgba(193, 140, 93, 0.08);
+  border-left: 4px solid $warning-color;
+  padding: 1em 1.2em;
+  margin: 1em 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.code-box {
+  background: rgba(31, 71, 136, 0.02);
+  border: 1px dashed rgba(31, 71, 136, 0.3);
+  border-radius: 6px;
+  padding: 1.2em;
+  margin: 1em 0;
+}
+
+// Tables
+.reveal table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(31, 71, 136, 0.15);
+}
+
+.reveal table th {
+  background: $primary-color;
+  color: white;
+  font-weight: 600;
+  padding: 0.8em 1em;
+  text-align: left;
+}
+
+.reveal table td {
+  padding: 0.7em 1em;
+  border-bottom: 1px solid rgba(31, 71, 136, 0.08);
+}
+
+.reveal table tr:nth-child(even) {
+  background: rgba(31, 71, 136, 0.02);
+}
+
+// Blockquotes
+.reveal blockquote {
+  background: rgba(46, 134, 171, 0.06);
+  border-left: 4px solid $secondary-color;
+  padding: 1.2em 1.5em;
+  margin: 1.5em 0;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+// Footer styling
+.reveal .footer {
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  font-size: 0.6em;
+  color: rgba(31, 71, 136, 0.6);
+  font-weight: 400;
+}
+
+// Chalkboard button styling
+.reveal .chalkboard-button {
+  background: $primary-color !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+}
+
+// Subtle professional animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .reveal .slides section {
+    padding: 1em;
+    min-height: auto;
+  }
+  
+  .reveal pre {
+    font-size: 0.65em;
+    padding: 0.8em;
+    max-height: 300px;
+  }
+  
+  .reveal h1 {
+    font-size: 1.8em;
+  }
+  
+  .reveal h2 {
+    font-size: 1.4em;
+  }
+}
+
+// Additional content sizing fixes
+.reveal .slides section .fragment {
+  margin: 0.5em 0;
+}
+
+.reveal .columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+.reveal .column {
+  flex: 1;
+  min-width: 0; // Prevents flex items from overflowing
+}
+
+// Ensure tables fit properly
+.reveal table {
+  width: 100%;
+  font-size: 0.8em;
+  margin: 0.5em 0;
+}
+
+// Better spacing for content boxes
+.highlight-box, .tip-box, .code-box {
+  margin: 0.8em 0;
+  font-size: 0.9em;
+}
+
+.sourceCode .r {
+  margin-top: 10px;
+  width: 97%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.reveal div.sourceCode {
+    border: none;
+}
+
+.cell-output {
+  width: 95%;
+}
+
+
+
+// Adjust presentation font sizes for better fit
+.reveal {
+  font-size: 28px; // Reduced from default to fit more content
+  line-height: 1.4;
+}
+
+
+
+
+
+
+
