@@ -161,8 +161,8 @@ $presentation-h3-font-size: 1.4em;
 .reveal ul li::before {
   content: "•";
   color: $primary-color;
-  position: absolute;
-  left: 0;
+  position: relative;
+  right: 10px;
   font-weight: bold;
   font-size: 1.2em;
 }
@@ -392,8 +392,6 @@ $presentation-h3-font-size: 1.4em;
 .cell-output {
   width: 95%;
 }
-
-
 
 // Adjust presentation font sizes for better fit
 .reveal {
