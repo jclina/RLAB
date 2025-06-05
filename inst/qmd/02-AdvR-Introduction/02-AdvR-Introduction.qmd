@@ -1,16 +1,16 @@
 ---
-title: "Introduction to R Programming"
-subtitle: "A Statistical Computing Environment"
-author: "Your Name"
-institute: "Your Institution"
+title: "Introduction to Advanced R"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
 date: today
 format:
   revealjs:
     theme: [default, "../../styles/styleReveal.scss", customReveal.scss]
     slide-number: true
     preview-links: auto
-    logo: https://www.r-project.org/logo/Rlogo.svg
-    footer: "R Programming Workshop"
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
     transition: slide
     background-transition: fade
     highlight-style: github
@@ -21,21 +21,27 @@ format:
     embed-resources: true
 ---
 
-## What is R? {.title-slide}
+## R as a Language: More Than Just Stats {.title-slide}
 
 ::: {.highlight-box}
 **R is a language and environment for statistical computing and graphics**
 
 :::
 
-. . .
+**You will advance your R skills related to:**
 
-**Key Strengths:**
+- Research Software Engineering
+- Building Packages and Reports
+- Creating Dashboards and Web Apps
 
-- Extensive package ecosystem (CRAN)
-- Powerful data visualization tools
-- Active research community
-- Open source and free
+::: notes
+
+This course isn’t about using R’s data analysis tools, but by strengthening your
+understanding of R as a programming language, you’ll gain deeper insight into
+how those tools work—and how to use them more effectively.
+
+:::
+
 
 ## Getting Started {.pattern-dots}
 
@@ -44,11 +50,10 @@ format:
 **Installation Requirements:**
 
 - **Base R**: Core language
-- **RStudio**: Integrated development environment
-- **Packages**: Extended functionality
+- **Integrated development environment (IDE)**
 
 ::: {.tip-box}
-💡 **Tip**: Always update R and packages regularly for latest features
+💡 **Tip**: Common Integrated Development Environments Options Include R Studio, Positron, and Visual Studio Code.
 :::
 :::
 
@@ -57,188 +62,245 @@ format:
 
 | Package | Purpose |
 |---------|---------|
-| tidyverse | Data manipulation |
-| ggplot2 | Visualization |
+| lobstr | Understanding R Objects |
+| tibble | A Modern Data Frame |
 | dplyr | Data wrangling |
-| readr | Data import |
+
 :::
 :::
 
-## R Data Types and Structures {.pattern-grid}
+::: notes
 
-::: {.code-box}
-**Fundamental Data Types**
+To get started with our lessons, you'll need to have R installed, along with an
+integrated development environment (IDE).
+
+Common IDEs include RStudio, Positron, and Visual Studio Code. Each has
+different strengths:
+– RStudio is popular for R-specific workflows and ease of use
+– VS Code is more customizable and good for multi-language projects
+– Positron (if you're using it) is a lightweight option for quick scripting
+
+For our first few lessons, make sure you install the following packages:
+– lobstr – to explore how R manages objects in memory
+– tibble – a modern, tidyverse-friendly version of data frames
+– dplyr – for efficient data wrangling and manipulation
+
+You’ll also want to create a GitHub account and install GitHub Desktop. This
+will make it easier to access course materials, track your code, and eventually
+build your own R packages or Shiny apps.
+
 :::
+
+
+## Binding Basics
 
 ```{r}
 #| echo: true
 
-# Numeric data
-numeric_var <- 42.7
-class(numeric_var)
-
-# Character strings  
-text_var <- "Hello, R!"
-nchar(text_var)
-
-# Logical values
-logical_var <- TRUE
-is.logical(logical_var)
-
-# Factors for categories
-factor_var <- factor(c("Low", "Medium", "High"))
-levels(factor_var)
+library(lobstr)
+x <- c(1, 2, 3)
+obj_addr(x)
 
 ```
 
-## Data Structures in R
+![](https://adv-r.hadley.nz/diagrams/name-value/binding-1.png){width="35%" .nostretch}
 
-**Vector Operations:**
 
-```{r}
-#| echo: true
-#| eval: true
+::: {.highlight-box}
 
-# Creating vectors
-numbers <- c(1, 5, 10, 15, 20)
-names <- c("Alice", "Bob", "Charlie")
+Behind the scenes R creates a vector object of values `c(1, 2, 3)` and binds it
+to a name `x` with an object address of **`r obj_addr(x)`**.
 
-# Vector arithmetic (vectorized operations)
-numbers * 2
-```
+:::
 
 . . .
 
-::: {.highlight-box}
-**Data Frames - The Heart of R**
+```{r}
+#| echo: true
 
-Data frames are R's primary data structure for rectangular data, similar to spreadsheets or SQL tables.
-:::
+# Creates another binding to the same object
+y <- x
+obj_addr(y)
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/name-value/binding-2.png){width="35%" .nostretch}
+
+## Copy-on-modify
 
 ```{r}
 #| echo: true
-#| eval: true
 
-# Creating a data frame
-df <- data.frame(
-  Name = c("Alice", "Bob", "Charlie"),
-  Age = c(25, 30, 35),
-  Score = c(85, 92, 78)
-)
-head(df, 2)
+y[[3]] <- 4
+obj_addr(y)
+
 ```
 
-## Data Import and Export
+Modifying `y` creates a new object that is a copy of **`r obj_addr(x)`**
+and has a new object address of **`r obj_addr(y)`**.
 
-> **Best Practice**: Always examine your data structure with `str()`, `summary()`, and `head()` after importing
+![](https://adv-r.hadley.nz/diagrams/name-value/binding-3.png){width="35%" .nostretch}
+
+We can see when an object gets copied with `base::tracemem()`
+
+```{r}
+#| echo: true
+#| eval: false
+
+y <- x
+tracemem(x)
+y[[3]] <- 4
+untracemem(x)
+
+```
+
+```{r}
+# echo: false
+
+paste0("<", obj_addr(x), ">")
+
+```
+
+```{r}
+# echo: false
+
+paste0("tracemem[", obj_addr(x), " -> ", obj_addr(y), "]:")
+
+```
+
+## Function Calls {.pattern-grid}
+
+The same rules for copying apply to function calls.
+
+```{r}
+#| echo: true
+#| eval: false
+
+f <- function(a) {
+    a
+}
+
+tracemem(x)
+
+z <- f(x)
+
+untracemem(x)
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/name-value/binding-f1.png){width="40%" .nostretch}
+
+```{r}
+# echo: false
+
+paste0("<", obj_addr(x), ">")
+
+```
+
+Once `f()` completes, `x` and `z` will point to the same object.
+
+![](https://adv-r.hadley.nz/diagrams/name-value/binding-f2.png){width="35%" .nostretch}
+
+```{r}
+# echo: false
+
+f <- function(a) {
+    a
+}
+
+z <- f(x)
+
+paste0("tracemem[", obj_addr(x), " -> ", obj_addr(z), "]:")
+
+```
+
+## Lists
+
+Elements of lists can also point to objects, but copy-on-modify differs from
+variables in that a **shallow copy** is created.
+
+```{r}
+#| echo: true
+
+l1 <- list(1, 2, 3)
+
+```
+
+A list stores references to the values rather than the values. This is important
+to know for understanding what happens when we modify a list.
+
+![](https://adv-r.hadley.nz/diagrams/name-value/list.png){width="40%" .nostretch}
+
+```{r}
+#| echo: true
+
+l2 <- l1
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/name-value/l-modify-1.png){width="40%" .nostretch}
+
+```{r}
+#| echo: true
+
+l2[[3]] <- 4
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/name-value/l-modify-2.png){width="40%" .nostretch}
+
+Using the `ref()` function from the `lobstr` package shows the shared bindings across `l1` and `l2`.
+
+```{r}
+#| echo: true
+
+ref(l1, l2)
+
+```
+
+## Data frames {.pattern-dots}
+
+Data frames are lists of vectors and copy-on-modify works differently for columns and rows.
+
+```{r}
+#| echo: true
+
+d1 <- data.frame(x = c(1, 5, 6), y = c(2, 4, 3))
+
+```
+
+**Columns**
+
+Only the modified column is changed.
+
+```{r}
+#| echo: true
+
+d2 <- d1
+d2[, 2] <- d2[, 2] * 2
+
+```
 
 ::: {.columns}
 ::: {.column width="50%"}
-**Reading Data:**
-
-```{r}
-#| echo: true
-#| eval: false
-
-# Read CSV
-read.csv("data.csv")
-# Read Excel
-readxl::read_excel("data.xlsx")
-```
+![](https://adv-r.hadley.nz/diagrams/name-value/dataframe.png){width="60%" .nostretch}
 :::
-
 ::: {.column width="50%"}
-**Writing Data:**
+![](https://adv-r.hadley.nz/diagrams/name-value/d-modify-c.png){width="70%" .nostretch}
+:::
+:::
+
+**Rows**
+
+Every column is modified and must be copied.
 
 ```{r}
 #| echo: true
-#| eval: false
 
-# Save as CSV
-write.csv(data, "output.csv")
-# Save R objects
-save(data, file = "data.RData")
-
-```
-:::
-:::
-
-## Data Visualization with ggplot2
-
-```{r}
-#| echo: true
-#| eval: true
-#| fig-width: 10
-#| fig-height: 4
-
-library(ggplot2)
-
-# Sample data
-sample_data <- data.frame(
-  x = 1:10,
-  y = c(2, 4, 3, 8, 6, 9, 7, 10, 12, 11),
-  group = rep(c("A", "B"), each = 5)
-)
-
-# Create a professional plot
-ggplot(sample_data, aes(x = x, y = y, color = group)) +
-  geom_line(size = 1.2) +
-  geom_point(size = 3) +
-  theme_minimal() +
-  labs(title = "Sample Time Series Data",
-       x = "Time", y = "Value", color = "Group") +
-  theme(plot.title = element_text(hjust = 0.5, size = 14))
-```
-
-## Statistical Analysis Workflow {.fade-in-up}
-
-::: {.tip-box}
-**Reproducible Research Principles**: Document your analysis, use version control, and create reproducible scripts
-:::
-
-**Typical R Analysis Pipeline:**
-
-1. **Data Import** → `read.csv()`, `read_excel()`
-2. **Data Cleaning** → `dplyr` functions, missing value handling  
-3. **Exploratory Analysis** → `summary()`, `cor()`, visualizations
-4. **Statistical Modeling** → `lm()`, `glm()`, specialized packages
-5. **Results Interpretation** → Coefficients, p-values, effect sizes
-6. **Reporting** → R Markdown, Quarto, publication-ready outputs
-
-## Next Steps and Resources
-
-::: {.columns}
-::: {.column width="50%"}
-**Learning Path:**
-
-- **Fundamentals**: R syntax, data types, functions
-- **Data Manipulation**: tidyverse
-- **Statistics**: Hypothesis testing, regression
-- **Advanced Topics**: Shiny apps
-
-:::
-
-::: {.column width="50%"}
-**Getting Help:**
-
-```{r}
-#| echo: true
-#| eval: false
-
-# Built-in help
-?function_name
-help("lm")
+d3 <- d1
+d3[1, ] <- d3[1, ] * 3
 
 ```
 
-::: {.highlight-box}
-**Remember**: R has a steep learning curve initially, but becomes incredibly powerful once you master the basics.
-:::
-:::
-:::
+![](https://adv-r.hadley.nz/diagrams/name-value/d-modify-r.png){width="70%" .nostretch}
 
----
-
-**Questions?** 
-
-Contact: your.email@institution.edu
