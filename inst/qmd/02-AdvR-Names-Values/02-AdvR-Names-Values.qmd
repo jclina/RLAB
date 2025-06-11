@@ -177,7 +177,7 @@ The same rules for copying apply to function calls.
 #| eval: false
 
 f <- function(a) {
-    a
+  a
 }
 
 tracemem(x)
@@ -205,7 +205,7 @@ Once `f()` completes, `x` and `z` will point to the same object.
 # echo: false
 
 f <- function(a) {
-    a
+  a
 }
 
 z <- f(x)
@@ -360,10 +360,10 @@ x_size <- obj_size(x)
 y_size <- obj_size(y)
 
 sprintf(
-    "y (size: %s B) is only %s B larger than x (size: %s B)",
-    y_size,
-    y_size - x_size,
-    x_size
+  "y (size: %s B) is only %s B larger than x (size: %s B)",
+  y_size,
+  y_size - x_size,
+  x_size
 )
 
 ```
@@ -406,8 +406,8 @@ obj_size(list(NULL, NULL, NULL))
 fruits <- c("apple", "apple", "apple")
 
 sprintf(
-    "Repeating fruit 100 times takes up %s B more in memory",
-    obj_size(rep(fruits, 100)) - obj_size(fruits)
+  "Repeating fruit 100 times takes up %s B more in memory",
+  obj_size(rep(fruits, 100)) - obj_size(fruits)
 )
 
 ```
