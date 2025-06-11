@@ -73,7 +73,7 @@ $presentation-h3-font-size: 1.4em;
 
 .reveal .slides section {
   height: auto;
-  min-height: 100vh;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -330,23 +330,38 @@ $presentation-h3-font-size: 1.4em;
 // Responsive adjustments
 @media (max-width: 768px) {
   .reveal .slides section {
-    padding: 1em;
+    padding: 1rem;
     min-height: auto;
   }
   
   .reveal pre {
-    font-size: 0.65em;
-    padding: 0.8em;
+    font-size: 0.65rem;
+    padding: 0.8rem;
     max-height: 300px;
   }
   
   .reveal h1 {
-    font-size: 1.8em;
+    font-size: 1.8rem;
   }
   
   .reveal h2 {
-    font-size: 1.4em;
+    font-size: 1.4rem;
   }
+}
+
+@media (min-width: 1080px) {
+  .reveal .slides section {
+    padding: 1em;
+    margin: 0 auto;
+  }
+
+  sourceCode .r {
+    margin-top: 10px;
+    width: 70% !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
 }
 
 // Additional content sizing fixes
@@ -397,6 +412,9 @@ $presentation-h3-font-size: 1.4em;
 .reveal {
   font-size: 28px; // Reduced from default to fit more content
   line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 

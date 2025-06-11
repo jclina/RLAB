@@ -1,0 +1,882 @@
+---
+title: "Advanced R: Vectors"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss", customReveal.scss]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+---
+
+## Types of Vectors
+
+::: {.columns}
+::: {.column}
+
+There are two types of vectors: 
+
+- Atomic (elements must be the same type)
+- Lists (elements can be a different type)
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/vectors/summary-tree.png){.nostretch}
+
+:::
+:::
+
+`NULL` is closely related to vectors and often serves the role of a generic zero
+length vector. 
+
+## Atomic Vectors
+
+::: {.columns}
+::: {.column}
+
+Atomic Vector Types:
+ 
+- Logical (TRUE/T or FALSE/F)
+- Integer (1234L or 1e4L)
+- Double (0.1234 or 1.23e4)
+- Character (surrounded by "" or '')
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/vectors/summary-tree-atomic.png){.nostretch}
+
+:::
+:::
+
+Both integer and double vectors are known as numeric vectors.
+
+::: {.highlight-box}
+**Complex** and **raw** vectors are atomic vectors that are rarely used. Raw vectors are
+used in handling binary data. 
+:::
+
+. . .
+
+```{r}
+#| echo: true
+
+lgl_var <- c(TRUE, FALSE)
+int_var <- c(1L, 6L, 10L)
+dbl_var <- c(1, 2.5, 4.5)
+chr_var <- c("these are", "some strings")
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/vectors/atomic.png){width="70%" .nostretch}
+
+## Testing and Coercion
+
+You can test if a vector is a certain type with `is.*()`
+
+```{r}
+#| echo: true
+#| eval: false
+
+is.logical(lgl_var)
+#> TRUE
+is.integer(int_var)
+#> TRUE
+is.double(dbl_var)
+#> TRUE
+is.character(chr_var)
+#> TRUE
+is.numeric(int_var) & is.numeric(dbl_var)
+#> TRUE
+
+```
+
+Combining elements of different types coerces them in a fixed order: 
+
+**character** &rarr; **double** &rarr; **integer** &rarr; **logical**
+
+::: {.columns}
+::: {.column}
+
+A character and integer yields a character.
+
+```{r}
+#| echo: true
+#| eval: false
+
+str(c("a", 1))
+#> chr[1:2] "a" "1"
+
+as.integer(c("1", "1.5", "a"))
+#> Warning: NAs introduced by coercion
+#> [1] 1 1 NA
+
+```
+
+:::
+::: {.column}
+
+Mathematical functions coerce to numeric.
+
+```{r}
+#| echo: true
+#| eval: false
+
+as.numeric(c(FALSE, TRUE, TRUE))
+#> [1] 0 1 1
+
+# Total Number of TRUEs
+sum(c(FALSE, TRUE, TRUE))
+#> [1] 2
+
+```
+
+:::
+::: 
+
+## Attributes
+
+Every vector has attributes name-value pairs in the form of a list that attach metadata to an object
+
+**Dimension** and **class** attributes are among the most important:
+
+- Dimension: Turns vectors into matrices and arrays
+- Class: Powers the S3 generic functions
+
+Individual attributes can be retrieved and modified with `attr` 
+
+```{r}
+#| echo: true
+#| eval: false
+
+file <- system.file("extdata/example.gt3x", package = "agcounts")
+data <- agcounts::agread(file, parser = "read.gt3x")
+
+attr(data, "start_time")
+#> [1] "2023-06-13 08:34:00 GMT"
+attr(data, "sample_rate")
+#> [1] 100
+```
+
+Many attributes can be retrieved with `attributes` or set with `structure`
+
+::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: true
+#| eval: false
+
+a <- structure(
+  1:3,
+  x = "abcdef",
+  y = 4:6
+)
+
+str(attributes(a))
+
+```
+
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/vectors/attr.png){width="70%" .nostretch}
+:::
+:::
+
+```{r}
+#| echo: false
+
+a <- structure(
+  1:3,
+  x = "abcdef",
+  y = 4:6
+)
+
+str(attributes(a))
+
+```
+
+Attributes are lost by most operations.
+
+```{r}
+#| echo: true
+#| eval: false
+
+attributes(sum(a))
+#> NULL
+
+```
+
+Only two attributes are routinely preserved: **names** and **dim**
+
+## names
+
+A character vector giving each element a name. There are different ways to name a vector: 
+
+```{r}
+#| echo: true
+
+# (1) When creating it
+x <- c(a = 1, b = 2, c = 3)
+
+# (2) Assigning a character vector to names
+x <- 1:3
+names(x) <- c("a", "b", "c")
+
+# Or piping (more useful for data frames with colnames)
+x <- x |>
+  `names<-`(c("a", "b", "c"))
+
+# Inline with setNames:
+x <- setNames(1:3, c("a", "b", "c"))
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/vectors/attr-names-1.png){width="50%" .nostretch}
+
+## dim
+
+An integer vector short for dimensions that turns vectors into matrices or arrays
+
+Adding a dim attribute to a vector allows it to become a 2-dimensional matrix or 
+multi-dimensional array. Matrices and arrays are primarily used for mathematical and 
+statistical tools. You can create them using `matrix()` or `array()` but also by 
+modifying the dimensions. 
+
+
+```{r}
+#| echo: true
+
+x <- 1:6
+dim(x) <- c(3, 2) # or matrix(x, nrow = 3, ncol = 2)
+print(x)
+
+y <- 1:12
+dim(y) <- c(3, 2, 2) # or array(y, c(3, 2, 2))
+print(y)
+
+```
+
+## class
+
+The attribute **class** turns an object into an **S3 object**, changing how it is handled when
+passed to a **generic** function.
+
+::: {.columns}
+::: {.column}
+
+Every S3 object is built on a base type. Four important S3 vectors used in base R include: 
+
+- factor: categorical data with a fixed set of levels
+- date: Dates with day resolution
+- POSIXct: Date-times with second or sub-second resolution
+- difftime: durations
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/vectors/summary-tree-s3-1.png){.nostretch}
+
+:::
+:::
+
+## Factors
+
+An integer vector that contains predefined values to store categorical data
+
+Factors have two attributes:
+
+- A class of **factor** to differentiate it from **integer** vectors
+- Levels to define the set of allowed values
+
+::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: true
+#| eval: false
+
+x <- factor(
+  c("a", "b", "b", "a")
+)
+typeof(x)
+#> [1] integer
+str(attributes(x))
+#> List of 2
+#>  $ levels: chr [1:2] "a" "b"
+#>  $ class : chr "factor"
+
+```
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/vectors/factor.png){.nostretch}
+
+:::
+:::
+
+Factors are useful when you know the set of possible values but they are not all present in the dataset.
+Applying labels convert the levels attribute to the labels.
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+sex_char <- c("m", "m", "m")
+sex_factor <- factor(
+  sex_char,
+  levels = c("m", "f"),
+  labels = c("Male", "Female")
+)
+
+table(sex_char)
+#> sex_char
+#> m
+#> 3
+
+table(sex_factor)
+#> sex_factor
+#> Male Female
+#>  3     0
+
+str(attributes(sex_factor))
+#> List of 2
+#>  $ levels: chr [1:2] "Male" "Female"
+#>  $ class : chr "factor"
+
+```
+
+## Dates
+
+**Date** vectors are built on top of **double** vectors. 
+
+```{r}
+#| echo: true
+#| eval: false
+
+today <- Sys.Date()
+typeof(today)
+#> [1] "double"
+str(attributes(today))
+#> List of 1
+#> $ class: chr "Date"
+
+```
+
+Removing the class shows the number of days since **1970-01-01** (the Unix Epoch)
+
+```{r}
+#| echo: true
+
+unclass(as.Date(Sys.Date()))
+
+```
+
+## Date-times
+
+Date-time information can be stored as **POSIXct** or **POSIXlt**
+
+- POSIX is short for *Portable Operating System Interface*
+- **ct**: standards for calendar time (the time_t type in C)
+- **lt**: standards for local time (the struct tm type in C)
+
+POSIXct is the simplest, built on top of double vectors, and used most in data frames.
+The value represents the number of seconds since **1970-01-01** (the Unix Epoch).
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+typeof(as.POSIXct(Sys.time(), tz = "UTC"))
+#> [1] "double"
+
+str(attributes(as.POSIXct(Sys.time(), tz = "UTC")))
+#> List of 2
+#> $ class: chr [1:2] "POSIXct" "POSIXt"
+#> $ tzone: chr "UTC"
+
+```
+
+::: {.highlight-box}
+
+The **tz** attribute contols how the date-time object is formatted and not the instance of time represented by the vector.
+
+:::
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+mytime <- as.POSIXct("2025-06-11 11:00:00", tz = "America/Chicago")
+as.POSIXct(mytime, tz = "UTC")
+#> [1] "2025-06-11 16:00:00 UTC"
+as.numeric(unclass(as.POSIXct(mytime, tz = "UTC")))
+#> [1] 1749657600
+as.numeric(unclass(mytime))
+#> [1] 1749657600
+
+```
+
+## Durations
+
+The amount of time between pairs of dates or date-times. 
+
+Difftimes are built on top of double vectors
+
+- Includes a **units** attribute to determine how to interpret the integer
+- **difftime** units include seconds, minutes, hours, days, and weeks
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+birth_date_time <- as.POSIXct("1992-04-01 10:25:00", tz = "UTC")
+visit_date_time <- as.POSIXct("2025-03-15 09:00:00", tz = "UTC")
+
+difftime(visit_date_time, birth_date_time, units = "secs")
+#> Time difference of 1039905300 secs
+
+difftime(visit_date_time, birth_date_time, units = "days")
+#> Time difference of 12035.94 days
+
+```
+
+We can divide by 365.25 to calculate a measure like age, applying `as.numeric`
+to *unclass and remove the units attribute*.
+
+```{r}
+#| echo: true
+#| eval: false
+
+as.numeric(
+  difftime(visit_date_time, birth_date_time, units = "days")
+) /
+  365.25
+#> [1] 32.95261
+
+```
+
+
+## Lists
+
+More complex than atomic vectors as each element in a list can be any type (not only atomic vectors).
+
+You can construct a list with `list()`
+
+```{r}
+#| echo: true
+#| eval: false
+
+l1 <- list(
+  1:3,
+  "a",
+  c(TRUE, FALSE, TRUE),
+  c(2.3, 5.9)
+)
+
+typeof(l1)
+#> [1] "list"
+
+str(l1)
+#> List of 4
+#>  $ : int [1:3] 1 2 3
+#>  $ : chr "a"
+#>  $ : logi [1:3] TRUE FALSE TRUE
+#>  $ : num [1:2] 2.3 5.9
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/vectors/list.png){width="80%" .nostretch}
+
+Lists are sometimes referred to as **recursive** vectors since they can contain
+other lists.
+
+::: {.columns}
+::: {.column}
+```{r}
+#| echo: true
+#| eval: false
+
+l2 <- list(list(list(1)))
+str(l2)
+
+#> List of 1
+#>  $ :List of 1
+#>   ..$ :List of 1
+#>   .. ..$ : num 1
+
+```
+
+:::
+::: {.column}
+
+<p align = "center">
+  <img src="https://adv-r.hadley.nz/diagrams/vectors/list-recursive.png" class = "nostretch" width="50%" />
+</p>
+
+:::
+:::
+
+::: {.tip-box}
+
+**Testing and Coercion**: Use `is.list()` to test for a list and `as.list` to coerce to a list. 
+You can also turn a list into an atomic vector with `unlist()`.
+
+:::
+
+## Data frames
+
+A data frame is a named list of vectors built on top of lists with attributes for (column) 
+*names*, *row.names*, and the *data.frame* class.
+
+```{r}
+#| echo: true
+#| eval: false
+
+df <- data.frame(x = 1:3, y = letters[1:3])
+typeof(df)
+#> [1] "list"
+
+str(attributes(df))
+#> List of 3
+#>  $ names    : chr [1:2] "x" "y"
+#>  $ class    : chr "data.frame"
+#>  $ row.names: int [1:3] 1 2 3
+
+```
+
+Data frames share properties of both matrices and lists but differ from lists in that the
+length of each of its vectors must be the same.
+
+- A data frame has `rownames()` and `colnames()` with `names()` of a data frame 
+being the column names. 
+- A data frame has `nrow()` rows and `ncol()` columns and the `length()` of a data frame
+gives the number of columns. 
+
+## Tibbles
+
+Share the same structure as data frames but have some key differences: 
+
+A **tbl_df** and **tbl** class.
+
+```{r}
+#| echo: true
+#| eval: false
+
+library(tibble)
+df <- tibble(x = 1:3, y = letters[1:3])
+typeof(df)
+#> [1] "list"
+
+str(attributes(df))
+#> List of 3
+#>  $ class    : chr [1:3] "tbl_df" "tbl" "data.frame"
+#>  $ row.names: int [1:3] 1 2 3
+#>  $ names    : chr [1:2] "x" "y"
+
+```
+
+Allows non-syntactic names without needing to set `check.names` to FALSE
+
+```{r}
+#| echo: true
+#| eval: false
+
+names(data.frame(`1` = 1))
+#> [1] "X1"
+
+names(data.frame(`1` = 1, check.names = FALSE))
+#> [1] "1"
+
+names(tibble(`1` = 1))
+#> [1] "1"
+
+```
+
+Tibbles only recycle vectors of length one while data frames recycle columns that
+are an integer multiple of the longest column.
+
+```{r}
+#| echo: true
+#| eval: false
+
+data.frame(x = 1:4, y = 1:2)
+#>   x y
+#> 1 1 1
+#> 2 2 2
+#> 3 3 1
+#> 4 4 2
+
+tibble(x = 1:4, y = 1)
+#> # A tibble: 4 × 2
+#>       x     y
+#>   <int> <dbl>
+#> 1     1     1
+#> 2     2     1
+#> 3     3     1
+#> 4     4     1
+
+# Raises an error
+data.frame(x = 1:4, y = 1:3)
+tibble(x = 1:4, y = 1:2)
+
+```
+
+Evaluates inputs left-to-right to allow you to refer to variables during construction.
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+tibble(
+  x = 1:3,
+  y = x * 2
+)
+#> # A tibble: 3 × 2
+#>       x     y
+#>   <int> <dbl>
+#> 1     1     2
+#> 2     2     4
+#> 3     3     6
+
+```
+
+## Printing {.pattern-dots}
+
+The `print` function is an example of a generic function and hanldes tibbles different
+than data frames due to the `tbl_df` and `tbl` classes. Differences in how tibbles 
+print include: 
+
+- Only show the first 10 rows and all the columns that fit on the screen with
+additional columns shown at the bottom.
+- Each column is labelled with its type, abbreviated to three or four letters
+- Wide columns are truncated to avoid long strings occupying an entire row.
+- Color is used to highlight important information in console environments that support it.
+
+```{r}
+#| echo: true
+#| eval: false
+
+dplyr::starwars
+
+#> # A tibble: 87 × 14
+#>    name  height  mass hair_color skin_color eye_color birth_year
+#>    <chr>  <int> <dbl> <chr>      <chr>      <chr>          <dbl>
+#>  1 Luke…    172    77 blond      fair       blue            19
+#>  2 C-3PO    167    75 NA         gold       yellow         112
+#>  3 R2-D2     96    32 NA         white, bl… red             33
+#>  4 Dart…    202   136 none       white      yellow          41.9
+#>  5 Leia…    150    49 brown      light      brown           19
+#>  6 Owen…    178   120 brown, gr… light      blue            52
+#>  7 Beru…    165    75 brown      light      blue            47
+#>  8 R5-D4     97    32 NA         white, red red             NA
+#>  9 Bigg…    183    84 black      light      brown           24
+#> 10 Obi-…    182    77 auburn, w… fair       blue-gray       57
+#> # ℹ 77 more rows
+#> # ℹ 7 more variables: sex <chr>, gender <chr>, homeworld <chr>,
+#> #   species <chr>, films <list>, vehicles <list>, starships <list>
+#> # ℹ Use `print(n = ...)` to see more rows
+
+```
+
+## Subsetting
+
+Tibbles do not return a vector when subsetting a single column.
+
+```{r}
+#| echo: true
+#| eval: false
+
+df <- data.frame(abc = 1:3, xyz = 4:6)
+df[, "abc"]
+#> [1] 1 2 3
+tibble(df)[, "abc"]
+#> # A tibble: 3 × 1
+#>     abc
+#>   <int>
+#> 1     1
+#> 2     2
+#> 3     3
+
+```
+
+::: {.tip-box}
+
+You can use **drop = TRUE** or **[[ ]]** to achieve the default data frame behavior.
+
+:::
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Default data frame behavior
+tibble(df)[, "abc", drop = TRUE]
+tibble(df)[["abc"]]
+
+```
+
+Tibbles do not partial match column names when using `$` whereas data frames will 
+return any variable starting with the first character, increasing the chance of
+selecting the wrong variable.
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+df <- data.frame(abc = 1:3, xyz = 4:6)
+
+df$x
+#> [1] 4 5 6
+
+tibble(df)$x
+#> Warning message: Unknown or uninitialised column: `x`.
+#> NULL
+
+```
+
+## Testing and Coercion {.pattern-grid}
+
+`is.data.frame` and `is.tibble` can be used to check if an object is a tibble 
+or data frame. All tibbles are data frames but data frames are not tibbles.
+
+```{r}
+#| echo: true
+#| eval: false
+
+df <- data.frame(abc = 1:3, xyz = 4:6)
+
+is.data.frame(df)
+#> [1] TRUE
+is.data.frame(tibble(df))
+#> [1] TRUE
+is_tibble(df)
+#> [1] FALSE
+is_tibble(tibble(df))
+#> [1] TRUE
+
+```
+
+Coercion between a data frame and tibble is done with `as.data.frame` and `as_tibble`, 
+but you can also change the class attributes.
+
+```{r}
+#| echo: true
+#| eval: false
+
+is.data.frame(df)
+#> [1] TRUE
+
+attr(df, "class") <- c("tbl_df", "tbl", "data.frame")
+
+is.tibble(df)
+#> [1] TRUE
+
+```
+
+## List and Matrix columns
+
+List- and matrix-columns are allowed in data frames. Including lists in a data frame
+allows you to put any object into the data frame and keep related objects together in
+a row.
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+data.frame(
+  x = 1:3,
+  y = I(list(1:2, 1:3, 1:4))
+)
+
+#>   x          y
+#> 1 1       1, 2
+#> 2 2    1, 2, 3
+#> 3 3 1, 2, 3, 4
+
+tibble(
+  x = 1:3,
+  y = list(1:2, 1:3, 1:4)
+)
+
+#> # A tibble: 3 × 2
+#>       x y
+#>   <int> <list>
+#> 1     1 <int [2]>
+#> 2     2 <int [3]>
+#> 3     3 <int [4]>
+
+```
+
+::: {.tip-box}
+
+`I()` is short for identity and suggests the input should be left alone and not
+automatically transformed. It is only needed for data frames and not tibbles.
+
+:::
+
+Matrices and data frames can also be included in a column as long as the rows are equal
+to the data frame.
+
+```{r}
+#| echo: true
+#| eval: false
+
+df <- data.frame(x = 1:3 * 10)
+df$y <- matrix(1:9, nrow = 3)
+df$z <- data.frame(a = 3:1, b = letters[3:1])
+str(df)
+#> 'data.frame':	3 obs. of  3 variables:
+#>  $ x: num  10 20 30
+#>  $ y: int [1:3, 1:3] 1 2 3 4 5 6 7 8 9
+#>  $ z:'data.frame':	3 obs. of  2 variables:
+#>   ..$ a: int  3 2 1
+#>   ..$ b: chr  "c" "b" "a"
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/vectors/data-frame-matrix.png){width="50%" .nostretch}
+
+## NULL
+
+A unique type that is always length zero and cannot have any attributes
+
+```{r}
+#| echo: true
+#| eval: false
+
+typeof(NULL)
+#> [1] NULL
+length(NULL)
+#> [1] 0
+x <- NULL
+attr(x, "y") <- 1
+#> Error in `attr(x, "y") <- 1`: attempt to set an attribute on NULL
+
+```
+
+NULL is commonly used to: 
+
+- Represent an empty vector (length 0) of an arbitrary type
+- Represent an absent vector (e.g., an optional argument in a function)
