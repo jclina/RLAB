@@ -23,69 +23,97 @@ format:
 
 ## What are R and RStudio? {.title-slide}
 
-**What is R?**  
+**What is R?**
+
 R is a **programming language** for statistical computing and graphics.
 
 **What is RStudio?**  
+
 RStudio is an **Integrated Development Environment (IDE)** — a software that provides a user-friendly interface to write, organize, and run R code more easily.
 
 . . . 
 
-**Analogy**  
-R is like a **car engine** and RStudio is like a car **dashboard**. 
 ![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png)
-:::
+
+**Analogy**: R is like a **car engine** and RStudio is like a car **dashboard**. 
 
 ## Components of RStudio {.pattern-dots}
 
-![](https://docs.posit.co/ide/user/ide/get-started/images/rstudio-panes-labeled.jpeg)
-**Console**  
-The place where you can type and run R commands directly. It shows immediate results and error messages.
+::: {.columns}
 
-**Source Editor**  
-Where you write, edit, and save your R scripts or programs. You can run parts or all of your code from here.
+::: {.column}
 
-**Environment/History**  
-Shows the data objects (like variables, data frames) currently in memory and keeps a history of commands you’ve run.
+| Component | Description |
+|-----------|-------------|
+| Console | Run R commands directly and view error messages |
+| Source | Write, edit, and save scripts or projects |
+| Environment | Shows data objects (e.g., variables, data frames) |
+| Output | Displays plots and tables.
 
-**Plots**  
-Displays graphs and charts created by your R code for visual data analysis.
+:::
 
-**Files/Packages/Help/Viewer**  
-- **Files:** Manage your project files and folders.  
-- **Packages:** Install and load add-ons that extend R’s functionality.  
-- **Help:** Access documentation and help files.  
-- **Viewer:** Display web content or interactive visualizations within RStudio.
+::: {.column}
 
-**Terminal**  
-A command-line interface where you can run system commands or use other programming languages alongside R.
+![](https://docs.posit.co/ide/user/ide/guide/ui/images/rstudio-panes-labeled.jpeg){.nostretch}
+
+:::
+
+:::
+
+. . .
+
+Additional components and functions:
+
+- **History**: Keeps track of the commands you’ve run.
+- **Files**: Manage your project files and folders.  
+- **Packages**: Install and load add-ons that extend R’s functionality.  
+- **Help**: Access documentation and help files.  
+- **Viewer**: Display web content or interactive visualizations within RStudio.
+- **Terminal**: A command-line interface where you can run system commands or use other programming languages alongside R.
 
 ## Starting a Project in RStudio {.pattern-dots} 
 
 ::: {.columns}
-::: {.column width="30%"} 
+::: {.column}
+**Starting a Project**
 
-**Starting a Project**  
-- Keeps files and work organized by project.  
+- Keeps files organized by project.  
 - Prevents mixing data or scripts from different analyses.  
 - Makes sharing and reproducing work easier.
-![](https://bradleyboehmke.github.io/uc-bana-7025/images/new_project.png)
+
+:::
+::: {.column}
+![](https://bradleyboehmke.github.io/uc-bana-7025/images/new_project.png){.nostretch}
+:::
+:::
+
+. . .
+
+::: {.columns}
+
+::: {.column} 
 
 **What is the Working Directory?**  
+
 - The folder where R reads and saves files by default.  
 - Acts as R’s “home folder” during your session.
 
+:::
+
+::: {.column} 
+
+**Setting the working directory**
+![](https://raw.githubusercontent.com/NEONScience/NEON-Data-Skills/main/graphics/r-skills/RStudio-GUI-setWD.png){.nostretch}
+
+:::
+
+::: 
+
 **How the Working Directory Works with Projects**  
+
 - When you start a new project, RStudio sets the working directory to that project’s folder.  
 - Any files you create or export are saved there by default.  
 - This helps keep all your project files together and easy to find.
-
-
-
-**Setting the working directory**
-![](https://raw.githubusercontent.com/NEONScience/NEON-Data-Skills/main/graphics/r-skills/RStudio-GUI-setWD.png)
-:::
-::: 
 
 
 ## Packages and Functions in R 
@@ -100,23 +128,36 @@ A command-line interface where you can run system commands or use other programm
 
 Think of it like a toolbox. A package is like a toolbox, and a function is a specific tool in the box. 
 
-**Essential Packages** 
+**Essential `tidyverse` Packages** 
 
 | Package | Purpose | Example Functions |
 |---------|---------|---------|
 | dplyr | Data wrangling | filter, select, mutate | 
-| tidyverse/tidyr | Data organization | pivot_longer, drop_na |
+| tidyr | Data organization | pivot_longer, drop_na |
 | ggplot2 |Data Visualization | geom_point, facet_wrap | 
 | readr | Data Import | read_csv |
 
 
 ## Basics of Using a Function
 
+::: {.columns}
+::: {.column}
+
 - In order to use a function, you have to feed it the information it needs to complete its task
-- To figure out what it needs, you can use the help function **help(function_name)** or its shortcut
-**?function_name**. You can also click the "Help" tab
-- Here you will read about the package usage, descriptions arguments, details etc. 
-![](https://intro2r.com/images/rs_help.png) 
+- You can use the help function **help(function_name)** or its shortcut **?function_name**. You can also click the "Help" tab.
+- Here you read about the package usage, descriptions arguments, details etc. 
+
+:::
+::: {.column}
+
+![](https://intro2r.com/images/rs_help.png){.nostretch}
+
+:::
+:::
+
+
+
+
 
 ## Making Your Very Own Function! 
 
@@ -128,7 +169,7 @@ Think of it like a toolbox. A package is like a toolbox, and a function is a spe
 library(dplyr)
 
 fahrenheit_to_celsius <- function(f_temp) {
-  c_temp <- (f_temp - 32) * 5/9
+  c_temp <- (f_temp - 32) * 5 / 9
   return(c_temp)
 }
 fahrenheit_to_celsius(98.6)
@@ -151,11 +192,15 @@ get_bmi_category(85, 1.54)
 ## Package Cheat Sheets
 
 **tidyverse** 
+
 ![](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/tidyr-thumbs.png)
-**ggplot2 **
+
+**ggplot2**
+
 ![](https://rstudio.github.io/cheatsheets/pngs/data-visualization.png)
 
-**dplyr **
+**dplyr**
+
 ![](https://rstudio.github.io/cheatsheets/pngs/data-transformation.png) 
 
 
@@ -168,6 +213,7 @@ get_bmi_category(85, 1.54)
 - Stay consistent with collaborators and tutorials  
 
 When you open R Studio it will tell you what version you are using 
+
 ![](http://mercury.webster.edu/aleshunas/R_learning_infrastructure/images/R%20version%20screen.png)
 
 **Update RStudio**
@@ -180,8 +226,8 @@ When you open R Studio it will tell you what version you are using
 
 **Update Your Packages**
 
-Updated packages makes sure you are working with the latest versions which cna include fixes of old bugs
-Occasionally, if in the middle of an analysis or project, updated a package might not be desirable
+Updated packages makes sure you are working with the latest versions which can include fixes of old bugs.
+Occasionally, if in the middle of an analysis or project, updated a package might not be desirable.
 
 **Tools → Check for Package Updates** → Select and update
 ![](https://r.kellogg.northwestern.edu/images/software_update_packages.png)
@@ -191,7 +237,13 @@ Occasionally, if in the middle of an analysis or project, updated a package migh
 ![](https://media.geeksforgeeks.org/wp-content/uploads/20240109145522/update-package-GFG-(1).jpg)
 
 **OR**
-Use: update.packages(ask=FALSE) or install.packages("package_name", dependencies = TRUE, update = TRUE)
+
+Use:
+
+- `update.packages(ask=FALSE)`
+- `install.packages("package_name")` 
+
+Set the dependencies argument to `TRUE` for installing the package "Suggests" (default is to install "Depends", "Imports", and "LinkingTo") 
 
 ## Data Types in R {.pattern-grid}
 
@@ -211,7 +263,7 @@ Use: update.packages(ask=FALSE) or install.packages("package_name", dependencies
 
 . . . 
 
-:::{.code-box}
+::: {.code-box}
 
 ```{r}
 #| echo: true
@@ -241,7 +293,7 @@ class(has_hypertension)
 - Functions behave differently depending on type
 - Mistakes often create **errors** (and that’s OK!)
 
-:::{.code-box}
+::: {.code-box}
 
 ```{r}
 #| echo: true
@@ -249,10 +301,10 @@ class(has_hypertension)
 
 # Numeric vs. character: Addition
 num1 <- 5
-num1 + 2 
+num1 + 2
 
 num2 <- "5"
-num2 + 2        
+num2 + 2
 
 # Logical used in math
 x <- TRUE
@@ -261,27 +313,28 @@ sum(c(x, y, TRUE))
 
 # Sorting: numeric vs. character
 ages <- c(15, 9, 2)
-sort(ages)  
+sort(ages)
 
 as_char <- as.character(ages)
-sort(as_char)   
+sort(as_char)
 
-# Missing Data 
+# Missing Data
 # Numeric NA
 num_values <- c(100, NA, 200)
-mean(num_values)          
-mean(num_values, na.rm=TRUE)
+mean(num_values)
+mean(num_values, na.rm = TRUE)
 
 # Logical NA
 logical_values <- c(TRUE, NA, FALSE)
-sum(logical_values) 
-sum(logical_values, na.rm=TRUE)   
+sum(logical_values)
+sum(logical_values, na.rm = TRUE)
 
 # Character NA
 char_values <- c("yes", NA, "no")
-paste("Answer:", char_values)  
+paste("Answer:", char_values)
 
 ```
+
 :::
 
 ## Vectors in R
@@ -290,20 +343,22 @@ paste("Answer:", char_values)
 - Vectors are **everywhere** in R — for example, each column in a data frame is a vector.
 - It is a sequence of values that are **all the same data type** (if not, R will force it to be)
 
-:::{.code-box}
+::: {.code-box}
+
 ```{r}
 #| echo: true
 v1 <- c(1:5)
 is.numeric(v1)
 
-v2 <-c("cat", "house", "bunny")
+v2 <- c("cat", "house", "bunny")
 is.character(v2)
 
-v3 <-c(v1,v2)
+v3 <- c(v1, v2)
 v3
 is.character(v3)
 
 ```
+
 :::
 
 ## Factor
@@ -312,7 +367,8 @@ is.character(v3)
 - Used when there is an order or levels to a variable (i.e "short", "medium", "tall")
 - Responds differently to certain functions 
 
-:::{.code-box}
+::: {.code-box}
+
 ```{r}
 #| echo: true
 bloodtype_vector <- c("A", "B", "AB", "O")
@@ -324,11 +380,15 @@ summary(bloodtype_factor)
 height_vector <- c("tall", "short", "medium", "extra tall", "very short")
 sort(height_vector)
 
-height_factor <-factor(height_vector,
-                       ordered=TRUE,
-                       levels = c("very short", "short", "medium", "tall", "extra tall"))
+height_factor <- factor(
+  height_vector,
+  ordered = TRUE,
+  levels = c("very short", "short", "medium", "tall", "extra tall")
+)
 sort(height_factor)
+
 ```
+
 :::
 
 ## Lists
@@ -337,6 +397,7 @@ sort(height_factor)
 - Useful for storing models, results, or datasets together.
 
 ```{r}
+
 #| echo: true
 my_list <- list(
   name = "Bill",
@@ -345,6 +406,7 @@ my_list <- list(
   passed = TRUE
 )
 my_list
+
 ```
 
 ## Data Structures 
@@ -373,23 +435,24 @@ Sometimes, base R data frames will let you access columns by partially matching 
 
 Tibbles require **exact column names**, preventing this problem.
 
-:::{.code-box}
+::: {.code-box}
+
 ```{r}
 #| echo: true
 #| error: true
 library(tibble)
 
 df1 <- data.frame(experiment_group = c("control", "treatment"))
-df1$experiment  
+df1$experiment
 tb1 <- tibble(experiment_group = c("control", "treatment"))
-tb1$experiment   
+tb1$experiment
 
 # Example where partial matching can cause bugs:
 df <- data.frame(
   age = c(25, 30, 45),
   average_height = c(55, 62, 50)
 )
-df$grad_age <- df$ave + 5  
+df$grad_age <- df$ave + 5
 print(df)
 
 
@@ -397,7 +460,7 @@ tb <- tibble(
   age = c(25, 30, 45),
   average_height = c(55, 62, 50)
 )
-tb$grad_age <- tb$ave + 5  
+tb$grad_age <- tb$ave + 5
 
 # Create and print normal data frame and tibble for comparison
 df3 <- data.frame(id = 1:24, name = rep(c("Ann", "Ben", "Cam"), 8))
@@ -407,7 +470,9 @@ df3
 tb3 <- tibble(id = 1:24, name = rep(c("Ann", "Ben", "Cam"), 8))
 class(tb3)
 tb3
+
 ```
+
 :::
 
 ## GitHub and CRAN
