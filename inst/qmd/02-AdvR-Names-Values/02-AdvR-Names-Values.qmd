@@ -6,7 +6,7 @@ institute: "University of Kansas Medical Center"
 date: today
 format:
   revealjs:
-    theme: [default, "../../styles/styleReveal.scss", customReveal.scss]
+    theme: [default, "../../styles/styleReveal.scss"]
     slide-number: true
     preview-links: auto
     logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
