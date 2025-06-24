@@ -179,6 +179,8 @@ The `tidyverse` is a collection of packages in R that are designed for data scie
 - Writing your own functions helps increase efficiency if doing the same task over and over 
 - Components of the function are the function name, input, code that explains what you want the function to do, and the output
 
+::: {.code-box}
+
 ```{r}
 #| echo: true
 library(dplyr)
@@ -203,6 +205,8 @@ get_bmi_category(85, 1.54)
 
 
 ```
+
+:::
 
 ## Package Cheat Sheets
 
@@ -355,7 +359,6 @@ paste("Answer:", char_values)
 
 :::
 
-
 ## Vectors in R
 
 - A **vector** is the most basic data structure in R.
@@ -415,6 +418,8 @@ sort(height_factor)
 - A **list** can hold elements of different types and lengths (unlike a vector)
 - Useful for storing models, results, or datasets together.
 
+::: {.code-box}
+
 ```{r}
 
 #| echo: true
@@ -428,6 +433,8 @@ my_list
 
 ```
 
+:::
+
 ## Combining Vectors or Lists in R
 
 You can use the `c()` function to concatenate values into a vector or list.
@@ -435,6 +442,8 @@ These can be simple or you can combine lists or nested structures.
 The argument `recursive = TRUE/FALSE` is useful when combining lists or nested structures.
 Set `recursive = TRUE` to flatten the input.
 Set `recursive = FALSE` to preserve the structure.
+
+::: {.code-box}
 
 ```{r}
 #| echo: true
@@ -466,6 +475,8 @@ flattened <- c(people, recursive = TRUE)
 str(flattened)
 
 ```
+
+:::
 
 ## Data Structures 
 
