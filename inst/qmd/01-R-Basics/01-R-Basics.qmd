@@ -1,12 +1,12 @@
 ---
 title: "Basics of R"
-subtitle: "A Statistical Computing Environment"
-author: "Julianne Clina"
+subtitle: "R-LAB (R for Lifestyle and Brain Health)"
+author: "Julianne Clina, PhD"
 institute: "University of Kansas Medical Center"
 date: June 25 2025
 format:
   revealjs:
-    theme: [default, "../../styles/styleReveal.scss", customReveal.scss]
+    theme: [default, "../../styles/styleReveal.scss"]
     slide-number: true
     preview-links: auto
     logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
@@ -21,6 +21,16 @@ format:
     embed-resources: true
 ---
 
+## Downloading this presentation (or anything from Github!){.pattern-dots}
+
+Make sure you have the "remotes" package downloaded
+
+1. Install the package you are trying to download 
+`(devtools::install_github("bhelsel/RLAB")`
+2. Call in the function from the package and set any parameters 
+`(RLAB::render_presentation(outdir = "whereever_you_want_this_stored", name = "01"))`
+
+
 ## What are R and RStudio? {.title-slide}
 
 **What is R?**
@@ -33,9 +43,11 @@ RStudio is an **Integrated Development Environment (IDE)** — a software that p
 
 . . . 
 
-![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png)
+![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png){.nostretch}
 
 **Analogy**: R is like a **car engine** and RStudio is like a car **dashboard**. 
+
+:::
 
 ## Components of RStudio {.pattern-dots}
 
@@ -116,26 +128,35 @@ Additional components and functions:
 - This helps keep all your project files together and easy to find.
 
 
+:::
+
 ## Packages and Functions in R 
 
 **What is a Package?** 
 
-- A set of functions, data, or code designed to accomplish specific tasks  
+- A set of functions, data, or code designed to accomplish specific tasks
+
 
 **What is a Function?** 
 
 - Functions **take input**, **do something**, and **return output**
 
+::: {.highlight-box}
 Think of it like a toolbox. A package is like a toolbox, and a function is a specific tool in the box. 
+:::
+
+The `tidyverse` is a collection of packages in R that are designed for data science. 
 
 **Essential `tidyverse` Packages** 
 
 | Package | Purpose | Example Functions |
 |---------|---------|---------|
-| dplyr | Data wrangling | filter, select, mutate | 
-| tidyr | Data organization | pivot_longer, drop_na |
+| dplyr | Data Wrangling | filter, select, mutate | 
+| tidyr | Data Organization | pivot_longer, drop_na |
 | ggplot2 |Data Visualization | geom_point, facet_wrap | 
 | readr | Data Import | read_csv |
+
+:::
 
 
 ## Basics of Using a Function
@@ -144,7 +165,7 @@ Think of it like a toolbox. A package is like a toolbox, and a function is a spe
 ::: {.column}
 
 - In order to use a function, you have to feed it the information it needs to complete its task
-- You can use the help function **help(function_name)** or its shortcut **?function_name**. You can also click the "Help" tab.
+- You can use the help function `help(function_name)` or its shortcut `?function_name`. You can also click the "Help" tab.
 - Here you read about the package usage, descriptions arguments, details etc. 
 
 :::
@@ -154,7 +175,6 @@ Think of it like a toolbox. A package is like a toolbox, and a function is a spe
 
 :::
 :::
-
 
 
 
@@ -189,6 +209,9 @@ get_bmi_category(85, 1.54)
 
 ```
 
+:::
+
+
 ## Package Cheat Sheets
 
 **tidyverse** 
@@ -202,6 +225,7 @@ get_bmi_category(85, 1.54)
 **dplyr**
 
 ![](https://rstudio.github.io/cheatsheets/pngs/data-transformation.png) 
+:::
 
 
 ## Updating R Studio and Packages
@@ -215,6 +239,7 @@ get_bmi_category(85, 1.54)
 When you open R Studio it will tell you what version you are using 
 
 ![](http://mercury.webster.edu/aleshunas/R_learning_infrastructure/images/R%20version%20screen.png)
+:::
 
 **Update RStudio**
 
@@ -234,10 +259,6 @@ Occasionally, if in the middle of an analysis or project, updated a package migh
 
 **OR**
 
-![](https://media.geeksforgeeks.org/wp-content/uploads/20240109145522/update-package-GFG-(1).jpg)
-
-**OR**
-
 Use:
 
 - `update.packages(ask=FALSE)`
@@ -245,7 +266,9 @@ Use:
 
 Set the dependencies argument to `TRUE` for installing the package "Suggests" (default is to install "Depends", "Imports", and "LinkingTo") 
 
-## Data Types in R {.pattern-grid}
+:::
+
+## Atomic Data Types in R {.pattern-grid}
 
 **Fundamental Data Types**
 
@@ -256,11 +279,16 @@ Set the dependencies argument to `TRUE` for installing the package "Suggests" (d
 
 | Data Type| Example | Use |
 |---------|---------|---------|
-| numeric | 120, 34.2 | blood pressures, bmi | 
+| double| 120, 34.2 | blood pressures, bmi | 
 | integer | 15, 26, 0003 | steps, number of siblings, participant ID |
 | character (string) | placebo, tall | randomization arm, category | 
 | logical (boolean) | TRUE, FALSE | survival, presence of health condition |
 
+::: {.tip-box}
+
+Double and Integer data are both types of **Numeric Data**
+
+::: 
 . . . 
 
 ::: {.code-box}
@@ -268,13 +296,15 @@ Set the dependencies argument to `TRUE` for installing the package "Suggests" (d
 ```{r}
 #| echo: true
 
-# Numeric data: BMI
+# Double data: BMI
 bmi <- 24.8
+is.double(bmi)
 class(bmi)
 
 # Integer data: Participant ID
 id <- 0003L
 class(id)
+is.double(id)
 
 # Character data: randomization group
 treatment_arm <- "placebo"
@@ -337,6 +367,7 @@ paste("Answer:", char_values)
 
 :::
 
+
 ## Vectors in R
 
 - A **vector** is the most basic data structure in R.
@@ -360,6 +391,8 @@ is.character(v3)
 ```
 
 :::
+
+
 
 ## Factor
 
@@ -409,6 +442,50 @@ my_list
 
 ```
 
+:::
+
+## Combining Vectors or Lists in R
+
+You can use the `c()` function to concatenate values into a vector or list.
+These can be simple or you can combine lists or nested structures.
+The argument `recursive = TRUE/FALSE` is useful when combining lists or nested structures.
+Set `recursive = TRUE` to flatten the input.
+Set `recursive = FALSE` to preserve the structure.
+
+```{r}
+#| echo: true
+# Combine character vectors 
+a <- c("red", "blue")
+b <- c("green", "yellow")
+colors <- c(a, b)
+colors
+
+# Combine lists of vectors
+x <- list(1, 2)
+y <- list(3, list(4, 5))
+combo1 <- c(x, y, recursive=FALSE)
+combo1
+
+combo2 <- c(x, y, recursive = TRUE)
+combo2
+
+# Practical example of recursive 
+person1 <- list(name = "Ava", score = 88)
+person2 <- list(name = "Ben", score = 92)
+people <- list(person1, person2)
+paired <- c(people, recursive = FALSE)
+str(paired) 
+paired[[1]]$name
+paired[[1]]$score 
+
+flattened <- c(people, recursive = TRUE)
+str(flattened) 
+
+```
+
+:::
+
+
 ## Data Structures 
 
 **What is a Data Frame?**
@@ -427,6 +504,8 @@ my_list
 - Prints cleaner summaries (only first 10 rows and columns shown)
 - Better handling of large or complex data
 - **Does NOT allow partial matching** — safer and more predictable  
+
+. . . 
 
 
 **Partial Matching Example:**
@@ -463,11 +542,10 @@ tb <- tibble(
 tb$grad_age <- tb$ave + 5
 
 # Create and print normal data frame and tibble for comparison
-df3 <- data.frame(id = 1:24, name = rep(c("Ann", "Ben", "Cam"), 8))
-class(df3)
-df3
+class(mtcars)
+mtcars
 
-tb3 <- tibble(id = 1:24, name = rep(c("Ann", "Ben", "Cam"), 8))
+tb3 <- as_tibble(mtcars)
 class(tb3)
 tb3
 
@@ -486,13 +564,77 @@ tb3
 > Think of **GitHub** like the **developer’s lab** — early access, but maybe still being tested.
 
 *Install from CRAN*
-install.packages("ggplot2")
+`install.packages("ggplot2")`
 
 *Install from GitHub*
-install.packages("devtools")
-devtools::install_github("bhelsel/RLAB")
+`install.packages("devtools")`
+`devtools::install_github("bhelsel/RLAB")`
 
 **GitHub packages may require additional setup or dependencies.**
+
+:::
+
+## Forking vs Cloning in Github
+
+|                | **Forking** 🪄                          | **Cloning** 🔄                       |
+|----------------|-----------------------------------------|--------------------------------------|
+| **What it is** | Copies a repo to *your* GitHub account  | Copies a repo to your *local* machine |
+| **Where**      | Happens on **GitHub.com**               | Happens on **your computer**         |
+| **Use case**   | You want to contribute or customize     | You want to use or explore code      |
+| **Editable?**  | Yes — you own the forked version        | Yes — but you can’t push to original |
+| **Common for** | Submitting a pull request               | Working privately or learning        |
+
+> ✨ You usually **fork first**, then **clone your fork** to your computer.
+
+
+## Forking a Repository on GitHub
+
+**Fork** - Your own copy of someone else's repository
+
+[Fork and Clone Tutorial](https://github.com/rstats-tln/fork-and-clone-repo)
+
+Steps:
+
+1. Go to the GitHub repo you want to contribute to  
+   e.g., `https://github.com/bhelsel/RLAB`
+
+2. Click **"Fork"** (top right corner)
+
+3. Choose your account → GitHub will create your copy
+
+4. Clone it to your local machine
+
+Now you can make changes and eventually make a pull request!
+
+![](https://pages.github.nceas.ucsb.edu/lter/github-workshop/images/git-fork-workflow.png){.nostretch}
+
+:::
+
+## Fun FREE Resources 
+
+[R Programming 101 Youtube](https://www.youtube.com/@RProgramming101)
+
+[Data Daft Introduction to R Playlist Youtube](https://www.youtube.com/watch?v=DjFz-LC0Et4&list=PLiC1doDIe9rDjk9tSOIUZJU4s5NpEyYtE&ab_channel=DataDaft)
+
+[Marin Stats Lectures Youtube](https://www.youtube.com/watch?v=riONFzJdXcs&list=PLqzoL9-eJTNBlVXxWvJkq0dtVut2sICUW&ab_channel=MarinStatsLectures-RProgramming%26Statistics)
+
+[Equitable Equations Youtube](https://www.youtube.com/@EquitableEquations)
+
+[Dynamic Data Script Yotube](https://www.youtube.com/@ProgrammingDDS)
+
+[R for Data Science Book](https://r4ds.hadley.nz/)
+
+[Data Flair R Programming](https://data-flair.training/blogs/r-tutorials-home/)
+
+[R Programming from Johns Hopkins](https://www.coursera.org/learn/r-programming?irclickid=Vjy32XwgbxycWja1XXwhhQTpUksV6MTvpwg5080&irgwc=1&utm_medium=partners&utm_source=impact&utm_campaign=3310965&utm_content=b2c&utm_campaignid=MLTUT&utm_term=14726_CR_1164545_)
+
+[Random persons google drive with tons of free PDFs](https://drive.google.com/drive/folders/1W3S0r_g8PascdS8LLo4vcfcb3rY4fuHG)
+
+
+
+
+
+
 
 
 
