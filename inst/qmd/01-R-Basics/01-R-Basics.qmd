@@ -47,8 +47,6 @@ RStudio is an **Integrated Development Environment (IDE)** — a software that p
 
 **Analogy**: R is like a **car engine** and RStudio is like a car **dashboard**. 
 
-:::
-
 ## Components of RStudio {.pattern-dots}
 
 ::: {.columns}
@@ -86,6 +84,7 @@ Additional components and functions:
 ## Starting a Project in RStudio {.pattern-dots} 
 
 ::: {.columns}
+
 ::: {.column}
 **Starting a Project**
 
@@ -94,9 +93,11 @@ Additional components and functions:
 - Makes sharing and reproducing work easier.
 
 :::
+
 ::: {.column}
 ![](https://bradleyboehmke.github.io/uc-bana-7025/images/new_project.png){.nostretch}
 :::
+
 :::
 
 . . .
@@ -127,15 +128,11 @@ Additional components and functions:
 - Any files you create or export are saved there by default.  
 - This helps keep all your project files together and easy to find.
 
-
-:::
-
 ## Packages and Functions in R 
 
 **What is a Package?** 
 
 - A set of functions, data, or code designed to accomplish specific tasks
-
 
 **What is a Function?** 
 
@@ -156,12 +153,11 @@ The `tidyverse` is a collection of packages in R that are designed for data scie
 | ggplot2 |Data Visualization | geom_point, facet_wrap | 
 | readr | Data Import | read_csv |
 
-:::
-
 
 ## Basics of Using a Function
 
 ::: {.columns}
+
 ::: {.column}
 
 - In order to use a function, you have to feed it the information it needs to complete its task
@@ -169,15 +165,14 @@ The `tidyverse` is a collection of packages in R that are designed for data scie
 - Here you read about the package usage, descriptions arguments, details etc. 
 
 :::
+
 ::: {.column}
 
 ![](https://intro2r.com/images/rs_help.png){.nostretch}
 
 :::
+
 :::
-
-
-
 
 ## Making Your Very Own Function! 
 
@@ -209,9 +204,6 @@ get_bmi_category(85, 1.54)
 
 ```
 
-:::
-
-
 ## Package Cheat Sheets
 
 **tidyverse** 
@@ -225,8 +217,6 @@ get_bmi_category(85, 1.54)
 **dplyr**
 
 ![](https://rstudio.github.io/cheatsheets/pngs/data-transformation.png) 
-:::
-
 
 ## Updating R Studio and Packages
 
@@ -239,7 +229,6 @@ get_bmi_category(85, 1.54)
 When you open R Studio it will tell you what version you are using 
 
 ![](http://mercury.webster.edu/aleshunas/R_learning_infrastructure/images/R%20version%20screen.png)
-:::
 
 **Update RStudio**
 
@@ -266,8 +255,6 @@ Use:
 
 Set the dependencies argument to `TRUE` for installing the package "Suggests" (default is to install "Depends", "Imports", and "LinkingTo") 
 
-:::
-
 ## Atomic Data Types in R {.pattern-grid}
 
 **Fundamental Data Types**
@@ -289,6 +276,7 @@ Set the dependencies argument to `TRUE` for installing the package "Suggests" (d
 Double and Integer data are both types of **Numeric Data**
 
 ::: 
+
 . . . 
 
 ::: {.code-box}
@@ -392,8 +380,6 @@ is.character(v3)
 
 :::
 
-
-
 ## Factor
 
 - A factor is a type of vector for categorical data
@@ -442,8 +428,6 @@ my_list
 
 ```
 
-:::
-
 ## Combining Vectors or Lists in R
 
 You can use the `c()` function to concatenate values into a vector or list.
@@ -454,7 +438,7 @@ Set `recursive = FALSE` to preserve the structure.
 
 ```{r}
 #| echo: true
-# Combine character vectors 
+# Combine character vectors
 a <- c("red", "blue")
 b <- c("green", "yellow")
 colors <- c(a, b)
@@ -463,28 +447,25 @@ colors
 # Combine lists of vectors
 x <- list(1, 2)
 y <- list(3, list(4, 5))
-combo1 <- c(x, y, recursive=FALSE)
+combo1 <- c(x, y, recursive = FALSE)
 combo1
 
 combo2 <- c(x, y, recursive = TRUE)
 combo2
 
-# Practical example of recursive 
+# Practical example of recursive
 person1 <- list(name = "Ava", score = 88)
 person2 <- list(name = "Ben", score = 92)
 people <- list(person1, person2)
 paired <- c(people, recursive = FALSE)
-str(paired) 
+str(paired)
 paired[[1]]$name
-paired[[1]]$score 
+paired[[1]]$score
 
 flattened <- c(people, recursive = TRUE)
-str(flattened) 
+str(flattened)
 
 ```
-
-:::
-
 
 ## Data Structures 
 
@@ -506,7 +487,6 @@ str(flattened)
 - **Does NOT allow partial matching** — safer and more predictable  
 
 . . . 
-
 
 **Partial Matching Example:**
 
@@ -572,8 +552,6 @@ tb3
 
 **GitHub packages may require additional setup or dependencies.**
 
-:::
-
 ## Forking vs Cloning in Github
 
 |                | **Forking** 🪄                          | **Cloning** 🔄                       |
@@ -585,7 +563,6 @@ tb3
 | **Common for** | Submitting a pull request               | Working privately or learning        |
 
 > ✨ You usually **fork first**, then **clone your fork** to your computer.
-
 
 ## Forking a Repository on GitHub
 
@@ -607,8 +584,6 @@ Steps:
 Now you can make changes and eventually make a pull request!
 
 ![](https://pages.github.nceas.ucsb.edu/lter/github-workshop/images/git-fork-workflow.png){.nostretch}
-
-:::
 
 ## Fun FREE Resources 
 
