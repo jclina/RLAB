@@ -62,21 +62,18 @@ $presentation-h3-font-size: 1.4em;
   max-height: 100vh;
   overflow-y: auto;
   box-sizing: border-box;
+  display: block;
+  height: 100%;
 }
 
-// Ensure slides can scroll when content overflows
+.reveal {
+  height: 100vh; // ensure full height
+  overflow: hidden; // Reveal.js default; required for presentation logic
+}
+
 .reveal .slides {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.reveal .slides section {
-  height: auto;
-  min-height: 50vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  height: 100%;
+  overflow: hidden; // keep as-is to avoid layout breakage
 }
 
 // Professional code styling with responsive sizing
