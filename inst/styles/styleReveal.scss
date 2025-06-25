@@ -68,7 +68,7 @@ $presentation-h3-font-size: 1.4em;
 .reveal .slides {
   width: 100%;
   height: 100vh;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .reveal .slides section {
