@@ -79,14 +79,6 @@ $presentation-h3-font-size: 1.4em;
   overflow: visible;
 }
 
-.reveal .slides section {
-  height: auto;
-  min-height: 50vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 // Professional code styling with responsive sizing
 .reveal pre {
   background-color: $code-bg;
