@@ -10,7 +10,7 @@ format:
     slide-number: true
     preview-links: auto
     logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
-    footer: "R Programming Workshop"
+    footer: "R Basics"
     transition: slide
     background-transition: fade
     highlight-style: github
@@ -46,6 +46,8 @@ RStudio is an **Integrated Development Environment (IDE)** — a software that p
 ![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png){.nostretch}
 
 **Analogy**: R is like a **car engine** and RStudio is like a car **dashboard**. 
+
+
 
 ## Components of RStudio {.pattern-dots}
 
@@ -210,7 +212,7 @@ get_bmi_category(85, 1.54)
 
 ## Package Cheat Sheets
 
-**tidyverse** 
+**tidyr** 
 
 ![](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/tidyr-thumbs.png)
 
@@ -421,15 +423,27 @@ sort(height_factor)
 ::: {.code-box}
 
 ```{r}
-
 #| echo: true
+
 my_list <- list(
   name = "Bill",
   age = 35,
   scores = c(92, 87, 95),
   passed = TRUE
 )
+
 my_list
+
+#Results are stored as a list 
+model <- lm(mpg ~ wt, data = mtcars)
+class(model)
+
+is.list(model)
+
+str(model)
+
+model$coefficients
+
 
 ```
 
@@ -453,9 +467,9 @@ b <- c("green", "yellow")
 colors <- c(a, b)
 colors
 
-# Combine lists of vectors
-x <- list(1, 2)
-y <- list(3, list(4, 5))
+# Combining lists 
+x <- list("red", 1, TRUE)
+y <- list("green", list( "yellow" , FALSE, 6))
 combo1 <- c(x, y, recursive = FALSE)
 combo1
 
@@ -517,7 +531,9 @@ df1$experiment
 tb1 <- tibble(experiment_group = c("control", "treatment"))
 tb1$experiment
 
-# Example where partial matching can cause bugs:
+# Example where partial matching can cause bugs.
+#Say you have a dataframe with age and height. You want to calcualte the age 
+# when people will graduate based on their current age: 
 df <- data.frame(
   age = c(25, 30, 45),
   average_height = c(55, 62, 50)
@@ -570,7 +586,7 @@ tb3
 | **What it is** | Copies a repo to *your* GitHub account  | Copies a repo to your *local* machine |
 | **Where**      | Happens on **GitHub.com**               | Happens on **your computer**         |
 | **Use case**   | You want to contribute or customize     | You want to use or explore code      |
-| **Editable?**  | Yes — you own the forked version        | Yes — but you can’t push to original |
+| **Editable?**  | Yes — you own the forked version        | Yes — but you can’t push to original* |
 | **Common for** | Submitting a pull request               | Working privately or learning        |
 
 > ✨ You usually **fork first**, then **clone your fork** to your computer.
@@ -615,14 +631,3 @@ Now you can make changes and eventually make a pull request!
 [R Programming from Johns Hopkins](https://www.coursera.org/learn/r-programming?irclickid=Vjy32XwgbxycWja1XXwhhQTpUksV6MTvpwg5080&irgwc=1&utm_medium=partners&utm_source=impact&utm_campaign=3310965&utm_content=b2c&utm_campaignid=MLTUT&utm_term=14726_CR_1164545_)
 
 [Random persons google drive with tons of free PDFs](https://drive.google.com/drive/folders/1W3S0r_g8PascdS8LLo4vcfcb3rY4fuHG)
-
-
-
-
-
-
-
-
-
-
-
