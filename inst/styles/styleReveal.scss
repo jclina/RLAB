@@ -74,6 +74,17 @@ $presentation-h3-font-size: 1.4em;
 .reveal .slides {
   height: 100%;
   overflow: hidden; // keep as-is to avoid layout breakage
+  width: 100%;
+  height: 100vh;
+  overflow: visible;
+}
+
+.reveal .slides section {
+  height: auto;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 // Professional code styling with responsive sizing
