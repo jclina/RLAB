@@ -1,4 +1,4 @@
-# RLAB <img src="man/figures/RLAB.png" align="right" height="250" />
+# RLAB <img src="man/figures/RLAB.png" align="right" height="150" />
 
 <!-- badges: start -->
 <!-- badges: end -->
