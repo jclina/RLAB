@@ -3,7 +3,20 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of RLAB is to ...
+R-LAB (R for Lifestyle and Brain Health) is a collaborative learning space
+designed for early career researchers (ECRs) with a shared interest in lifestyle
+interventions, brain health, Alzheimer’s disease, and Down syndrome. The lab
+focuses on advancing applied R programming skills relevant to real-world data
+challenges in health research.
+
+Through hands-on workshops, code walkthroughs, and peer-driven projects, R-LAB
+empowers ECRs to go beyond basic statistical routines and build confidence in
+data wrangling, visualization, reproducible reporting, and advanced modeling
+techniques—all within the context of lifestyle and neurodegenerative research.
+
+The goal of R-LAB is to foster a supportive community where emerging scientists
+can sharpen their programming skills, enhance their research rigor, and
+accelerate their contributions to the field.
 
 ## Installation
 
