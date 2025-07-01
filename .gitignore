@@ -5,3 +5,4 @@
 .lintr
 .vscode
 .DS_Store
+inst/qmd/*/.gitignore
