@@ -22,7 +22,6 @@ format:
 execute: 
   echo: true
   eval: false
-output-dir-ignore: false
 ---
 
 ## Subsetting {.pattern-dots}
