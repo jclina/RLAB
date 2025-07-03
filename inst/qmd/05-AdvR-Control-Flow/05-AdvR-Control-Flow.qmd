@@ -1,0 +1,59 @@
+---
+title: "Advanced R: Control Flow"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Control Flow {.title-slide}
+
+The primary tools for controlling flow are **choices** and **loops**. Choices allow you to run different code depending on the input (e.g., if statements and switch). Loops allow you to repeatedly run code with changing options (e.g., for and while loops).
+
+## Choices
+
+The basic form of an if statement in R is:
+
+* if (condition) true_action
+* if (condition) true_action else false_action
+
+The true_action is evaluated if the condition is TRUE and the false_action is evaluated if the condition is FALSE.
+
+The actions are often compound statements contained within `{` and returns a value so you can assign the results.
+
+```{r}
+
+grade <- function(x) {
+  if (x > 90) {
+    "A"
+  } else if (x > 80) {
+    "B"
+  } else if (x > 50) {
+    "C"
+  } else {
+    "F"
+  }
+}
+
+(c(grade(85), grade(98)))
+#> [1] "B" "A"
+
+```
