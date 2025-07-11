@@ -1,0 +1,344 @@
+---
+title: "Advanced R: Functions"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Functions
+
+Functions include three componenets: arguments, body, and environment.
+
+- The arguments or `formals()` control parts of the function
+- The `body()` is the code inside the function
+- The `environment()` contains values associated with the names.
+
+
+```{r}
+
+formals(sd)
+#> $x
+#>
+#>
+#> $na.rm
+#> [1] FALSE
+
+body(sd)
+#> sqrt(var(if (is.vector(x) || is.factor(x)) x else as.double(x),
+#>     na.rm = na.rm))
+
+environment(sd)
+#> <environment: namespace:stats>
+
+```
+
+::: {.tip-box}
+
+Unlike the formals and body, the environment is specified implicitly based on where you define the function. The function's environment always exists.
+
+:::
+
+## Attributes
+
+Functions may have different attributes like `srcref` short for <strong>source reference</strong>. It points to the source code used to create the function and is used for printing because it contains code comments and other formatting.
+
+```{r}
+
+f02 <- function(x, y) {
+  # A comment
+  x + y
+}
+
+attr(f02, "srcref")
+
+#> function(x, y){
+#>   # A comment
+#>   x + y
+#> }
+
+```
+
+## Primitive functions {.pattern-dots}
+
+Primitive functions exist in the base package and call C code directly. These functions have either type <strong>builtin</strong> or <strong>special</strong>. In this case, the functions exist primarily in C so their formals, body, and environment are NULL.
+
+```{r}
+
+sum
+#> function (..., na.rm = FALSE)  .Primitive("sum")
+typeof(sum)
+#> [1] "builtin"
+
+`[`
+#> .Primitive("[")
+typeof(`[`)
+#> [1] "special"
+
+```
+
+## First-class functions
+
+::: {.columns}
+::: {.column}
+
+R functions are objects without a special syntax for defining and naming a function. You simply create a function object using <strong>function</strong> and bind it to a name with `<-`.
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/functions/first-class.png){.nostretch}
+
+:::
+:::
+
+```{r}
+
+f01 <- function(x) {
+  sin(1 / x^2)
+}
+
+```
+
+Nearly all functions are bound to a name, but there are times where <strong>anonymous</strong> or <strong>list</strong> functions are preferred.
+
+```{r}
+
+unlist(lapply(mtcars, function(x) length(unique(x))))
+#>   mpg  cyl disp  hp  drat  wt  qsec   vs  am  gear carb
+#>   25    3   27   22   22   29   30    2    2    3    6
+
+funs <- list(
+  half = function(x) x / 2,
+  double = function(x) x * 2
+)
+
+funs$double(10)
+#> [1] 20
+funs$half(10)
+#> [1] 5
+
+```
+
+## Invoking a function {.pattern-grid}
+
+A function is usually called by placing the arguments inside parentheses next to the function name. In some instances, the arguments are contained within a data structure and it is eaiser to use `do.call` and pass a list containing the function arguments.
+
+```{r}
+
+args <- list(1:10, na.rm = TRUE)
+
+do.call(mean, args)
+#> [1] 5.5
+
+```
+
+## Function composition
+
+Base R provides two ways to compose multiple function calls. You can either save the intermediate results as variables or nest the function calls.
+
+```{r}
+
+square <- function(x) x^2
+deviation <- function(x) x - mean(x)
+
+x <- 1:20
+
+# Saving intermediate results
+out <- deviation(x)
+out <- square(out)
+out <- mean(out)
+out <- sqrt(out)
+
+# Nested
+sqrt(mean(square(deviation(x))))
+
+```
+
+The `magrittr` package provides a third option using the binary operator `%>%` which is called a pipe and pronounced as "and then". Base R developed a comparable solution with `|>`; however, it lacks some of the advanced features of `%>%` like being able to use a placeholder `.` in multiple locations.
+
+```{r}
+
+library(magrittr)
+
+x %>%
+  deviation() %>%
+  square() %>%
+  mean() %>%
+  {
+    paste0("Square root of ", ., " is ", round(sqrt(.), 2))
+  }
+
+```
+
+## Lexical scoping {.title-slide}
+
+R looks up the values of names based on how a function is defined and not how it is called. <strong>Lexical</strong> is a technical term used in computer science that tells us that the scoping rules use a parse-time structure rather than a run-time structure. The lexical scoping in R follows four primary rules: (1) name masking, (2) functions versus variables,(3) a fresh start, and (4) dynamic lookup.
+
+## Name masking
+
+Names defined inside of a function mask names dfined outside of a function.
+
+```{r}
+
+x <- 10
+y <- 20
+
+g01 <- function() {
+  x <- 1
+  y <- 2
+  c(x, y)
+}
+
+g01()
+#> [1] 1 2
+
+```
+
+R looks one level up if a name is not defined inside of a function. 
+
+```{r}
+
+x <- 2
+
+g02 <- function() {
+  y <- 1
+  c(x, y)
+}
+
+g02()
+#> [1] 2 1
+
+```
+
+The same rules apply if a function is defined inside another function. If R is unable to find the value, it looks for the value in the location that the function is defined, all the way up to the global environment including other loaded packages. 
+
+```{r}
+
+x <- 1
+
+g03 <- function() {
+  y <- 2
+  i <- function() {
+    z <- 3
+    c(x, y, z)
+  }
+  i()
+}
+
+g03()
+#> [1] 1 2 3
+
+```
+
+## Functions versus variables
+
+The name masking rules apply to functions. However, a function and an object sharing the same name must reside in different environments.
+
+
+```{r}
+
+g04 <- function(x) x + 1
+g05 <- function(x) x * 2
+
+g06 <- function() {
+  g04 <- function(x) x + 100
+  g05 <- 10
+  c(g04(10), g05(g05))
+}
+
+g06()
+#> [1] 110 20
+
+```
+
+## A fresh start
+
+A new environment is created each time a function is called to execute the function.
+
+
+```{r}
+
+g07 <- function() {
+  if (!exists("a")) {
+    a <- 1
+  } else {
+    a <- a + 1
+  }
+  a
+}
+
+g07()
+#> [1] 1
+
+g07()
+#> [1] 1
+
+```
+
+## Dynamic lookup
+
+Values are searched for when the function is run. Thus, values can differ based on the objects outside of the function's environment.
+
+
+```{r}
+
+g08 <- function() x + 1
+
+x <- 15
+
+g08()
+#> [1] 16
+
+x <- 20
+
+g08()
+#> [1] 21
+
+```
+
+::: {.highlight-box}
+
+R relies on lexical scoping to find <strong>everything</strong>. Potential problems with dynamic lookup are not found when you create the function and error messages may never be returned depending on the variables defined in a user's global environment. 
+
+:::
+
+The `codetools::findGlobals` function can be used to detect external dependencies within a function and seting a function's environment to empty using `emptyenv` can help solve this problem. Of course, you would then need to add the functions from `findGlobals` manually to an environment before calling the function.
+
+```{r}
+
+codetools::findGlobals(g08)
+#> [1] "+" "x"
+
+my_env <- new.env(parent = emptyenv())
+environment(g08) <- my_env
+
+g08()
+#> Error in `x + 1`: could not find function "+"
+
+my_env$x <- 15
+my_env$`+` <- base::`+`
+my_env$`{` <- base::`{`
+
+g08()
+#> [1] 16
+
+```
