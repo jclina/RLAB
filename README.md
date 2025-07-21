@@ -48,6 +48,9 @@ The list of completed presentations include:
 - 01-R-Basics
 - 02-AdvR-Names-Values
 - 03-AdvR-Vectors
+- 04-AdvR-Subsetting
+- 05-AdvR-Control-Flow
+- 06-AdvR-Functions
 
 ## Hex Sticker
 
