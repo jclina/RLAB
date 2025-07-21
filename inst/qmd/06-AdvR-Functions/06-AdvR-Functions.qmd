@@ -958,5 +958,3 @@ There are many language features in R that are written in special ways but also 
 | next | \`next\`() |
 | break | \`break\`() |
 | function(arg1, arg2) {body} | \`function\`(alist(arg1, arg2), body, env)
-
-<!-- Finish up the table -->
