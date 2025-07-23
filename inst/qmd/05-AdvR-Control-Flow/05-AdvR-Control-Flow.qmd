@@ -34,23 +34,24 @@ The primary tools for controlling flow are **choices** and **loops**. Choices al
 
 ## If, Else, and Else If
 
-A basic **if statement** will evaluate a some expression is true or false and then executes a a specified task if the expression is true.
+A basic **if statement** will evaluate if some expression is true or false and then execute a specific task if the expression is true.
 
 ```{r}
 #| echo: true
 x <- 10
 if (x > 5) {
   print("x is greater than 5")
-} 
+}
 # [1] "x is greater than 5"
 
-y <- 3 
+y <- 3
 if (y > 5) {
   print("y is greater than 5")
-} 
-# [1] 
+}
+# [1]
 
-```
+``
+`
 To enhance the if statement, you can add an **else** condition. This means that the true_action is evaluated if the condition is TRUE and the false_action is evaluated if the condition is FALSE.
 
 ```{r}
@@ -63,7 +64,8 @@ if (y > 5) {
 }
 #[1] "y is less than 5"
 
-```
+`
+``
 Using **else if** allows you to make a chain of statements where each input is evaluated through this chain of statements. This means that you are giving a list of conditions and seeing which matches your input. The actions are often compound statements contained within `{` and returns a value so you can assign the results. 
 
 ```{r}
@@ -99,7 +101,8 @@ ifelse(x %% 5 == 0, "XXX", as.character(x))
 #[1] "1"   "2"   "3"   "4"   "XXX" "6"   "7"   "8"   "9"  "XXX" "11"  "12"
 ```
 
-And here is an example of `case_when()`. Here, you are evaluating multiple inputs for multiple conditions. 
+And here is an example of `case_when()` where you are evaluating multiple inputs for multiple conditions. 
+
 ```{r}
 #| echo: true
 
@@ -109,7 +112,7 @@ case_when(
   x > 5 ~ "Medium number",
   TRUE ~ "Small number"
 )
-# [1] "Small number"  "Small number"  "Small number"  Small number"  "Small number"  "Medium number" "Medium number" "Medium number" "Medium number" "Medium number" "Big number"    "Big number" 
+# [1] "Small number"  "Small number"  "Small number"  Small number"  "Small number"  "Medium number" "Medium number" "Medium number" "Medium number" "Medium number" "Big number"    "Big number"
 ```
 
 | You want to evaluate... | Type of Statement to use|
@@ -131,7 +134,7 @@ x_option <- function(x) {
   if (x == "a") {
     "option 1"
   } else if (x == "b") {
-    "option 2" 
+    "option 2"
   } else if (x == "c") {
     "option 3"
   } else {
@@ -142,7 +145,8 @@ x_option("a")
 # [1] "option 1"
 x_option("hand")
 # [1] "Invalid `x` value"
-```
+``
+`
 With this example using `switch`
 ```{r}
 #| echo: true
@@ -152,13 +156,17 @@ x_option <- function(x) {
     a = "option 1",
     b = "option 2",
     c = "option 3",
-    stop("Invalid `x` value")
+    stop("Invalid `
+x
+` value")
   )
 }
 x_option("a")
 # [1] "option 1"
 x_option("hand")
-# [1] "Invalid `x` value"
+# [1] "Invalid `
+x
+` value"
 ```
 
 With `switch` statements, if multiple inputs have the same value, you can leave it blank after the = and the input will fall through to the next value. 
@@ -213,9 +221,12 @@ for (w in weights) {
 
 
 There are two ways to terminate a `for` loop early:
+
  - `next` exits the current iteration. 
  - `break` exits the entire for loop.
+
 This can be especially useful in large data sets 
+
 ```{r}
 #| echo: true
 for (i in 1:10) {
@@ -243,28 +254,26 @@ There are three common pitfalls to watch out for when using `for`.
 ## Pitfall 1: Failing to pre-allocate output containers {.pattern-grid}
 
 Make sure to pre-allocate the output container. Otherwise the loop will be very slow. This would be like you decide to put books on a bookshelf at home, but every time you get a new book, you have to go out to the store and buy a new bookshelf that is exactly 1 book larger than your last one. 
+
 ```{r}
 #| echo: true
-library(tictoc)
-n_people <- 1000000
-daily_avg_steps <- sample(3000:12000, n_people, replace = TRUE)
 
-tic("Without preallocation")
-steps_no_prealloc <- list()
-for (i in seq_along(daily_avg_steps)) {
-  steps_no_prealloc[[i]] <- rpois(7, lambda = daily_avg_steps[i])
+timer <- function(prealloc, label){
+  set.seed(123)
+  daily_avg_steps <- sample(x = 3000:12000, size = 1000000, replace = TRUE)
+  tictoc::tic(label)
+  for(i in seq_along(daily_avg_steps)){
+    prealloc[[i]] <- rpois(7, lambda = daily_avg_steps[i])
+  }
+  tictoc::toc()
 }
-toc()
 
-tic("With preallocation")
-steps_prealloc <- vector("list", length(daily_avg_steps))
-for (i in seq_along(daily_avg_steps)) {
-  steps_prealloc[[i]] <- rpois(7, lambda = daily_avg_steps[i])
-}
-toc()
+timer(prealloc = list(), label = "Without preallocation")
+# Without preallocation: 1.12 sec elapsed 
 
-# Without preallocation: 1.67 sec elapsed 
-# With preallocation: 1.06 sec elapsed 
+timer(prealloc = vector("list", length(daily_avg_steps)), label = "With preallocation")
+# With preallocation: 0.77 sec elapsed 
+
 ```
 
 ## Pitfall 2: Iterating over 1:length(x)  {.pattern-dots}  
@@ -309,17 +318,20 @@ for (i in seq_along(birthdays)) {
 }
 # [1] "1990-05-01"
 # [1] "1985-09-20"
+
 ```
 
 ## While  and Repeat {.pattern-grid} 
-`for` loops are useful if you know in advance the set of values that you want to iterate over. If you don’t know, there are two related tools with more flexible specifications:
 
--`while(condition) action:` performs `action` while `condition` is `TRUE`.
+For loops are useful if you know in advance the set of values that you want to iterate over. If you don’t know, there are two related tools with more flexible specifications:
 
-- `repeat(action):` repeats `action` forever (i.e. until it encounters `break`).
+<strong>while(condition) action</strong>: performs `action` while `condition` is `TRUE`.
+
+<strong>repeat(action)</strong>: repeats `action` forever (i.e. until it encounters `break`).
  
 ```{r}
 #| echo: true
+
 bpcut <- 120
 bpsys <- 126
 
