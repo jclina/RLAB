@@ -156,6 +156,8 @@ a[c(TRUE, FALSE, TRUE), c("B", "A")]
 
 # By default, [ simplifies the results to the lowest dimensionality
 a[1, ]
+#> A B C
+#> 1 4 7
 
 ```
 
@@ -257,7 +259,7 @@ str(data.frame(p)[1, , drop = FALSE])
 
 ```
 
-The default `drop = TRUE` can be a common source of bugs in functions. When writing functions, get in the habit of using `default = TRUE` or tibbles.
+The default `drop = TRUE` can be a common source of bugs in functions. When writing functions, get in the habit of using `drop = FALSE` or tibbles.
 
 ::: {.tip-box}
 
@@ -354,7 +356,7 @@ Inconsistencies when using `[[` to subset with an invalid index.
 Functions in the `purrr` package can be used for more predictable behavior when subsetting errors may occur.
 
 * `purrr::pluck`: Always returns NULL or the .default argument
-* `purrr::check`: Always throws an error
+* `purrr::chuck`: Always throws an error
 
 ::: {.tip-box}
 
@@ -464,7 +466,7 @@ unname(lookup[activity_codes])
 
 ## Matching and Merging by Hand
 
-Complex lookup tables with multiple columns using `match` to return the position where each `activity_code` is found in the `activity_info$code`.
+Complex lookup tables with multiple columns using **match** to return the position where each `activity_code` is found in the `activity_info$code`.
 
 ```{r}
 
@@ -499,7 +501,7 @@ df <- activity_info[match(activity_codes, activity_info$code), ]
 set.seed(1)
 
 # Randomly reorder
-df[sample(nrow(df), ), ]
+df[sample(nrow(df)), ]
 #>     code     label  mvpa
 #> 1    sed Sedentary FALSE
 #> 3    mod  Moderate  TRUE
@@ -510,7 +512,8 @@ df[sample(nrow(df), ), ]
 #> 4    vig  Vigorous  TRUE
 
 # Select 3 random rows
-df[sample(nrow(df), 3), ]
+set.seed(1)
+df[sample(nrow(df), size = 3), ]
 #     code     label  mvpa
 # 1    sed Sedentary FALSE
 # 3    mod  Moderate  TRUE
