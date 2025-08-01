@@ -1,0 +1,338 @@
+---
+title: "Advanced R: Functions"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Environment Basics
+
+An environment is similar to a named list with four important exceptions:
+
+- Every name must be unique
+- The names in an environment are not ordered
+- An environment has a parent
+- Environments are not copied when modified
+
+We can use `rlang::env()` to create an environment.
+
+```{r}
+
+e1 <- rlang::env(
+  a = FALSE,
+  b = "a",
+  c = 2:3,
+  d = 1:3
+)
+
+```
+
+::: {.columns}
+::: {.column}
+An environment's job is to bind a set of names to their values. 
+The names in the environment are in no particular order.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/bindings.png)
+:::
+:::
+
+
+::: {.columns}
+::: {.column}
+Environments are modified in place and do not create a copy. Unlike other R 
+objects, environments can also contain themselves (e.g., `e1$d <- e1`)
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/loop.png)
+:::
+:::
+
+Printing an environment displays its memory address, but `env_print` can 
+provide more useful information. We can also use `names` to retrieve a
+character vector of the names in the environment.
+
+
+```{r}
+
+e1
+#> <environment: 0x10c609af8>
+
+rlang::env_print(e1)
+#> Parent: <environment: global>
+#> Bindings:
+#> • a: <lgl>
+#> • b: <chr>
+#> • c: <int>
+#> • d: <int>
+
+names(e1)
+#> [1] "a" "b" "c" "d"
+
+```
+
+## Current and Global Environments
+
+Two of the most fundamental environments are the current and global environment.
+The current environment is where your code is executing and the global environment
+is your workspace where interactive computation outside of a function takes place.
+
+```{r}
+
+# Access your current environment
+rlang::current_env()
+#> <environment: R_GlobalEnv>
+
+# Access your global environment
+rlang::global_env()
+#> <environment: R_GlobalEnv>
+
+# Check if the current and global environments are the same
+identical(rlang::current_env(), rlang::global_env())
+#> [1] TRUE
+
+```
+
+## Parent Environments
+
+
+::: {.columns}
+::: {.column}
+Every environment has a parent environment. This is used to implement lexical scoping, allowing 
+R to look for values in the parent environment if they are not found in the current one.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/parents.png)
+:::
+:::
+
+ You can set a parent environment by providing an unnamed argument to the `env()` function 
+ and identify the parent of an environment with `env_parent`.
+
+
+```{r}
+
+e2a <- rlang::env(d = 4, e = 5)
+e2b <- rlang::env(e2a, a = 1, b = 2, c = 3)
+
+rlang::env_parent(e2b)
+#> <environment: 0x11b0e5ac0>
+
+identical(rlang::env_parent(e2b), e2a)
+#> [1] TRUE
+
+rlang::env_parent(e2a)
+#> <environment: R_GlobalEnv>
+
+```
+
+::: {.columns}
+::: {.column}
+The only environment that does not have a parent is the **empty environment**. The ancestors
+of every environment eventually terminate with the empty environment.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/parents-empty.png)
+:::
+:::
+
+```{r}
+
+e2c <- rlang::env(rlang::empty_env(), d = 4, e = 5)
+e2d <- rlang::env(e2c, a = 1, b = 2, c = 3)
+
+rlang::env_parents(e2b)
+#> [[1]]   <env: 0x13dcc5250>
+#> [[2]] $ <env: global>
+
+rlang::env_parents(e2d)
+#> [[1]]   <env: 0x13dd654f0>
+#> [[2]] $ <env: empty>
+
+```
+
+By default, `env_parents` will stop at the global environment as the ancestors of the global
+environment include all attached packages.
+
+
+```{r}
+
+rlang::env_parents(e2b, last = rlang::empty_env())
+
+#>  [[1]]   <env: 0x113640f70>
+#>  [[2]] $ <env: global>
+#>  [[3]] $ <env: tools:rstudio>
+#>  [[4]] $ <env: tools:positron>
+#>  [[5]] $ <env: package:stats>
+#>  [[6]] $ <env: package:graphics>
+#>  [[7]] $ <env: package:grDevices>
+#>  [[8]] $ <env: package:utils>
+#>  [[9]] $ <env: package:datasets>
+#> [[10]] $ <env: package:methods>
+#> [[11]] $ <env: Autoloads>
+#> [[12]] $ <env: package:base>
+#> [[13]] $ <env: empty>
+
+```
+
+## Super assignment
+
+Regular assignment (`<-`) creates a variable in the current environment. Super assignment
+(`<<-`) modifies an existing variable found in a parent environment.
+
+
+```{r}
+
+x <- 0
+f <- function() {
+  x <<- 1
+}
+f()
+x
+#> [1] 1
+
+```
+
+::: {.tip-box}
+
+If `<<-` does not find an existing variable in the parent environments, it will create one
+in the global environment. 
+
+:::
+
+## Getting and Setting
+
+You can use the subsetting operators `$` and `[[` to get and set elements of an environment.
+However, you can not pass numeric indices to `[[` as the names are unordered.
+
+
+```{r}
+
+e3 <- rlang::env(x = 1, y = 2)
+e3$x
+#> [1] 1
+
+e3$z <- 3
+e3[["z"]]
+#> [1] 3
+
+e3[[1]]
+#> Error in `e3[[1]]`: ! wrong arguments for subsetting an environment
+
+```
+
+A value of NULL is returned if the binding does not exisit, but `env_get` can be used to
+return an error or a default value.
+
+```{r}
+
+e3$xyz
+#> NULL
+
+rlang::env_get(e3, "xyz")
+#> Error in `rlang::env_get()`: ! Can't find `xyz` in environment.
+
+rlang::env_get(e3, "xyz", default = NA)
+#> [1] NA
+
+```
+
+You can also add bindings to an environment with `env_poke` and `env_bind`. 
+
+- `env_poke` takes a name and a value
+- `env_bind` allows you to bind multiple values
+
+```{r}
+
+rlang::env_poke(e3, "a", 100)
+
+e3$a
+#>[1] 100
+
+rlang::env_bind(e3, a = 10, b = 20)
+
+names(e3)
+#> [1] "x" "y" "z" "a" "b"
+
+```
+
+You can determine whether a binding exisits with `env_has` and unbind a name from an
+environment with `env_unbind`.
+
+```{r}
+
+rlang::env_has(e3, "a")
+#>   a
+#> TRUE
+
+rlang::env_unbind(e3, "a")
+rlang::env_has(e3, "a")
+#>   a
+#> FALSE
+
+```
+
+## Advanced Bindings
+ 
+The `env_bind_lazy` function creates delayed bindings to be evaluated the first time they are accessed.
+It's primary use is in `autoload` to allow R packages to provide datasets that behave like they are
+loaded in memory (e.g., `dplyr::starwars`).
+
+```{r}
+
+rlang::env_bind_lazy(
+  rlang::current_env(),
+  b = {
+    Sys.sleep(1)
+    1
+  }
+)
+
+system.time(print(b))
+#> [1] 1
+#>    user  system elapsed
+#>   0.001   0.002   1.002
+
+system.time(print(b))
+#> [1] 1
+#>    user  system elapsed
+#>       0       0       0
+
+```
+
+The `env_bind_active` function creates active bindings to be recomputed each time they are accessed.
+These bindings are used to implement the active fields of R6 functions.
+
+```{r}
+
+rlang::env_bind_active(rlang::current_env(), z1 = function(val) runif(1))
+
+z1
+#> [1] 0.7908209
+
+z1
+#> [1] 0.6752419
+
+```
+
+## Recursing over environments
+
