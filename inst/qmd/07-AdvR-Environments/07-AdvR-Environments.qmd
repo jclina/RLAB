@@ -1,5 +1,5 @@
 ---
-title: "Advanced R: Functions"
+title: "Advanced R: Environments"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Brian C. Helsel, PhD"
 institute: "University of Kansas Medical Center"
@@ -336,3 +336,387 @@ z1
 
 ## Recursing over environments
 
+Operating on every ancestor of an environment is possible with recursive 
+functions. For example, writing a function like `where` can be used to 
+find the  environment of a given name using R's scoping rules.
+
+```{r}
+
+where <- function(name, env = rlang::caller_env()) {
+  if (identical(env, rlang::empty_env())) {
+    stop("Can't find ", name, call. = FALSE)
+  } else if (rlang::env_has(env, name)) {
+    env
+  } else {
+    where(name, rlang::env_parent(env))
+  }
+}
+
+# The base case
+where("yyy")
+#> Error: Can't find yyy
+
+# The successful case
+x <- 5
+where("x")
+#> <environment: R_GlobalEnv>
+
+# The recursive case
+where("mean")
+#> <environment: base>
+
+```
+
+## Iteration Instead of Recursion
+
+The same `where` function can be rewritten with a `while` loop. We don't often use
+recursion, so it may be easier to understand through iteration.
+
+```{r}
+
+where <- function(name, env = rlang::caller_env()) {
+  while (!identical(env, rlang::empty_env())) {
+    if (rlang::env_has(env, name)) {
+      return(env)
+    } else {
+      env <- rlang::env_parent(env)
+    }
+  }
+}
+
+e4a <- rlang::env(rlang::empty_env(), a = 1, b = 2)
+
+e4b <- rlang::env(e4a, x = 10, a = 11)
+
+# Finds a in environment e4b
+identical(where("a", e4b), e4b)
+#> [1] TRUE
+
+# Finds b in parent environment e4a
+identical(where("b", e4b), e4a)
+#> [1] TRUE
+
+```
+
+![](https://adv-r.hadley.nz/diagrams/environments/where-ex.png){.nostretch width="75%"}
+
+## Package Environment
+
+Each package becomes a parent of the global environment when attached with
+`library` or `require`. The last package attached is the first parent of the
+global environment.
+
+![](https://adv-r.hadley.nz/diagrams/environments/search-path.png){.nostretch width="75%"}
+
+The search path allows you to see the order in which every package was attached.
+You can use `base::search` or `rlang::search_envs` to see the list of packages.
+
+```{r}
+
+base::search()
+
+#>  [1] ".GlobalEnv"        "tools:rstudio"     "tools:positron"
+#>  [4] "package:stats"     "package:graphics"  "package:grDevices"
+#>  [7] "package:utils"     "package:datasets"  "package:methods"
+#>  [10] "Autoloads"        "package:base"
+
+```
+
+The last two environments on the search path are always the same:
+
+- Autoloads: Uses delayed bindings to save memory by only loading objects when needed
+- Base: Environment of the base package
+
+When you attach another package, the parent of the global environment changes.
+
+![](https://adv-r.hadley.nz/diagrams/environments/search-path-2.png){.nostretch width="75%"}
+
+## Function Environment
+
+A function binds the current environment when it is created (called a function
+environment). Across other programming languages, functions that capture (or enclose)
+their environments are called **closures**. 
+
+You can get the function environment with `base::environment` or `rlang::fn_env`.
+
+```{r}
+
+y <- 1
+
+f <- function(x) x + y
+
+base::environment(f)
+#> <environment: R_GlobalEnv>
+
+```
+
+::: {.columns}
+::: {.column}
+The function `f()` binds the environment that binds the name `f` to the function.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/binding.png){.nostretch}
+:::
+:::
+
+However, this isn't always the case. Some times a name is bound to a new
+environment but the function binds the global environment.
+
+```{r}
+
+e <- rlang::env()
+e$g <- function() 1
+
+```
+
+::: {.columns}
+::: {.column}
+The difference between binding and being bound is important as it changes how we
+find the name of the function vs how it finds its variables.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/binding-2.png){.nostretch}
+:::
+:::
+
+## Namespaces
+
+The goal of namespaces is to ensure that packages find their functions and that
+packages work the same regardless of what other packages are attached. R avoids
+this problem by associating every function in a package with a package and
+namespace environment.
+
+- The **package environment** is the external interface to the package and how
+you find functions (e.g., `::`).
+- The **namespace environment** is the internal interface to the package and controls
+how the function finds its variables.
+
+::: {.highlight-box}
+
+Every binding in the package environment is also found in the namespace environment to
+ensure that all functions can use every other function in the package. But some 
+bindings only occur in the namespace environment (i.e., internal or non-exported 
+objects.), allowing the ability to hide internal implementation details.
+
+:::
+
+Every namespace has an **imports** environment that contains bindings to all the
+functions used by the package.
+
+::: {.columns}
+::: {.column}
+- The parent of the imports environment is the base namespace to avoid the need to 
+import all of the base functions
+- The parent of the base namespace is the global environment
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/namespace.png){.nostretch}
+:::
+::: 
+
+## Execution environments
+
+::: {.columns}
+::: {.column}
+
+A new environment is created to host execution every time a function is called. This
+is the execution environment and its parent is the function environment.
+
+Take this function as an example:
+
+```{r}
+
+h <- function(x) {
+  # 1.
+  a <- 2 # 2.
+  x + a
+}
+
+y <- h(1) # 3.
+
+```
+
+The execution environment is garbage collected once the function completes.
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/environments/execution.png){.nostretch width="75%"}
+
+:::
+:::
+
+There are a few ways to make the function environment stay around. First, you
+can explicitly return the environment.
+
+```{r}
+
+h2 <- function(x) {
+  a <- x * 2
+  rlang::current_env()
+}
+
+e <- h2(x = 10)
+
+rlang::env_print(e)
+
+#> <environment: 0x13278ad98>
+#> Parent: <environment: global>
+#> Bindings:
+#> • a: <dbl>
+#> • x: <dbl>
+
+```
+
+Second, you can return an object with a binding to that environment. The
+following example uses a function factory (i.e., a function that makes functions) 
+to illustrate that idea.
+
+```{r}
+
+plus <- function(x) {
+  function(y) x + y
+}
+
+plus_one <- plus(1)
+
+plus_one
+
+#> function(y) x + y
+#> <environment: 0x134575ba0>
+
+plus_one(2)
+#> [1] 3
+
+```
+
+::: {.columns}
+::: {.column}
+The enclosing environment of `plus_one` is the execution environment of `plus` in 
+this function factory. 
+
+When `plus_one` is run, its execution environment captures the
+execution environment of `plus`.
+:::
+::: {.column}
+![](https://adv-r.hadley.nz/diagrams/environments/closure-call.png){.nostretch width="75%"}
+:::
+:::
+
+## Call Stacks
+
+The **caller** environment can be accessed with `rlang::caller_env` or `base::parent.frame` 
+and provides the environment from which the function was called. It can be different based 
+on how the function is called.
+
+Executing a function creates two types of context:
+
+- The execution environment is a child of the function environment and determined by 
+where the function was created.
+- The **call stack** is made up of **frames** and created by where the function was called.
+
+## Simple Call Stack
+
+The most common way to see a call stack in R is by looking at the `traceback` after an
+error has occurred.
+
+```{r}
+
+f <- function(x) {
+  g(x = 2)
+}
+
+g <- function(x) {
+  h(x = 3)
+}
+
+h <- function(x) {
+  stop()
+}
+
+f(x = 1)
+#> Error in `h()`
+
+traceback()
+#> 4: stop() at #2
+#> 3: h(x = 3) at #2
+#> 2: g(x = 2) at #2
+#> 1: f(x = 1)
+
+```
+
+We can also use `lobstr::cst` to print out the **c**all **s**tack **t**ree. It prints the
+call stack from the beginning rather than the end like `traceback`.
+
+```{r}
+
+h <- function(x) {
+  lobstr::cst()
+}
+
+f(x = 1)
+
+#>     ▆
+#>  1. └─global f(x = 1)
+#>  2.   └─global g(x = 2)
+#>  3.     └─global h(x = 3)
+#>  4.       └─lobstr::cst()
+
+```
+
+## Lazy Evaluation
+
+A call stack often happens on a single branch when all arguments are *eagerly* 
+evaluated. A more complex call stack can be created by including lazy evaluation.
+
+```{r}
+
+a <- function(x) b(x)
+b <- function(x) c(x)
+c <- function(x) x
+
+a(f())
+
+#>     ▆
+#>  1. ├─global a(f())
+#>  2. │ └─global b(x)
+#>  3. │   └─global c(x)
+#>  4. └─global f()
+#>  5.   └─global g(x = 2)
+#>  6.     └─global h(x = 3)
+#>  7.       └─lobstr::cst()
+
+```
+
+The tree gets 2 branches because x is lazily evaluated. First, `a()` calls `b()` and then `b()` calls `c()`. The second branch starts when `c()` evaluates its argument x. It gets a new branch
+as it is evaluated in the global environment and not the environment of `c()`. 
+
+## Frames
+
+::: {.columns}
+::: {.column}
+
+Each element of the call stack is a **frame**, an internal data structure with 
+three key components: 
+
+- An expression (labelled with **expr**) giving the function call. This is what `traceback` prints.
+- An environment (labelled with **env**) that is generally the execution environment.
+- A parent or the previous call in the call stack (shown with a grey arrow)
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/environments/calling.png){.nostretch}
+
+:::
+:::
+
+## Environments as Data Structures
+
+Environments are useful data structures as they have reference semantics. There are three
+common problems that this can help solve:
+
+- You will never accidentally create a copy of an environment which avoids copying large data.
+- Allows you to manage state across function calls within a package.
+- Simulates a hashmap or a data structure that takes a constant time to find an object
+based on its name.
