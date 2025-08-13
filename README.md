@@ -51,6 +51,7 @@ The list of completed presentations include:
 - 04-AdvR-Subsetting
 - 05-AdvR-Control-Flow
 - 06-AdvR-Functions
+- 07-AdvR-Environments
 
 ## Hex Sticker
 
