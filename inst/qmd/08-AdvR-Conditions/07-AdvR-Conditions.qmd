@@ -191,3 +191,86 @@ suppressMessages({
 #> [1] 2
 
 ```
+
+## Handling Conditions
+
+Each signalling condition has a default behavior:
+
+- Errors stop execution and return to the top level
+- Warnings are captured and displayed in aggregate
+- Messages are immediately shown
+
+Condition **handlers** allow us to temporarily override or supplement the default behavior.
+We can use `tryCatch` and `withCallingHandlers` to register handlers.
+
+```{r}
+
+tryCatch(
+  error = function(condition) {
+    # code to run when an error is thrown
+  },
+  # code to run while handlers are active
+)
+
+withCallingHandlers(
+  warning = function(condition) {
+    # code to run when a warning is signalled
+  },
+
+  message = function(condition) {
+    # code to run when a message is signalled
+  },
+
+  # code to run while handlers are active
+)
+
+```
+
+## Condition Objects
+
+Viewing a condition object that is signalled can be done with `rlang::catch_cnd`. Built-in
+conditions have two elements:
+
+- A **message** containing the text that should be displayed to the user
+- A **call** that triggered the condition
+
+```{r}
+
+cnd <- rlang::catch_cnd(stop("Here is an error!"))
+str(cnd)
+
+#> List of 2
+#>  $ message: chr "Here is an error!"
+#>  $ call   : language force(expr)
+#>  - attr(*, "class")= chr [1:3] "simpleError" "error" "condition"
+
+# Extract the message
+conditionMessage(cnd)
+
+# Extract the call
+conditionCall(cnd)
+
+```
+
+## Exiting Handlers
+
+The function `tryCatch` can be used to handle error conditions. You can override the default
+error behavior (e.g., return NA instead of an error) and code executes normally if no error 
+exists.
+
+```{r}
+
+f2 <- function(x) {
+  tryCatch(
+    error = function(cnd) NA,
+    log(x)
+  )
+}
+
+f2("x")
+#> [1] NA
+
+f2(10)
+#> [1] 2.302585
+
+```
