@@ -1,0 +1,193 @@
+---
+title: "Advanced R: Conditions"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Introduction
+
+Provides a paired set of tools that allows the author of a function to indicate
+that something unusual is happening and a user to deal with it. The author
+**signals** conditions with functions like `stop()` (for errors), `warning()`
+(for warnings), and `message()` (for messages). 
+
+The user can handle the signals with functions like `tryCatch()` and `withCallingHandlers()`.
+
+## Signalling conditions
+
+- **Errors** indicate that there is no way for a function to continue and execution must stop
+- **Warnings** show that something has gone wrong but the function could at least partially recover
+- **Messages** inform users that some action has been performed on their behalf
+
+Conditions are displayed prominently with errors always starting with **Error**
+and warnings starting with **Warning**.
+
+```{r}
+
+stop("This is an error")
+#> Error: This is an error
+
+```
+
+
+```{r}
+#| eval: true
+#| warning: true
+#| message: true
+
+warning("Here is a warning...")
+
+message("and a message")
+
+```
+
+## Errors
+
+Errors are signalled, or **thrown** using `stop()` Adding `call. = FALSE` removes the function call which is 
+typically not useful and can be obtained from **traceback**. This can be accomplished automatically with
+`rlang::abort`.
+
+```{r}
+
+f <- function() g()
+g <- function() h()
+h <- function() stop("Here is an error!", call. = FALSE)
+
+f()
+#> Error: Here is an error!
+
+```
+
+::: {.tip-box}
+
+The best error messages tell you what is wrong and provides direction toward fixing the problem. Writing good
+error messages is challenging because it is hard to imagine how the user is thinking incorrectly about your code.
+
+:::
+
+You can visit the <a href = "http://style.tidyverse.org/errors.html">tidyverse style guide</a> for helpful tips in writing error messages.
+
+## Warnings
+
+Warnings signal that something has gone wrong, but the code recovered and was able to continue. You can
+have multiple warnings within a function. 
+
+```{r}
+
+fw <- function() {
+  cat("1\n")
+  warning("Warning #1", call. = FALSE)
+  cat("2\n")
+  warning("Warning #2", call. = FALSE)
+}
+
+fw()
+
+#> 1
+#> 2
+#> Warning messages:
+#> 1: Warning #1
+#> 2: Warning #2
+
+```
+
+Warnings are cached and printed only when a function exists, but you can control this behavior with the `warn` option.
+
+- `options(warn = 0)` is the default behavior and prints warnings at the end.
+- `options(warn = 1)` will make the warnings appear immediately.
+- `options(warn = 2)` will trun the warnings into errors (helps with debugging a warning).
+
+It is difficult to know when to use warnings. Warnings are often missed if there is a lot of other output and restraining use
+of warnings is advised. Warnings are appropriate when:
+
+- You deprecate a function and want to allow older code to run but encourage users to switch to the newer function
+- You are reasonable certain you can recover but not fix a problem
+
+## Messages
+
+Provide information to let the user know you have done something on their behalf. Good messages provide useful information
+so the user knows what is happening, but not too many details that the user feels overwhelmed. Messages are recommended when:
+
+- Providing a default argument in a function that requires some computation and you want to let the user know what value was used
+(e.g., ggplot2 reports the number of bins if binwidth is missing)
+- Using functions that are called for their side-effects and would otherwise be silent (e.g., writing files to disk or calling a web API)
+- Starting a long, multi-step running process
+- Providing a message when your package is loaded (e.g., `.onAttach()`)
+
+::: {.tip-box}
+
+The results of the `message()` and `cat()` functions are similar but their purposes are different. Use **cat** when the 
+*user asks* for a message to be printed to the console and **message** when the *developer elects* for a message to
+be printed.
+
+:::
+
+## Ignoring Conditions
+
+A simple way to handle conditions in R is to ignore them. This can be done using **try** for errors, **suppressWarnings**
+for warnings, and **suppressMessages** for messages.
+
+The `try()` function allows execution to continue after an error has occurred.
+
+```{r}
+
+f1 <- function(x) {
+  try(log(x))
+  10
+}
+
+f1()
+
+#> Error in log(x) : argument "x" is missing, with no default
+#> [1] 10
+
+```
+
+By doing assignment within the call, you can define a default value for use if the code does not work. This works
+because the argument is evaluated in the calling environment and not the function.
+
+```{r}
+
+default <- NULL
+
+try(default <- read.csv("this-file-does-not-exist.csv"), silent = TRUE)
+
+```
+
+Both `suppressWarnings()` and `suppressMessages()` suppress all warnings and messages.
+
+```{r}
+
+suppressWarnings({
+  warning("This might be a problem!")
+  1
+})
+#> [1] 1
+
+suppressMessages({
+  message("Greetings!")
+  2
+})
+#> [1] 2
+
+```
