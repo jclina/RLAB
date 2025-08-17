@@ -274,3 +274,47 @@ f2(10)
 #> [1] 2.302585
 
 ```
+
+::: {.highlight-box}
+
+It is called an **exiting** handler because control passes to the handler after the error
+occurs and never returns to the original code.
+
+:::
+
+The handler functions are called with a single argument (i.e., the condition object).
+This object becomes more useful when you make your own custom conditions. 
+
+```{r}
+
+tryCatch(
+  error = function(cnd) {
+    paste0("--", conditionMessage(cnd), "--")
+  },
+  stop("Here is an error")
+)
+
+#> [1] "--Here is an error--"
+
+```
+
+The `tryCatch` function also has a **finally** argument to provide a block of code that
+runs regardless of whether the initial expression is successful. This could be useful for
+clean up (e.g., deleting files) or closing connections. 
+
+```{r}
+
+path <- tempfile()
+
+tryCatch(
+  {
+    writeLines("Hi", path)
+  },
+  finally = {
+    unlink(path)
+  }
+)
+
+```
+
+## Calling handlers
