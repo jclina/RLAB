@@ -115,7 +115,7 @@ Warnings are cached and printed only when a function exists, but you can control
 
 - `options(warn = 0)` is the default behavior and prints warnings at the end.
 - `options(warn = 1)` will make the warnings appear immediately.
-- `options(warn = 2)` will trun the warnings into errors (helps with debugging a warning).
+- `options(warn = 2)` will turn the warnings into errors (helps with debugging a warning).
 
 It is difficult to know when to use warnings. Warnings are often missed if there is a lot of other output and restraining use
 of warnings is advised. Warnings are appropriate when:
@@ -318,3 +318,484 @@ tryCatch(
 ```
 
 ## Calling handlers
+
+Unlike exiting handlers, calling handlers like `withCallingHandlers` allow code 
+execution to continue normally once the handler returns, making a more natural
+pairing with the non-error conditions (i.e., message, warning). Notice how the
+execution of the code below differs: 
+
+```{r}
+
+tryCatch(
+  message = function(cnd) cat("Here is a message!\n"),
+  {
+    message("Is someone available?")
+    message("Why, yes! How can I help?")
+  }
+)
+
+#> Here is a message!
+
+withCallingHandlers(
+  message = function(cnd) cat("Here is a message!\n"),
+  {
+    message("Is someone available?")
+    message("Why, yes! How can I help?")
+  }
+)
+
+#> Here is a message!
+#> Is someone available?
+#> Here is a message!
+#> Why, yes! How can I help?
+
+```
+
+Handlers are applied in order so you do not need to worry about infinite
+loops, but you may want to think through the order if using multiple handlers.
+
+```{r}
+
+withCallingHandlers(
+  message = function(cnd) message("Second message"),
+  message("First message")
+)
+
+#> Second message
+#> First message
+
+```
+
+A unique side-effect of calling handlers is the ability to **muffle** the signal. A 
+condition will continue to propagate to the parent handlers all the way to the parent
+or exiting handler.
+
+```{r}
+
+# Bubbles up to the default handler which generates the message
+withCallingHandlers(
+  message = function(cnd) cat("Level 2\n"),
+  withCallingHandlers(
+    message = function(cnd) cat("Level 1\n"),
+    message("Greetings!")
+  )
+)
+
+#> Level 1
+#> Level 2
+#> Greetings!
+
+# Muffles the default handler
+
+withCallingHandlers(
+  message = function(cnd) {
+    cat("Level 2\n")
+    rlang::cnd_muffle(cnd)
+  },
+  withCallingHandlers(
+    message = function(cnd) cat("Level 1\n"),
+    message("Greetings!")
+  )
+)
+
+#> Level 1
+#> Level 2
+
+```
+
+## Custom Conditions
+
+R has the ability to create custom conditions containing additional metadata. Using
+`rlang::abort` allows you to apply a custom .subclass and additional metadata,
+guiding the user toward a solution to the problem.
+
+```{r}
+
+my_log <- function(x, base = exp(1)) {
+  if (!is.numeric(x)) {
+    rlang::abort(
+      paste0(
+        "`x` must be a numeric vector; not ",
+        typeof(x),
+        "."
+      )
+    )
+  }
+  if (!is.numeric(base)) {
+    rlang::abort(
+      paste0(
+        "`base` must be a numeric vector; not ",
+        typeof(base),
+        "."
+      )
+    )
+  }
+  base::log(x, base = base)
+}
+
+my_log(letters)
+#> Error in `my_log()`: `x` must be a numeric vector; not character.
+
+my_log(1:10, base = letters)
+#> Error in `my_log()`: `base` must be a numeric vector; not character.
+
+```
+
+## Signalling
+
+Let's improve our `my_log` error handling by making it more generalized, including
+a nice error message with the **glue** R package for the user and more metadata
+for the developer.
+
+```{r}
+
+# An example of doing this in Base R is in Advaned R on page 191
+
+abort_bad_argument <- function(arg, must, not = NULL) {
+  msg <- glue::glue("`{arg}` must {must}")
+  if (!is.null(not)) {
+    not <- typeof(not)
+    msg <- glue::glue("{msg}; not {not}")
+  }
+  rlang::abort(
+    "error_bad_argument",
+    message = msg,
+    arg = arg,
+    must = must,
+    not = not
+  )
+}
+
+my_log <- function(x, base = exp(1)) {
+  if (!is.numeric(x)) {
+    abort_bad_argument("x", must = "be numeric", not = x)
+  }
+  if (!is.numeric(base)) {
+    abort_bad_argument("base", must = "be numeric", not = base)
+  }
+  base::log(x, base = base)
+}
+
+my_log(letters)
+#> Error in `abort_bad_argument()`: ! `x` must be numeric; not character
+
+my_log(1:10, base = letters)
+#> Error in `abort_bad_argument()`: ! `base` must be numeric; not character
+
+```
+
+::: {.highlight-box}
+
+This structure makes programming more efficient and can be used in a wide
+range of scenarios including unit testing in package development.
+
+:::
+
+## Applications
+
+Some common applications of the condition system in R: 
+
+1. Failure value
+2. Success and failure values
+3. Resignal
+4. Record
+5. No default behavior
+
+## Failure Value
+
+Return a default value if an error occurs
+
+```{r}
+
+fail_with <- function(expr, value = NULL) {
+  tryCatch(
+    error = function(cnd) value,
+    expr
+  )
+}
+
+fail_with(log(10), NA_real_)
+#> [1] 2.302585
+
+fail_with(log("x"), NA_real_)
+#> [1] NA
+
+```
+
+A more sophisticated application is `base::try()`:
+
+```{r}
+
+try2 <- function(expr, silent = FALSE) {
+  tryCatch(
+    error = function(cnd) {
+      msg <- conditionMessage(cnd)
+      if (!silent) {
+        message("Error: ", msg)
+      }
+      structure(msg, class = "try-error")
+    },
+    expr
+  )
+}
+
+try2(1)
+#> [1] 1
+
+try2(stop("Hello!"))
+#> Error: Hello!
+#> [1] "Hello!"
+#> attr(,"class")
+#> [1] "try-error"
+
+try2(stop("Hello!"), silent = TRUE)
+#> [1] "Hello!"
+#> attr(,"class")
+#> [1] "try-error"
+
+```
+
+
+## Success and Failure Values
+
+An extension of the failure value by returning a different value if the code evaluates
+successfully. This requires an evaluation of the code supplied by the user.
+
+We can use this to determine if an expression fails:
+
+```{r}
+
+does_error <- function(expr) {
+  tryCatch(
+    error = function(cnd) TRUE,
+    {
+      expr
+      FALSE
+    }
+  )
+}
+
+does_error(log(10))
+#> [1] FALSE
+
+does_error(log("x"))
+#> [1] TRUE
+
+```
+
+Or to capture any condition as seen in `rlang::catch_cnd`
+
+```{r}
+
+catch_cnd <- function(expr) {
+  tryCatch(
+    condition = function(cnd) cnd,
+    {
+      expr
+      NULL
+    }
+  )
+}
+
+catch_cnd(log("x"))
+#> <simpleError in log("x"): non-numeric argument to mathematical function>
+
+catch_cnd(log(10))
+#> NULL
+
+```
+
+We can also create a variant of the `try` function that returns a list consisting
+of a **result** and **error** component.
+
+```{r}
+
+safety <- function(expr) {
+  tryCatch(
+    error = function(cnd) {
+      list(result = NULL, error = cnd)
+    },
+    list(result = expr, error = NULL)
+  )
+}
+
+safety(log("x"))
+#> $result
+#> NULL
+
+#> $error
+#> <simpleError in log("x"): non-numeric argument to mathematical function>
+
+safety(log(10))
+#> $result
+#> [1] 2.302585
+
+#> $error
+#> NULL
+
+```
+
+## Resignal
+
+Handlers can be used to make informative error messages and simulate `options(warn = 2)`
+to turn a warning into an error for a single block of code to help with debugging. You
+could write a similar function if you were trying to locate the source of a message.
+
+```{r}
+
+warning2error <- function(expr) {
+  withCallingHandlers(
+    warning = function(cnd) rlang::abort(conditionMessage(cnd)),
+    expr
+  )
+}
+
+rlang::warn("Hello")
+#> Warning message:
+#> Hello
+
+warning2error({
+  x <- 2 * 4
+  rlang::warn("Hello")
+})
+
+#> Error:
+#> ! Hello
+
+```
+
+## Record
+
+Recording conditions for later investigation can be accomplished with conditions if
+an object is modified in place as calling handlers are called for their side effects
+and cannot return values. You can also capture errors by wrapping **withCallingHandlers**
+in a **tryCatch**.
+
+```{r}
+
+catch_cnds <- function(expr) {
+  conds <- list()
+  add_cond <- function(cnd) {
+    conds <<- append(conds, list(cnd))
+    rlang::cnd_muffle(cnd)
+  }
+
+  tryCatch(
+    error = function(cnd) {
+      conds <<- append(conds, list(cnd))
+    },
+    withCallingHandlers(
+      message = add_cond,
+      warning = add_cond,
+      expr
+    )
+  )
+  conds
+}
+
+
+catch_cnds({
+  rlang::inform("a")
+  rlang::warn("b")
+  rlang::abort("c")
+})
+
+#> [[1]]
+#> <message/rlang_message>
+#> Message:
+#> a
+
+#> [[2]]
+#> <warning/rlang_warning>
+#> Warning:
+#> b
+
+#> [[3]]
+#> <error/rlang_error>
+#> Error:
+#> ! c
+#> ---
+#> Backtrace:
+#>     ▆
+#>  1. ├─global catch_cnds(...)
+#>  2. │ ├─base::tryCatch(...)
+#>  3. │ │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+#>  4. │ │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#>  5. │ │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+#>  6. │ └─base::withCallingHandlers(...)
+#>  7. └─rlang::abort("c")
+
+```
+
+::: {.tip-box}
+
+The idea of recording conditions led to the creation of the **evaluate** R package which
+powers **knitr**. The functions in **evaluate** capture each output into a special data
+structure so it can be later replayed. The code is more complex as it needs to handle 
+both plot and text output.
+
+:::
+
+## No Default Behavior
+
+You can signal a condition that does not inherit from a message, warning, or error. In
+this case, there is no default behavior and the condition has no effect unless the user
+requests it. For example, you could create a logging system based on conditions:
+
+```{r}
+
+log <- function(message, level = c("info", "error", "fatal")) {
+  level <- match.arg(level)
+  rlang::signal(message, "log", level = level)
+}
+
+log("This code was run")
+
+```
+
+The condition is signalled, but nothing happens with the code above as it has no 
+default handler. To activate logging, you need a handler that does something with
+the log condition.
+
+```{r}
+
+record_log <- function(expr, path = stdout()) {
+  withCallingHandlers(
+    log = function(cnd) {
+      cat(
+        "[",
+        cnd$level,
+        "] ",
+        cnd$message,
+        "\n",
+        sep = "",
+        file = path,
+        append = TRUE
+      )
+    },
+    expr
+  )
+}
+
+record_log(log("Hello"))
+
+```
+
+You could even add another function to selectively ignore some logging levels.
+
+```{r}
+
+ignore_log_levels <- function(expr, levels) {
+  withCallingHandlers(
+    log = function(cnd) {
+      if (cnd$level %in% levels) {
+        rlang::cnd_muffle(cnd)
+      }
+    },
+    expr
+  )
+}
+
+record_log(ignore_log_levels(log("Hello"), "info"))
+
+```
