@@ -778,6 +778,7 @@ record_log <- function(expr, path = stdout()) {
 }
 
 record_log(log("Hello"))
+#> [info] Hello
 
 ```
 
