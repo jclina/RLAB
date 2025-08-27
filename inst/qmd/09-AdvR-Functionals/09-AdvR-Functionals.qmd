@@ -31,7 +31,6 @@ R is a functional programming language. It uses functions to solve problems.
 Functional programming languages have two common features:
 
 - **First-class functions**: Functions that behave like any other data structure. For example, you can assign functions to variables, store them in lists, pass them as arguments to other functions, create them inside functions, and return them as a result from another function.
-
 - **Functions must be pure**: A function is pure if the output only depends on the inputs (i.e., the same inputs lead to the same outputs each time the function is called) and the function has no unintended side-effects.
 
 ## Functionals
