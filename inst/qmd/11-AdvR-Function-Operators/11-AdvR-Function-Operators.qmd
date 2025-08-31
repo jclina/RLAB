@@ -1,0 +1,27 @@
+---
+title: "Advanced R: Function Operators"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Introduction
