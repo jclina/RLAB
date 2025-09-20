@@ -1,0 +1,235 @@
+---
+title: "Advanced R: Object Oriented Programming"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Introduction
+
+The first big idea behind **metaprogramming** is that *code is data*. You
+can capture and compute on code like any other type of data. For example,
+the `rlang::expr` function can return exactly what you pass in.
+
+
+```{r}
+
+rlang::expr(mean(x, na.rm = TRUE))
+#> mean(x, na.rm = TRUE)
+
+rlang::expr(10 + 100 + 1000)
+#> 10 + 100 + 1000
+
+```
+
+Captured code is called an **expression**, a collective term for any of 
+four types (call, symbol, constant, or pairlist). The **rlang::expr** 
+allows you to capture code you type, but you need `rlang::enexpr` to 
+capture code passed to a function.
+
+```{r}
+
+capture_it <- function(x, method) {
+  if (method == "expr") {
+    rlang::expr(x)
+  } else if (method == "enexpr") {
+    rlang::enexpr(x)
+  }
+}
+
+capture_it(x = a + b + c, method = "expr")
+#> x
+
+capture_it(x = a + b + c, method = "enexpr")
+#> a + b + c
+
+```
+
+Once you capture an expression, you can inspect and modify it like lists
+using `[[` and `$`.
+
+```{r}
+
+f <- rlang::expr(f(x = 1, y = 2))
+
+f$z <- 3
+f
+#> f(x = 1, y = 2, z = 3)
+
+# The first argument is in the second position as the first element
+# is the function to be called (i.e., f).
+
+f[[2]] <- NULL
+f
+#> f(y = 2, z = 3)
+
+```
+
+## Code is a Tree
+
+More complex manipulations with expressions require an understanding of
+their structure. Nearly every programming language represents code as
+an abstract syntax tree (AST). In R, you can inspect and manipulate 
+the AST.
+
+```{r}
+#| eval: true
+
+lobstr::ast(1 + 2 * 3)
+
+lobstr::ast(paste("Mean:", mean(1:100), "SD: ", sd(1:100)))
+
+```
+
+## Code can Generate Code {.pattern-dots}
+
+You can use `rlang::call2` and unquoting to use code to create new trees.
+The **rlang::call2** function constructs a function call from its 
+components: the function to the call and the arguments to call it with.
+
+```{r}
+
+rlang::call2("+", 1, rlang::call2("*", 2, 3))
+#> 1 + 2 * 3
+
+```
+
+You can build complex code trees by combining simpler ones with a template.
+The **expr** and **enexpr** functions have built-in support for this idea
+via `!!`, the unquote operator (pronounced bang-bang).
+
+```{r}
+
+xx <- rlang::expr(x + y)
+yy <- rlang::expr(y + y)
+
+# !!xx inserts the code tree stored in xx into the expression
+
+rlang::expr(!!xx / !!yy)
+#> (x + y)/(y + y)
+
+```
+
+Unquoting is even more useful inside a function. For example, here is an
+expression to calculate the coefficient of variation.
+
+```{r}
+
+cv <- function(var) {
+  var <- rlang::enexpr(var)
+  rlang::expr(sd(!!var) / mean(!!var))
+}
+
+cv(x)
+#> sd(x)/mean(y)
+
+```
+
+## Evaluation Runs Code
+
+You can evaluate (i.e., execute or run) an expression with `base::eval`.
+The **eval** function takes two arguments: the expression and environment.
+Omitting the environment causes **eval** to use the current one.
+
+```{r}
+
+eval(rlang::expr(x + y), rlang::env(x = 1, y = 10))
+#> [1] 11
+
+```
+
+
+## Customizing Evaluation with Functions
+
+You can also bind names to functions when evaluating which can allow you
+to override the behavior of existing functions. For example, we can
+override the `*` and `+` function to work with strings.
+
+```{r}
+
+add_string <- function(x) {
+  e <- rlang::env(
+    rlang::caller_env(),
+    `+` = function(x, y) paste0(x, y)
+  )
+  eval(rlang::enexpr(x), e)
+}
+
+name <- "Brian"
+add_string("Hello " + name)
+#> [1] "Hello Brian"
+
+```
+
+The **dplyr** package uses this idea to run code in an environment to
+generate SQL for execution in a remote database.
+
+```{r}
+
+con <- DBI::dbConnect(RSQLite::SQLite(), filename = ":memory:")
+mtcars_db <- dplyr::copy_to(con, mtcars)
+
+mtcars_db |>
+  dplyr::filter(cyl > 2) |>
+  dplyr::select(mpg:hp) |>
+  head(10) |>
+  dplyr::show_query()
+
+#> <SQL>
+#> SELECT `mpg`, `cyl`, `disp`, `hp`
+#> FROM `mtcars`
+#> WHERE (`cyl` > 2.0)
+#> LIMIT 10
+
+DBI::dbDisconnect(con)
+
+```
+
+## Customizing Evaluation with Data
+
+You can modify evaluation to look for variables in a data frame instead
+of an environment. This idea powers the base **subset** and **transform**
+functions, as well as many tidyverse functions like **ggplot2::aes** and
+**dplyr::mutate**. We can use `rlang::eval_tidy` which takes an 
+expression, environment, and a data mask.
+
+```{r}
+
+df <- data.frame(x = 1:5, y = 6:10)
+rlang::eval_tidy(rlang::expr(x + y), df)
+#> [1] 7 9 11 13 15
+
+```
+
+We can expand upon this idea by wrapping this pattern into a function
+using **enexpr** to get a similar function to `base::with`.
+
+```{r}
+
+with2 <- function(df, expr) {
+  rlang::eval_tidy(rlang::enexpr(expr), df)
+}
+
+with2(df, x + y)
+#> [1] 7 9 11 13 15
+
+```
