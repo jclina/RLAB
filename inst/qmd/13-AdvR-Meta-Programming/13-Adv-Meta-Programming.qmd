@@ -233,3 +233,114 @@ with2(df, x + y)
 #> [1] 7 9 11 13 15
 
 ```
+
+## Quosures
+
+A problem arises with **with2** in that the expression is evaluated inside
+of the function and not the environment where it was written. We can solve
+this problem by using a new data structure called a **quosure** which 
+bundles the expression with an environment.
+
+```{r}
+
+with2 <- function(df, expr, method) {
+  a <- 1000
+  if (method == "enexpr") {
+    rlang::eval_tidy(rlang::enexpr(expr), df)
+  } else if (method == "enquo") {
+    rlang::eval_tidy(rlang::enquo(expr), df)
+  }
+}
+
+df <- data.frame(x = 1:5)
+a <- 10
+
+with2(df, x + a, method = "enexpr")
+#> [1] 1001 1002 1003 1004 1005
+
+with2(df, x + a, method = "enquo")
+#> [1] 11 12 13 14 15
+
+```
+
+## Abstract Syntax Trees
+
+Expressions are also called **abstract syntax trees** (ASTs) because
+the structure of code is hierarchical and can be represented as a tree.
+We can use `lobstr::ast` to better understand this structure.
+
+```{r}
+
+lobstr::ast(f(g(1, 2), h(3, 4, i())))
+
+#> █─f
+#> ├─█─g
+#> │ ├─1
+#> │ └─2
+#> └─█─h
+#>   ├─3
+#>   ├─4
+#>   └─█─i
+
+```
+
+::: {.columns}
+::: {.column}
+
+- The leaves of the tree are symbols like f, g, h, and i or constants like 1, 2, 3, and 4. When printing in the console, symbols will be printed in purple.
+- The branches of the tree are call objects, representing function calls
+and drawn as orange rectangles in the console. 
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/expressions/complicated.png){.nostretch}
+
+:::
+:::
+
+::: {.highlight-box}
+
+ASTs are *abstract* because they only capture important structural details 
+of the code and not whitespace or comments.
+
+:::
+
+## Infix Calls
+
+::: {.columns}
+::: {.column}
+
+- Every call in R can be written in tree form as any call can be written
+in prefix form. For example, these expressions would produce the same 
+ASTs. 
+- Even if you generate an expression with prefix calls, R will still 
+print it in infix form.
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/expressions/prefix.png){.nostretch}
+
+:::
+::: 
+
+```{r}
+
+x <- 2
+
+y <- x * 10
+
+`<-`(y, `*`(x, 10))
+
+lobstr::ast(y <- x * 10)
+
+#> █─`<-`
+#> ├─y
+#> └─█─`*`
+#>   ├─x
+#>   └─10
+
+```
+
+
