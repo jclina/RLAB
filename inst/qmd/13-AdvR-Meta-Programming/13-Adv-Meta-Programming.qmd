@@ -565,3 +565,29 @@ cement(Good, !!time, !!class, attendees)
 
 ```
 
+::: {.highlight-box}
+
+An evaluated argument obeys R's usual evaluation rules and a quoted argument is
+captured by the function and is processed in a custom way.
+
+:::
+
+## Quoting
+
+Quotation, the first part of quasiquotation, is capturing an expression without
+evaluating it. There are four important quoting functions:
+
+- **expr**: captures its argument exactly as provided
+- **enexpr**: captures what the caller supplied to the function by looking
+at the internal promise object that powers lazy evaluation
+- **enexprs**: captures all arguments in ...
+- **exprs**: captures a list of expressions
+- **ensym** and **ensyms** converts to a symbol
+
+::: {.highlight-box}
+
+Many of the `rlang` functions described have a base R equivalent. For example,
+**quote** is the base R equivalent of **expr**, **substitute** is the base R
+equivalent of **enexpr**, and **alist** is the base R equivalent of **exprs**.
+
+:::
