@@ -591,3 +591,842 @@ Many of the `rlang` functions described have a base R equivalent. For example,
 equivalent of **enexpr**, and **alist** is the base R equivalent of **exprs**.
 
 :::
+
+## Substitution
+
+The `substitute` function is most often used to capture unevaluated arguments.
+It also does substitution, taking an expression and substituting the values of
+the symbols defined in the current environment. 
+
+```{r}
+
+substitute(x * y * z, env = list(x = 10, y = quote(a + b)))
+#> 10 * (a + b) * z
+
+```
+
+## Unquoting
+
+The difference between the **rlang** functions from base R is that they are
+quasiquoting functions which means that they can also unquote. Unquoting allows
+you to selectively evaluate parts of the expression that would otherwise be quoted.
+
+::: {.columns}
+::: {.column}
+
+Unquoting one argument can be accomplished with **!!** The diagram on the right
+shows what happens to `expr(-1)` assigned to x and provided to the expression
+`expr(f(!!x), y)`. The **!!** operator also works with symbols, constants, and
+functions. Using **!!** with a function call evaluates it and puts it in the 
+results, and preserves operator precedence.
+
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/quotation/bang-bang.png){.nostretch width="75%"}
+
+:::
+:::
+
+```{r}
+
+mean_rm <- function(var) {
+  var <- rlang::ensym(var)
+  rlang::expr(mean(!!var, na.rm = TRUE))
+}
+
+rlang::expr(!!mean_rm(x) + !!mean_rm(y))
+#> mean(x, na.rm = TRUE) + mean(y, na.rm = TRUE)
+
+```
+
+Unquoting a function and missing arguments are less common in practice, but the **!!**
+operator can handle both situations.
+
+```{r}
+
+# Unquoting a function needs an extra pair of parentheses
+f <- rlang::expr(foo)
+rlang::expr((!!f)(x, y))
+#> foo(x, y)
+
+# You can also use rlang::call2 which makes it clearer
+rlang::call2(f, rlang::expr(x), rlang::expr(y))
+#> foo(x, y)
+
+# Use maybe_missing to unquote a missing argument
+arg <- rlang::missing_arg()
+rlang::expr(foo(!!rlang::maybe_missing(arg), !!rlang::maybe_missing(arg)))
+#> foo(, )
+
+```
+
+## Unquoting Many Arguments
+
+The **!!** operator is a one-to-one replacement. The *unquote-splice* **!!!** (pronounced
+bang-bang-bang) is a one-to-many replacement. It takes a list of expressions and inserts
+them at the location of **!!!**.
+
+```{r}
+
+xs <- rlang::exprs(1, a, -b)
+rlang::expr(f(!!!xs, y))
+#> f(1, a, -b, y)
+
+```
+
+::: {.columns}
+::: {.column}
+
+The **!!!** operator can be used in any rlang function that takes `...` regardless of whether
+**...** is quoted or evaluated.
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/quotation/bang-bang-bang.png){.nostretch width="75%"}
+
+:::
+:::
+
+## Non-quoting
+
+Base R has one function that implements quasiquotation. The `bquote` function is for quoting
+and it uses `.()` for unquoting.
+
+```{r}
+
+xyz <- bquote((x + y + z))
+xyz
+#> (x + y + z)
+
+bquote(-.(xyz) / 2)
+#> -(x + y + z)/2
+
+```
+
+The `bquote` function is not used by any other function in base R and its use is challenging
+because it is difficult to use with code supplied by a user, it does not have an unquote-splice
+operator for multiple expressions, and can't handle code in an environment (e.g., functions).
+Instead, base R uses non-quoting instead of unquoting which selectively turns off quoting and
+comes in four basic forms: 
+
+A pair of quoting and non-quoting functions
+
+```{r}
+
+x <- list(var = 1, y = 2)
+
+var <- "y"
+
+x$var
+#> [1] 1
+x[[var]]
+#> [1] 2
+
+```
+
+
+A pair of quoting and non-quoting arguments
+
+```{r}
+
+# The rm function allows variable names in ... or a character
+# vector of variable names in a list
+x <- 1
+rm(x)
+
+y <- 2
+vars <- c("y", "vars")
+rm(list = vars)
+
+# data() and save() work similarly
+
+```
+
+
+An argument that controls whether a different argument is quoting or non-quoting
+
+```{r}
+
+# The library function has a character.only argument to
+# control the quoting behavior of the package argument
+
+library(MASS)
+
+pkg <- "MASS"
+library(pkg, character.only = TRUE)
+
+# demo, detach, example, and require work similarly
+
+```
+
+Quoting if evaluation fails
+
+```{r}
+
+help(func)
+#> No documentation for ‘func’ in specified packages and libraries:
+#> you could try ‘??func’
+
+func <- "mean"
+help(func)
+#> Shows help for mean
+
+# ls, page, and match.fun work simlarly
+
+```
+
+## Base Modelling and Plotting
+
+The base modelling and plotting functions also use quoting and non-quoting. For
+example, **lm** quotes the weight and subset arguments, and **plot** quotes the
+aesthetic arguments (e.g., col, pch, cex) when used with a formula.
+
+
+```{r}
+
+palette(RColorBrewer::brewer.pal(3, "Set1"))
+plot(
+  Sepal.Length ~ Petal.Length,
+  data = iris,
+  col = Species,
+  pch = 20,
+  cex = 2
+)
+
+```
+
+![](https://adv-r.hadley.nz/Quotation_files/figure-html/unnamed-chunk-58-1.png){.nostretch}
+
+## The ... (dot-dot-dot) Operator
+
+We can use !!! on a list of expressions that we want to insert into a call. This could be
+useful if the elements you want to put in ... are already stored as a list.
+
+```{r}
+
+dfs <- list(
+  a = data.frame(x = 1, y = 2),
+  b = data.frame(x = 3, y = 4),
+  c = data.frame(x = 5, y = 6)
+)
+
+dplyr::bind_rows(!!!dfs)
+
+```
+
+We can also use !! to supply the argument name indirectly. We use `:=` (pronounced 
+colon-equals) to allow expressions as argument names. It looks like `=` but allows
+expressions on either side, making it a more flexible alternative that is commonly
+used in the data.table package.
+
+```{r}
+
+var <- "x"
+val <- c(4, 3, 9)
+
+tibble::tibble(!!var := val)
+#>       x
+#>   <dbl>
+#> 1     4
+#> 2     3
+#> 3     9
+
+```
+
+::: {.tip-box}
+
+We say that functions supporting these tools, without quoting arguments, have **tiny dots**.
+You can use tiny dots behavior in your own functions using `rlang::list2`.
+
+:::
+
+## Another Example of Tiny Dots
+
+We could use list2 to create a wrapper around attributes that allows us to set them flexibly.
+
+```{r}
+
+set_attr <- function(.x, ...) {
+  attr <- rlang::list2(...)
+  attributes(.x) <- attr
+  .x
+}
+
+attrs <- list(x = 1, y = 2)
+attr_name <- "z"
+x <- 1:10
+
+
+str(set_attr(x, w = 0, !!!attrs, !!attr_name := 3))
+
+#> int [1:10] 1 2 3 4 5 6 7 8 9 10
+#>  - attr(*, "w")= num 0
+#>  - attr(*, "x")= num 1
+#>  - attr(*, "y")= num 2
+#>  - attr(*, "z")= num 3
+
+```
+
+## Using rlang::exec
+
+You can use `rlang::exec` to use the tiny dots technique with a function that does not
+have tiny dots. With the **exec** function, you call a function with some arguments
+provided directly (in ...) and others indirectly (in a list). 
+
+```{r}
+
+# Directly
+rlang::exec("mean", x = 1:10, na.rm = TRUE, trim = 0.1)
+#> [1] 5.5
+
+## Indirectly
+args <- list(x = 1:10, na.rm = TRUE, trim = 0.1)
+rlang::exec("mean", !!!args)
+#> [1] 5.5
+
+# Mixed
+rlang::exec("mean", x = 1:10, !!!args[2:3])
+#> [1] 5.5
+
+```
+
+You can also provide argument names indirectly or call different functions with
+the same arguments.
+
+```{r}
+
+arg_name <- "na.rm"
+arg_val = TRUE
+
+rlang::exec("mean", 1:10, !!arg_name := arg_val)
+#> [1] 5.5
+
+funs <- c("mean", "median", "sd")
+purrr::map_dbl(funs, rlang::exec, 1:10, na.rm = TRUE)
+#> [1] 5.50000 5.50000 3.02765
+
+```
+
+::: {.tip-box}
+
+The `rlang::list2` function is a wrapper around `rlang::dots_list`. The **dots_list**  function allows
+users more control via additional arguments like *.ignore_empty*, *.homonoyms*, and *.preserve_empty*.
+See the help menu of **rlang::dots_list** for more details.
+
+:::
+
+## Solving the Tidy Dot Problems in Base R
+
+The `do.call` function has two main arguments: **what** gives a function to call and **args** provides
+a list of arguments to pass to that function. 
+
+```{r}
+
+dfs <- list(
+  a = data.frame(x = 1, y = 2),
+  b = data.frame(x = 3, y = 4),
+  c = data.frame(x = 5, y = 6)
+)
+
+do.call("rbind", dfs)
+#>   x y
+#> a 1 2
+#> b 3 4
+#> c 5 6
+
+var <- "x"
+val <- c(4, 3, 9)
+args <- list(val)
+names(args) <- var
+
+do.call("data.frame", args)
+#>   x
+#> 1 4
+#> 2 3
+#> 3 9
+
+```
+
+## A Practical Application
+
+You can use the techniques learned with quasiquotation and apply that with
+functions in the `purrr` package to print out a linear equation.
+
+```{r}
+
+print_linear_equation <- function(formula, data) {
+  fit <- lm(formula, data = data)
+  vars <- names(coef(fit)[-1])
+  summands <- purrr::map2(
+    round(coef(fit)[-1], 2),
+    vars,
+    ~ rlang::expr((!!.x * !!rlang::sym(.y)))
+  )
+  summands <- c(round(coef(fit)[[1]], 2), summands)
+  purrr::reduce(summands, ~ expr(!!.x + !!.y))
+}
+
+print_linear_equation(mpg ~ wt + cyl, data = mtcars)
+#> 39.69 + (-3.19 * wt) + (-1.51 * cyl)
+
+print_linear_equation(mpg ~ wt + cyl + hp, data = mtcars)
+#> 38.75 + (-3.17 * wt) + (-0.94 * cyl) + (-0.02 * hp)
+
+```
+
+## Evaluation {.title-slide}
+
+Provides the *developer* the ability to evaluate quoted expressions in custom environments
+to achieve specific goals. In addition to quasiquotation, quosures and data masks make up 
+the other two big ideas in tidy evaluation. 
+
+## Evaluation Basics
+
+The **eval** function has two key arguments: **expr** and **envir**. The `expr` argument
+is the object to evaluate and `env` provides the environment in which the expression
+should be evaluated.
+
+```{r}
+
+y <- 2
+eval(rlang::expr(x + y), rlang::env(x = 1000))
+#> [1] 1002
+
+```
+
+## Application: `local()`
+
+Performing a part of a calculation that creates some intermediate variables with no long-term
+use and possibly quite large can negatively affect memory. You can clean them up each time with
+`rm` or use `local`. 
+
+```{r}
+
+f <- local({
+  x <- 10
+  y <- 200
+  x + y
+})
+
+f
+#> [1] 210
+
+```
+
+The `local` function captures the input expression and creates a new environment to
+evaluate it. This simulates running **expr** inside an environment. The exact
+implementation of `base::local` uses **eval** and **substitute** in complex ways.
+
+```{r}
+
+local2 <- function(expr) {
+  env <- rlang::env(rlang::caller_env())
+  eval(rlang::enexpr(expr), env)
+}
+
+f2 <- local2({
+  x <- 10
+  y <- 200
+  x + y
+})
+
+f2
+#> [1] 210
+
+```
+
+## Application: `source()`
+
+A simple version of source can be created by combining **eval** and **parse_expr**.
+The source2 function below reads the file from disk, uses `parse_expr` to parse the
+string into a list of expressions, and then `eval` to evaluate each element.
+
+```{r}
+
+source2 <- function(path, env = rlang::caller_env()) {
+  file <- paste(readLines(path, warn = FALSE), collapse = "\n")
+  exprs <- rlang::parse_exprs(file)
+  res <- NULL
+  for (i in seq_along(exprs)) {
+    res <- eval(exprs[[i]], env)
+  }
+  invisible(res)
+}
+
+```
+
+## Quosures
+
+A quosure is an object that contains an expression and environment. There are
+three ways to create quosures: 
+
+Use `enquo` and `enquos` to capture user-supplied expressions (most quosures should
+be created this way).
+
+```{r}
+
+foo <- function(x) rlang::enquo(x)
+foo(a + b)
+#> <quosure>
+#> expr: ^a + b
+#> env:  global
+
+```
+
+Use `quo` and `quos` which exist to match **expr** and **exprs** and are only
+included for completeness. If you use them frequently, consider whether `expr`
+and careful unquoting can eliminate the need to captures the environment.
+
+```{r}
+
+quo(x + y + z)
+#> <quosure>
+#> expr: ^x + y + z
+#> env:  global
+
+```
+
+Use `new_quosure` to create a quosure from its components: an expression and
+its environment. It is rarely needed, but useful for learning purposes.
+
+```{r}
+
+rlang::new_quosure(rlang::expr(x + y), rlang::env(x = 1, y = 10))
+#> <quosure>
+#> expr: ^x + y
+#> env:  0x15e95a4a8
+
+```
+
+Quosures are paired with a new evaluation function called `rlang::eval_tidy` that takes
+a single quosure instead of an expression-environment pair.
+
+```{r}
+
+q1 <- rlang::new_quosure(rlang::expr(x + y), rlang::env(x = 1, y = 10))
+rlang::eval_tidy(q1)
+#> [1] 11
+
+```
+
+## Dots
+
+Quosures are often for convenience, making code cleaner because they pass around one object
+instead of an expression and environment. They become essential when working with `...` as
+it is possible that each argument passed can have a different environment. 
+
+```{r}
+
+f <- function(...) {
+  x <- 1
+  g(..., f = x)
+}
+
+g <- function(...) {
+  rlang::enquos(...)
+}
+
+x <- 0
+qs <- f(global = x)
+qs
+
+#> <list_of<quosure>>
+
+#> $global
+#> <quosure>
+#> expr: ^x
+#> env:  global
+
+#> $f
+#> <quosure>
+#> expr: ^x
+#> env:  0x159317bd0
+
+purrr::map_dbl(qs, rlang::eval_tidy)
+#> global      f
+#>      0      1
+
+```
+
+Quosures are a subclass of formulas which means that quosures are call objects. You
+can extract the expression and environment from a quosure using **get_expr** and 
+**get_env** from the rlang package.
+
+```{r}
+
+q4 <- rlang::new_quosure(rlang::expr(x + y + z))
+
+class(q4)
+#> [1] "quosure" "formula"
+
+is.call(q4)
+#> [1] TRUE
+
+rlang::get_expr(q4)
+#> x + y + z
+
+rlang::get_env(q4)
+#> <environment: R_GlobalEnv>
+
+```
+
+## Nested Quosures
+
+You can embed a quosure into an expression. This is an advanced tool, but useful to know in
+case you need it or encounter this strategy in another developer's code.
+
+```{r}
+
+q2 <- rlang::new_quosure(rlang::expr(x), rlang::env(x = 1))
+q3 <- rlang::new_quosure(rlang::expr(x), rlang::env(x = 10))
+
+x <- rlang::expr(!!q2 + !!q3)
+
+rlang::eval_tidy(x)
+#> [1] 11
+
+```
+
+::: {.tip-box}
+
+Printing with `rlang::expr_print` in the console provides quosures that are colored 
+based on their environment.
+
+:::
+
+## Data Masks
+
+The data mask is a data frame where the evaluated code will look first for variable 
+definitions. It allows you to use variables from an environment and data frame in
+a single expression and powers many base functions (e.g., with, subset, transform)
+and used throughout the tidyverse packages.
+
+```{r}
+
+q1 <- rlang::new_quosure(rlang::expr(x * y), rlang::env(x = 100))
+df <- data.frame(y = 1:10)
+rlang::eval_tidy(q1, df)
+#> [1] 100 200 300 400 500 600 700 800 900 1000
+
+```
+
+We can combine this into a wrapper function to create something similar to the 
+`base::with` function.
+
+```{r}
+
+with2 <- function(data, expr) {
+  expr <- rlang::enquo(expr)
+  rlang::eval_tidy(expr, data)
+}
+
+x <- 100
+with2(df, x * y)
+#> [1] 100 200 300 400 500 600 700 800 900 1000
+
+```
+
+## Pronouns
+
+Using a data mask can make it challenging to know whether variables will come from the data
+frame or the environment. To resolve this, the data mask provides the `.data` and `.env` pronouns.
+
+- **.data$x** always refers to x in the data mask
+- **.env$x** always refers to x in the environment
+
+```{r}
+
+x <- 1
+df <- data.frame(x = 2)
+
+with2(df, .data$x)
+#> [1] 2
+
+with2(df, .env$x)
+#> [1] 1
+
+```
+
+## Application: subset and transform
+
+The `base::subset` function is like **dplyr::filter** and provides an option to add a 
+*select* argument that is similar to **dplyr::select**. The basic implementation for
+these ideas can be found in the functions below.
+
+```{r}
+
+subset2 <- function(data, rows) {
+  rows <- rlang::enquo(rows)
+  rows_val <- rlang::eval_tidy(rows, data)
+  data[rows_val, , drop = FALSE]
+}
+
+subset2(mtcars, mpg > 33)
+#>                 mpg cyl disp hp drat    wt qsec vs am gear carb
+#> Toyota Corolla 33.9   4 71.1 65 4.22 1.835 19.9  1  1    4    1
+
+select2 <- function(data, ...) {
+  dots <- rlang::enquos(...)
+  vars <- as.list(rlang::set_names(seq_along(data), names(data)))
+  cols <- unlist(purrr::map(dots, rlang::eval_tidy, vars))
+  data[, cols, drop = FALSE]
+}
+
+mtcars %>%
+  subset2(mpg > 33) %>%
+  select2(mpg:wt)
+
+#>                 mpg cyl disp hp drat    wt
+#> Toyota Corolla 33.9   4 71.1 65 4.22 1.835
+
+```
+
+The base transform function acts like `dplyr::mutate`, allowing you to add new variables or 
+modify existing ones in a data frame.
+
+```{r}
+
+transform2 <- function(.data, ...) {
+  dots <- rlang::enquos(...)
+  for (i in seq_along(dots)) {
+    name <- names(dots)[[i]]
+    dot <- dots[[i]]
+    .data[[name]] <- rlang::eval_tidy(dot, .data)
+  }
+  .data
+}
+
+df <- data.frame(x = 1:5, y = 6:10)
+transform2(df, x = -x, z = 11:15)
+#>    x  y  z
+#> 1 -1  6 11
+#> 2 -2  7 12
+#> 3 -3  8 13
+#> 4 -4  9 14
+#> 5 -5 10 15
+
+```
+
+## Using Tidy Evaluation
+
+Most of the time you will use tidy evaluation indirectly by calling a function
+that uses `rlang::eval_tidy`. It is common to quote and unquote arguments from
+the user whenever you call a quoting function. For example, *cond* is quoted in
+subsample before unquoted in subset2 in this function that resamples and subsets
+a dataset.
+
+```{r}
+
+df <- data.frame(x = c(1, 1, 1, 2, 2), y = 1:5)
+
+resample <- function(df, n) {
+  idx <- sample(nrow(df), n, replace = TRUE)
+  df[idx, , drop = FALSE]
+}
+
+subsample <- function(df, cond, n = nrow(df)) {
+  cond <- rlang::enquo(cond)
+  df <- subset2(df, !!cond)
+  resample(df, n)
+}
+
+set.seed(12)
+subsample(df, x == 1)
+#>     x y
+#> 2   1 2
+#> 2.1 1 2
+#> 3   1 3
+
+```
+
+## Handling Ambiguity
+
+Even a simple wrapper around a quoting function using tidy evaluation can be problematic
+when there are no arguments to quote. This wrapper around subset2 can return incorrect
+results whenx exists in the calling environment and not in the data frame or when val
+exists in the data frame.
+
+```{r}
+
+x <- 10
+no_x <- data.frame(y = 1:3)
+
+threshold_x <- function(df, val) {
+  subset2(df, x >= val)
+}
+
+threshold_x(no_x, 2)
+#>   y
+#> 1 1
+#> 2 2
+#> 3 3
+
+has_val <- data.frame(x = 1:3, val = 9:11)
+threshold_x(has_val, 2)
+#> [1] x   val
+#> <0 rows> (or 0-length row.names)
+
+```
+
+Instead, we need to be more specific and use pronouns.
+
+```{r}
+
+threshold_x <- function(df, val) {
+  subset2(df, .data$x >= .env$val)
+}
+
+x <- 10
+threshold_x(no_x, 2)
+#> Error in `.data$x`:
+#> ! Column `x` not found in `.data`.
+
+threshold_x(has_val, 2)
+#>   x val
+#> 2 2  10
+#> 3 3  11
+
+```
+
+## Quoting and Ambiguity
+
+We may also need to handle both quoting and ambiguity as in this `threshold_var` function
+that allows the user to choose the variable and the threshold.
+
+```{r}
+
+threshold_var <- function(df, var, val) {
+  var <- rlang::as_string(rlang::ensym(var))
+  subset2(df, .data[[var]] >= !!val)
+}
+
+df <- data.frame(x = 1:10)
+threshold_var(df, x, 8)
+#>     x
+#> 8   8
+#> 9   9
+#> 10 10
+
+```
+
+It is not always the role of the developer to avoid ambiguity. It is the user's responsibility to 
+avoid ambiguity with any expressions that he/she creates as would be the case for the example below 
+that allows expressions to be evaluated.
+
+```{r}
+
+threshold_expr <- function(df, expr, val) {
+  expr <- rlang::enquo(expr)
+  subset2(df, !!expr >= !!val)
+}
+
+df <- data.frame(x = 1:5, y = 1:5)
+threshold_expr(df, x + y, 8)
+#>   x y
+#> 4 4 4
+#> 5 5 5
+
+```
