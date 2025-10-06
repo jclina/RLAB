@@ -1,0 +1,526 @@
+---
+title: "Advanced R: Measuring and Improving Performance"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+---
+
+## Measuring Performance
+
+Improving performance and making your code faster requires you to first figure
+out what is making it slow. This is a difficult task even for experienced
+programmers and requires **profiling** your code. Today we will talk about: 
+
+- **Measuring Performance**: Is your code actually slow?
+- **Improving Performance**: Practical speedup strategies
+- **C++ Integration**: When and how to use Rcpp
+
+::: {tip-box}
+
+<strong>Never optimize without measuring first!</strong> 
+Your intuition about what's slow is often wrong.
+
+:::
+
+## Why Performance Matters in Health Research
+
+- Large datasets in public health and biomedical research
+- Complex simulations (e.g., bootstrap) that require multiple iterations
+- Real-time data processing and monitoring using high frequency data 
+(e.g., wearables, EEG)
+- A need for interactive dashboards for clinicians or other health researchers
+who have limited time
+
+::: {.tip-box} 
+
+Make code fast enough, not perfect. Programmers often spen a lot of time 
+thinking about the speed of noncritical parts of their code. Working on
+efficiency may have a negative impact on debugging and maintenance.
+
+:::
+
+## Quick Timing: `system.time()`
+
+
+```{r}
+
+# Fitting models for each car type
+system.time({
+  results <- lapply(rownames(mtcars), function(car) {
+    profvis::pause(0.1)
+    lm(mpg ~ cyl + wt, data = mtcars[rownames(mtcars) == car, ])
+  })
+})
+
+#> user  system elapsed
+#> 3.194   0.018   3.212
+
+```
+
+The `system.time` function returns the user, system, and elapsed time.
+The user time is the time spent executing your R code (i.e., the 
+computation), the system time is the CPU time spent by the operating 
+system, and the elapsed time is the real-world clock time.
+
+## Better Timing: Microbenchmark
+
+A microbenchmark is a measurement of the performance of a very small
+piece of code that may take milliseconds, microseconds, or nanoseconds. 
+We can compare microbenchmarks for different functions using
+**bench::mark**. The output gives us important metrics like the median 
+time, iterations per second, the number of iterations performed, memory 
+allocation, and more.
+
+```{r}
+
+# Filtering data
+benchmark1 <- bench::mark(
+  base_subset = subset(iris, Sepal.Length > 6 & Species == "setosa"),
+  dplyr_filter = dplyr::filter(iris, Sepal.Length > 6, Species == "setosa"),
+  check = FALSE
+)
+
+benchmark1[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 2 × 5
+#>   expression     median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>   <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 base_subset    34.4µs    25847.    7.64KB  9996
+#> 2 dplyr_filter  268.7µs     3612.    5.05KB  1733
+
+```
+
+## Profiling: Finding Bottlenecks
+
+You can also use the `profvis` R package to profile larger parts of your code.
+It works best when you source the file as it ensures you get the best connection 
+between profiling data and source code.
+
+```{r}
+
+source(system.file("extdata/profvis.R", package = "RLAB"))
+
+profvis::profvis(f())
+
+```
+
+![](https://adv-r.hadley.nz/screenshots/performance/flamegraph.png){.nostretch}
+
+::: {.highlight-box}
+
+You can interpret the profvis output by identifying wide bars representing slower code
+and by exploring the memory column (i.e., allocation issues) and flame graph (i.e., call
+stack).
+
+:::
+
+## The Performance Hierarchy
+
+Not all optimizations are created equal — start at the top and work your way down.
+Each level usually gives smaller gains but takes more effort.
+
+- **Algorithm**: Choose smarter methods first (e.g., use *match* instead of nested loops).
+- **Vectorization**: Use vector operations; they are often 10–100× faster than loops.
+- **Memory**: Pre-allocate and minimize copies and use memory-efficient structures (e.g., hash tables).
+- **Parallel**: Split heavy, independent tasks across cores.
+- **C++**: Rewrite only the slowest loops; can yield 50–100× speedups.
+
+## Vectorization
+
+Vectorization replaces slow R loops with operations that act on entire vectors at once. Because these functions run in optimized C code, they avoid the overhead of per-element interpretation, often achieving 10–100× faster performance on large datasets while keeping code simpler and cleaner.
+
+```{r}
+
+# Calculating column means
+benchmark2 <- bench::mark(
+  for_loop = {
+    results <- numeric(ncol(iris[, 1:4]))
+    for (i in 1:4) {
+      results[i] <- mean(iris[, i])
+    }
+  },
+  vectorized = {
+    results <- colMeans(iris[, 1:4])
+  },
+  check = FALSE,
+  iterations = 100
+)
+
+benchmark2[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 2 × 5
+#>   expression   median `itr/sec` mem_alloc n_itr
+#>   <bch:expr> <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 for_loop    867.4µs     1012.   14.04KB    99
+#> 2 vectorized   25.9µs    36263.    4.73KB   100
+
+```
+
+## Pre-allocation
+
+Pre-allocation reserves the full size of a vector or data frame before filling it. Without it, 
+R must repeatedly copy and resize the object as it grows, which is costly. By allocating once 
+and updating in place, you avoid unnecessary memory copies and greatly improve speed.
+
+```{r}
+
+benchmark3 <- bench::mark(
+  preallocation = {
+    n <- nrow(mtcars)
+    mpg_per_cyl <- numeric(n)
+    for (i in 1:n) {
+      mpg_per_cyl[i] <- mtcars$mpg[i] / mtcars$cyl[i]
+    }
+  },
+
+  no_preallocation = {
+    mpg_per_cyl <- c()
+    for (i in 1:nrow(mtcars)) {
+      mpg_per_cyl[i] <- mtcars$mpg[i] / mtcars$cyl[i]
+    }
+  },
+
+  vectorized = {
+    mpg_per_cyl <- mtcars$mpg / mtcars$cyl
+  },
+
+  check = FALSE,
+  iterations = 100,
+  memory = TRUE
+)
+
+benchmark3[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 3 × 5
+#>   expression         median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>       <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 preallocation      1.04ms      944.    23.4KB    98
+#> 2 no_preallocation   1.07ms      922.      28KB    98
+#> 3 vectorized          738ns  1243766.      304B   100
+
+```
+
+## Processing Accelerometer Data Example
+
+```{r}
+
+data <- MoveKC::read_agd(system.file(
+  "extdata/example5sec.agd",
+  package = "agcounts"
+))
+
+benchmark4 <- bench::mark(
+  preallocation = {
+    activity_counts <- data.frame()
+    for (i in 1:nrow(data)) {
+      if (data$` Axis1`[i] > 200) {
+        activity_counts <- rbind(activity_counts, data[i, ])
+      }
+    }
+  },
+  vectorized = {
+    activity_counts <- data[data$` Axis1`[i] > 200, ]
+  },
+  check = FALSE,
+  iterations = 100
+)
+
+benchmark4[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 2 × 5
+#>   expression      median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>    <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 preallocation   2.57ms      385.   84.34KB    97
+#> 2 vectorized     36.28µs    26759.    7.11KB   100
+
+```
+
+
+## Use Appropriate Data Structures
+
+Choosing the right data structure dramatically affects performance. The vector search 
+using %in% is fastest because it’s implemented in optimized C code and fully vectorized. 
+The hash table (environment) is much quicker than a named list because it performs constant-
+time key lookups instead of sequential name scans. However, for large, repeated membership 
+ dchecks, %in% still wins due to its low-level vectorized design.
+
+```{r}
+
+participant_ids <- paste0("P", sprintf("%05d", 1:5000))
+
+set.seed(123)
+records_to_check <- sample(
+  c(participant_ids, paste0("P", 10000:15000)),
+  50000,
+  replace = TRUE
+)
+
+# Create lookup structures
+id_vector <- participant_ids
+id_list <- setNames(
+  as.list(rep(TRUE, length(participant_ids))),
+  participant_ids
+)
+
+# --- Hash table version using environment (fastest base-R option)
+id_hash <- new.env(hash = TRUE, parent = emptyenv())
+for (id in participant_ids) {
+  id_hash[[id]] <- TRUE
+}
+
+# Benchmark
+benchmark5 <- bench::mark(
+  named_list = {
+    vapply(records_to_check, function(id) !is.null(id_list[[id]]), logical(1))
+  },
+
+  hash_env = {
+    valid <- vapply(
+      records_to_check,
+      function(id) !is.null(id_hash[[id]]),
+      logical(1)
+    )
+  },
+
+  vector_search = {
+    valid <- records_to_check %in% id_vector
+  },
+
+  check = FALSE,
+  iterations = 25
+)
+
+benchmark5[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 3 × 5
+#>   expression      median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>    <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 named_list     990.3ms      1.01     204KB    15
+#> 2 hash_env        18.2ms     54.3      204KB    15
+#> 3 vector_search    687µs   1437.       885KB    25
+
+```
+
+## Avoid Unnecessary Copies
+
+In R, modifying a data frame can trigger copy-on-modify, creating multiple copies if 
+done repeatedly. Vectorized operations or replacing entire columns at once minimize 
+copying, making code faster, more memory-efficient, and scalable.
+
+```{r}
+
+df <- mtcars[rep(1:nrow(mtcars), 500), ] # 16,000 rows
+cols_to_scale <- c("mpg", "disp", "hp", "drat", "wt")
+
+benchmark6 <- bench::mark(
+  iterative_copy = {
+    df_copy <- df
+    for (col in cols_to_scale) {
+      df_copy[[col]] <- scale(df_copy[[col]])
+    }
+  },
+
+  vectorized = {
+    df_copy <- df
+    df_copy[cols_to_scale] <- lapply(df_copy[cols_to_scale], scale)
+  },
+  check = FALSE,
+  iterations = 100
+)
+
+benchmark6[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 2 × 5
+#>   expression       median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>     <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 iterative_copy   2.19ms      388.    7.04MB    74
+#> 2 vectorized       1.39ms      730.    7.02MB    71
+
+```
+
+## Parallel Processing
+
+Parallel processing lets R run multiple tasks at once by splitting work across CPU cores. 
+This approach greatly speeds up loops, simulations, and large data operations. Tools like 
+parallel, future, and furrr make it easy to add parallelism with minimal code changes.
+
+```{r}
+
+set.seed(123)
+kbit2 <- data.frame(
+  subject_label = 1:80,
+  age_at_visit = round(rnorm(80, mean = 40)),
+  kbit2verbkraw = round(rnorm(80, mean = 60)),
+  kbit2ridraw = round(rnorm(80, mean = 40)),
+  kbit2vnonvraw = round(rnorm(80, mean = 25))
+)
+
+
+benchmark7 <- bench::mark(
+  parallel = {
+    with(
+      kbit2,
+      abcds::calculate_kbit2_score(
+        age_at_visit,
+        kbit2verbkraw,
+        kbit2ridraw,
+        kbit2vnonvraw,
+        subject_label,
+        doParallel = TRUE
+      )
+    )
+  },
+  noparallel = with(
+    kbit2,
+    abcds::calculate_kbit2_score(
+      age_at_visit,
+      kbit2verbkraw,
+      kbit2ridraw,
+      kbit2vnonvraw,
+      subject_label,
+      doParallel = FALSE
+    )
+  ),
+  check = FALSE,
+  iterations = 10
+)
+
+benchmark7[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+#> A tibble: 2 × 5
+#>   expression      median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>    <bch:tm>   <dbl>   <bch:byt> <int>
+#> 1 parallel        4.33s    0.232     3.7MB    10
+#> 2 noparallel      6.34s    0.157    42.8MB    10
+
+```
+
+## Writing Functions in C++
+
+Use Rcpp when R code is too slow to vectorize — such as loops, recursion, or 
+complex iterative algorithms. C++ lets you modify data directly and avoid R’s 
+overhead. However, if your task is already vectorized in R, Rcpp won’t add much benefit.
+
+```{r}
+#| echo: true
+#| eval: false
+
+set.seed(123)
+
+bmi <- data.frame(
+  weight = round(rnorm(80, mean = 68, sd = 10), 1),
+  height = round(rnorm(80, mean = 1.7, sd = 0.3), 1)
+)
+
+Rcpp::cppFunction(
+  '
+NumericVector calculate_bmi_mean_cpp(NumericVector weight, NumericVector height) {
+  int n = weight.size();
+  NumericVector bmi(n);
+  
+  for (int i = 0; i < n; i++) {
+    bmi[i] = weight[i] / (height[i] * height[i]);
+  }
+  
+  return bmi;
+}
+'
+)
+
+benchmark8 <- bench::mark(
+  rcpp = {
+    calculate_bmi_mean_cpp(bmi$weight, bmi$height)
+  },
+  vectorized = {
+    bmi$weight / bmi$height^2
+  },
+  preallocation = {
+    # bmires <- numeric(length = nrow(bmi))
+    bmires <- numeric(length = nrow(bmi))
+    for (i in 1:length(bmires)) {
+      bmires[i] <- bmi[i, "weight"] / bmi[i, "height"]^2
+    }
+    bmires
+  },
+  iterations = 100,
+  time_unit = "µs"
+)
+
+benchmark8[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+# A tibble: 3 × 5
+#>   expression     median `itr/sec` mem_alloc n_itr
+#>   <bch:expr>      <dbl>     <dbl> <bch:byt> <int>
+#> 1 rcpp             1.93µs   150780.      688B   100
+#> 2 vectorized       1.07µs   898683.      688B   100
+#> 3 preallocation    1650µs      548.    25.9KB    99
+
+```
+
+
+::: {.highlight-box}
+
+The **Rcpp** package provides R functions as well as C++ classes which offer a seamless integration 
+of R and C++. It allows you to write a function in C++ and immediately use it within your R script.
+
+:::
+
+## An Example Using Accelerometer Data
+
+Within a R Package, you can include C++ code in a /src folder and export it using 
+**//[[Rcpp::export]]**. Here is an example from the 
+<a href="https://github.com/bhelsel/agcounts/blob/64f02e5425803646e27d01389a6084267d284e4d/src/gcalibrate.cpp#L87">
+agcounts</a> R package which exports the gcalibrateC function
+
+```{r}
+
+file <- 'path/to/accelerometer/gt3x/file'
+#> Brain Power A1301 (2020-01-31).gt3x
+
+I <- GGIR::g.inspectfile(datafile = file)
+
+benchmark9 <- bench::mark(
+  GGIR = {
+    C <- GGIR::g.calibrate(
+      datafile = file,
+      use.temp = FALSE,
+      printsummary = FALSE,
+      inspectfileobject = I
+    )
+  },
+  agcounts = {
+    agcounts:::gcalibrateC(pathname = file, sf = 30)
+  },
+  check = FALSE,
+  iterations = 1
+)
+
+benchmark9[, c("expression", "median", "itr/sec", "mem_alloc", "n_itr")]
+
+# A tibble: 2 × 5
+#>   expression   median `itr/sec` mem_alloc n_itr
+#>   <bch:expr> <bch:tm>     <dbl> <bch:byt> <int>
+#> 1 GGIR         17.59s    0.0568    10.3GB     1
+#> 2 agcounts      7.58s    0.132      7.6GB     1
+
+```
+
