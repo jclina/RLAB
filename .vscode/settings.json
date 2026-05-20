@@ -1,0 +1,14 @@
+{
+  "[quarto]": {
+    "editor.defaultFormatter": "quarto.quarto"
+  },
+  "[r]": {
+    "editor.defaultFormatter": "Posit.air-vscode"
+  },
+  "editor.formatOnSave": true,
+  //"editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.wordWrapColumn": 80,
+  "editor.wordWrap": "wordWrapColumn",
+  "rewrap.wrappingColumn": 80
+  //"cSpell.enabled": false
+}

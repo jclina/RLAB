@@ -1,0 +1,628 @@
+---
+title: "Advanced R: Subsetting"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+     theme: [default, "../../../styles/styleReveal.scss"]
+     slide-number: true
+     preview-links: auto
+     logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+     footer: "R for Lifestyle and Brain Health (R-LAB)"
+     transition: slide
+     background-transition: fade
+     highlight-style: github
+     code-line-numbers: true
+     code-block-bg: true
+     incremental: false
+     date-format: long
+     embed-resources: true
+execute: 
+  echo: true
+  eval: false
+  freeze: auto
+---
+
+## Subsetting {.pattern-dots}
+
+Subsetting in R is **easy to learn but hard to master**
+
+- Six ways to subset atomic vectors
+- Three subsetting operators (`[[`, `[`, and `$`)
+- Operators interact differently with different vector types
+- Subsetting can be combined with assignment
+
+::: {.tip-box}
+
+The interactive viewer can help you understand the structure of complex objects.
+
+:::
+
+## Atomic Vectors
+
+**Positive integers** return elements at the specified positions.
+
+```{r}
+#| echo: true
+x <- c(2.1, 4.2, 3.3, 5.4)
+```
+
+
+```{r}
+x[c(3, 1)]
+#> [1] 3.3 2.1
+```
+
+**Negative integers** exclude elements at the specified positions.
+
+```{r}
+x[-c(3, 1)]
+#> [1] 4.2 5.4
+```
+
+**Logical vectors** select the elements where the logical value is `TRUE`
+
+```{r}
+x[c(TRUE, FALSE, TRUE, FALSE)]
+#> [1] 2.1 3.3
+
+# Recycling Rules:
+# In x[y], shorter object is recycled if different lengths
+
+x[c(TRUE, FALSE)]
+#> [1] 2.1 3.3
+```
+
+## Named Vectors
+
+**Character vectors** can be used to return elements with matching names.
+
+
+```{r}
+y <- setNames(x, letters[1:4])
+#> a   b   c   d
+#> 2.1 4.2 3.3 5.4
+
+y[c("d", "c", "a")]
+#> d   c   a
+#> 5.4 3.3 2.1
+
+# When subsetting with [, names are matched exactly
+z <- c(abc = 1, def = 2)
+z[c("a", "d")]
+#> <NA> <NA>
+#>   NA   NA
+
+# Subsetting with factors use the integer vector and not character levels
+y[factor("b")]
+#> a
+#> 2.1
+```
+
+## Lists
+
+Subsetting with a list works the same as an atomic vector except that `[` always returns a list and `[[` and `$` must be used to extract list elements.
+
+```{r}
+l <- list(a = 1, b = c(x = 2, y = 3, z = 4), c = letters[1:5])
+
+l[2]
+#> $b
+#> x y z
+#> 2 3 4
+
+l[[2]]
+#> x y z
+#> 2 3 4
+
+l[2]$b
+#> x y z
+#> 2 3 4
+```
+
+## Matrices and Arrays
+
+Subsetting higher-dimensional structures can happen with multiple vectors, a single vector, or a matrix. 
+
+
+```{r}
+a <- matrix(1:9, nrow = 3)
+colnames(a) <- c("A", "B", "C")
+
+# Blank subsetting allows you to keep all the rows or columns
+a[1:2, ]
+#>      A B C
+#> [1,] 1 4 7
+#> [2,] 2 5 8
+
+a[c(TRUE, FALSE, TRUE), c("B", "A")]
+#>      B A
+#> [1,] 4 1
+#> [2,] 6 3
+
+# By default, [ simplifies the results to the lowest dimensionality
+a[1, ]
+#> A B C
+#> 1 4 7
+```
+
+Matrices and arrays are vectors with special dimension attributes stored in column-major order. This allows subsetting as if they were a single vector.
+
+```{r}
+vals <- outer(1:5, 1:5, FUN = "paste", sep = ", ")
+#>       [,1]   [,2]   [,3]   [,4]   [,5]
+#> [1,] "1, 1" "1, 2" "1, 3" "1, 4" "1, 5"
+#> [2,] "2, 1" "2, 2" "2, 3" "2, 4" "2, 5"
+#> [3,] "3, 1" "3, 2" "3, 3" "3, 4" "3, 5"
+#> [4,] "4, 1" "4, 2" "4, 3" "4, 4" "4, 5"
+#> [5,] "5, 1" "5, 2" "5, 3" "5, 4" "5, 5"
+
+vals[c(4, 15)]
+#> [1] "4, 1" "5, 3"
+```
+
+You can also use 2 column matrix to subset a matrix and a 3 column matrix to subset an array.
+
+```{r}
+select <- matrix(c(1, 1, 3, 1, 2, 4), ncol = 2, byrow = TRUE)
+#>       [,1] [,2]
+#> [1,]    1    1
+#> [2,]    3    1
+#> [3,]    2    4
+
+vals[select]
+#> [1] "1, 1" "3, 1" "2, 4"
+```
+
+## Data frames and Tibbles
+
+Data frames have the characteristics of lists and matrices.
+
+Subsetting with a single index returns columns while two indices selects the rows and columns. 
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+
+# Comparable to a list
+df[1:2]
+#>   x y
+#> 1 1 3
+#> 2 2 2
+#> 3 3 1
+
+# Comparable to a matrix
+df[1:3, ]
+#>   x y z
+#> 1 1 3 a
+#> 2 2 2 b
+#> 3 3 1 c
+```
+
+When selecting a single column, matrix-like subsetting simplifies by default. Subsetting a tibble with `[` always returns a tibble.
+
+```{r}
+str(df["x"])
+#> 'data.frame':	3 obs. of  1 variable:
+#>  $ x: int  1 2 3
+
+str(df[, "x"])
+#> int [1:3] 1 2 3
+
+tbldf <- df
+class(tbldf) <- c("tbl_df", "tbl", "data.frame")
+str(tbldf[, "x"])
+#> tibble [3 × 1] (S3: tbl_df/tbl/data.frame)
+#>  $ x: int [1:3] 1 2 3
+```
+
+## Preserving dimensionality
+
+Adding `drop = FALSE` will preserve the original dimensionality when subsetting like a matrix.
+
+```{r}
+p <- matrix(1:9, nrow = 3)
+str(p[1, ])
+#> int[1:3] 1 4 7
+
+str(p[1, , drop = FALSE])
+#> int [1, 1:3] 1 4 7
+
+str(data.frame(p)[1, , drop = FALSE])
+#> 'data.frame':	1 obs. of  3 variables:
+#>  $ X1: int 1
+#>  $ X2: int 4
+#>  $ X3: int 7
+```
+
+The default `drop = TRUE` can be a common source of bugs in functions. When writing functions, get in the habit of using `drop = FALSE` or tibbles.
+
+::: {.tip-box}
+
+Factor subsetting also has a drop argument to control levels and not dimensions. Unused levels will be dropped when subsetting factors with `drop = TRUE` 
+
+:::
+
+
+## Selecting a Single Element
+
+The two other subsetting operators, `[[` and `$`, are used for extracting single items. 
+
+* The `$` is a useful shorthand for `x[["y"]]` (i.e., `x$y`).
+* The `[[` operator is important when working with lists because subsetting a list with `[` always returns a smaller list.
+
+::: {.highlight-box}
+Only a single positive integer or string can be used with `[[` since it can only return a single item. A vector causes `[[` to subset recursively (e.g., `x[[c(1, 2)]]` is the same as `x[[1]][[2]]`)
+:::
+
+
+## A Train Metaphor
+
+```{r}
+x <- list(1:3, "a", 4:6)
+```
+
+![](https://adv-r.hadley.nz/diagrams/subsetting/train.png){.nostretch}
+
+Create a smaller train using `[` or extact the contents of a car with `[[`
+
+![](https://adv-r.hadley.nz/diagrams/subsetting/train-single.png){.nostretch}
+
+## Selecting a Single Data Frame Element
+
+The `$` can be used to access variables in a data frame, but `[[` must be used if the name of the column is stored in a variable.
+
+
+```{r}
+variable <- "x"
+
+df$variable
+#> NULL
+
+df[[variable]]
+#> [1] 1 2 3
+```
+
+Another difference between `$` and `[[` is that the `$` operator does left-to-right partial matching.
+
+```{r}
+x <- list(abc = 1)
+
+x$a
+#> [1] 1
+
+x[["a"]]
+#> NULL
+```
+
+::: {.tip-box}
+
+Setting `options(warnPartialMatchDollar = TRUE)` will issue a warning when partial matching occurs.
+
+:::
+
+```{r}
+options(warnPartialMatchDollar = TRUE)
+
+x$a
+#> Warning message:
+#> In x$a : partial match of 'a' to 'abc'
+#> [1] 1
+```
+
+## Missing and Out-of-Bounds Indices
+
+Inconsistencies when using `[[` to subset with an invalid index.
+
+| row[[col]] | Zero-length | OOB (int) | OOB (chr) | Missing |
+|------------|:-----------:|:---------:|:---------:|:-------:|
+| Atomic     | Error       | Error     | Error     | Error   |
+| List       | Error       | Error     | NULL      | NULL    |
+| NULL       | NULL        | NULL      | NULL      | NULL    |
+| OOB: Out of Bounds                                         |
+
+Functions in the `purrr` package can be used for more predictable behavior when subsetting errors may occur.
+
+* `purrr::pluck`: Always returns NULL or the .default argument
+* `purrr::chuck`: Always throws an error
+
+::: {.tip-box}
+
+The function `purrr::pluck` is useful for deeply nested data structures where the component you are searching for may not exist. An example of this is JSON data from web application programming interfaces (APIs).
+
+:::
+
+Using `purrr::pluck` allows you to mix integer and character indices and provides an alternative default value if an item does not exist.
+
+```{r}
+x <- list(
+  a = list(1, 2, 3),
+  b = list(4, 5, 6)
+)
+
+purrr::pluck(x, "a", 1)
+#> [1] 1
+
+purrr::pluck(x, "c", 1, .default = NA)
+#> [1] NA
+```
+
+## Subsetting and Assignment
+
+**Subassignment**: All subsetting operators can be combined with assignment to modify selected values. The basic form is `x[i] <- value`.
+
+```{r}
+x <- 1:5
+x[1:2] <- c(101, 102)
+x
+#> [1] 101 102 3 4 5
+```
+
+::: {.tip-box}
+
+Make sure that `length(value)` is the same as `length(x[i])` and that `i` is unique to avoid recycling.
+
+:::
+
+Subsetting with nothing can be useful with assignment to preserve the original object's structure.
+
+```{r}
+str(lapply(df, as.character))
+#> List of 3
+#>  $ x: chr [1:3] "1" "2" "3"
+#>  $ y: chr [1:3] "3" "2" "1"
+#>  $ z: chr [1:3] "a" "b" "c"
+
+df[] <- lapply(df, as.character)
+str(df)
+#> 'data.frame':	3 obs. of  3 variables:
+#>  $ x: chr  "1" "2" "3"
+#>  $ y: chr  "3" "2" "1"
+#>  $ z: chr  "a" "b" "c"
+```
+
+::: {.highlight-box}
+
+You can remove a component from a list with `x[[i]] <- NULL` or add a literal `NULL` with `x[[i]] <- list(NULL)`
+
+:::
+
+## Subsetting Applications {.pattern-dots}
+
+::: {.highlight-box}
+
+Many of the basic subsetting principles have been integrated within functions like `subset()`, `merge()`, `dplyr::select()`, and `dplyr::filter()`. However, a deeper understanding of how subsetting principles have been implemented will be valuable when encountering a situation where functions you need do not exist.
+
+:::
+
+Here are 8 subsetting applications: 
+
+1. Lookup tables
+2. Matching and merging by hand
+3. Random samples and bootstraps
+4. Ordering
+5. Expanding aggregated counts
+6. Removing columns from data frames
+7. Selecting rows based on a condition
+8. Boolean algebra vs. sets
+
+## Lookup Tables
+
+Use character matching to create lookup tables.
+
+```{r}
+activity_codes <- c("sed", "lig", "lig", "mod", "sed", "vig", "lig")
+
+lookup <- c(
+  sed = "Sedentary",
+  lig = "Light",
+  mod = "Moderate",
+  vig = "Vigorous"
+)
+
+unname(lookup[activity_codes])
+#> [1] "Sedentary" "Light" "Light" "Moderate" "Sedentary" "Vigorous" "Light"
+```
+
+## Matching and Merging by Hand
+
+Complex lookup tables with multiple columns using **match** to return the position where each `activity_code` is found in the `activity_info$code`.
+
+```{r}
+activity_info <- data.frame(
+  code = c("sed", "lig", "mod", "vig"),
+  label = c("Sedentary", "Light", "Moderate", "Vigorous"),
+  mvpa = c(FALSE, FALSE, TRUE, TRUE)
+)
+
+activity_info[match(activity_codes, activity_info$code), ]
+#>     code     label  mvpa
+#> 1    sed Sedentary FALSE
+#> 2    lig     Light FALSE
+#> 2.1  lig     Light FALSE
+#> 3    mod  Moderate  TRUE
+#> 1.1  sed Sedentary FALSE
+#> 4    vig  Vigorous  TRUE
+#> 2.2  lig     Light FALSE
+```
+
+
+## Random Sampling
+
+Integer indices can be used to randomly sample a vector or data frame.
+
+```{r}
+df <- activity_info[match(activity_codes, activity_info$code), ]
+
+# Run to reproduce random sample output
+set.seed(1)
+
+# Randomly reorder
+df[sample(nrow(df)), ]
+#>     code     label  mvpa
+#> 1    sed Sedentary FALSE
+#> 3    mod  Moderate  TRUE
+#> 2.2  lig     Light FALSE
+#> 2    lig     Light FALSE
+#> 1.1  sed Sedentary FALSE
+#> 2.1  lig     Light FALSE
+#> 4    vig  Vigorous  TRUE
+
+# Select 3 random rows
+set.seed(1)
+df[sample(nrow(df), size = 3), ]
+#     code     label  mvpa
+# 1    sed Sedentary FALSE
+# 3    mod  Moderate  TRUE
+# 2.2  lig     Light FALSE
+```
+
+## Ordering
+
+The `order()` function returns an integer vector describing how to order the subsetted vector. 
+
+* You can also change the order from ascending to descending by using `decreasing = TRUE`. 
+* Missing values are placed at the end, but you can remove them with `na.last = NA` or put them at the front with `na.last = FALSE`.
+
+```{r}
+x <- c("b", "c", "d", "b", "f", "e", "a")
+
+order(x)
+#> [1] 7 1 4 2 3 6 5
+
+x[order(x)]
+#> [1] "a" "b" "b" "c" "d" "e" "f"
+```
+
+::: {.tip-box}
+
+Use `sort()` or `dplyr::arrange()` to directly sort a vector or data frame.
+
+:::
+
+## Expanding aggregated counts
+
+Expanding identical rows that have been collapsed with a count column is easier with `rep()` and integer subsetting since `rep(x, y)` repeats `x[i]` `y[i]` times.
+
+```{r}
+df <- subset(
+  data.frame(table(df$code, df$label, df$mvpa)),
+  Freq > 0
+)
+
+colnames(df) <- c("code", "label", "mvpa", "count")
+rownames(df) <- NULL
+
+df
+#>   code     label  mvpa count
+#> 1  lig     Light FALSE     3
+#> 2  sed Sedentary FALSE     2
+#> 3  mod  Moderate  TRUE     1
+#> 4  vig  Vigorous  TRUE     1
+
+(df <- df[rep(1:nrow(df), df$count), ])
+#     code     label  mvpa count
+# 1    lig     Light FALSE     3
+# 1.1  lig     Light FALSE     3
+# 1.2  lig     Light FALSE     3
+# 2    sed Sedentary FALSE     2
+# 2.1  sed Sedentary FALSE     2
+# 3    mod  Moderate  TRUE     1
+# 4    vig  Vigorous  TRUE     1
+```
+
+## Removing columns from data frames
+
+Removing columns from a data frame can be done through subsetting or setting individual columns to `NULL`. Operations like `setdiff` can be used if you are not sure what columns to keep. 
+
+```{r}
+keep <- setdiff(names(df), "count")
+
+keep
+#> [1] "code" "label" "mvpa"
+
+df[keep]
+#>     code     label  mvpa
+#> 1    lig     Light FALSE
+#> 1.1  lig     Light FALSE
+#> 1.2  lig     Light FALSE
+#> 2    sed Sedentary FALSE
+#> 2.1  sed Sedentary FALSE
+#> 3    mod  Moderate  TRUE
+#> 4    vig  Vigorous  TRUE
+
+df$count <- NULL
+```
+
+## Selecting rows based on a condition
+
+Logical subsetting allows you to easily combine conditions from multiple columns to extract rows out of a data frame.
+
+```{r}
+df[df$mvpa == TRUE, ]
+#>   code    label mvpa
+#> 3  mod Moderate TRUE
+#> 4  vig Vigorous TRUE
+
+df[df$label == "Light", ]
+#>     code label  mvpa
+#> 1    lig Light FALSE
+#> 1.1  lig Light FALSE
+#> 1.2  lig Light FALSE
+
+df[df$code == "mod" & df$mvpa == TRUE, ]
+#>   code    label mvpa
+#> 3  mod Moderate TRUE
+```
+
+Remember to use the vector boolean operators `&` for **and** and `|` for **or** when subsetting on multiple columns instead of `&&` and `||` which are short-circuiting scalar operators that are more useful inside if statements.
+
+::: {.tip-box}
+
+De Morgan's laws can be used to simplify negations:
+
+1. **!(X & Y)** == **!X | !Y**: The negation of "X and Y" is the same as "not X or not Y"
+2. **!(X | Y)** == **!X & !Y**: The negation of "X or Y" is the same as "not X and not Y"
+
+Example: **!(X & !(Y | Z))** == **!X | !!(Y | Z)** == **!X | Y | Z**
+
+:::
+
+## Boolean algebra vs. sets
+
+Using set operations (integer subsetting) over Boolean algebra (logical subsetting) may be more effective when you want to find the first (or last) TRUE or you only have a few TRUE values. 
+
+Here are the Boolean operators with their set equivalents.
+
+| Boolean Algebra (Logical) | Set Operators (Integer)               |
+|:-------------------------:|:-------------------------------------:|
+| X & Y                     | intersect(X, Y)                       |
+| X \| Y                     | union(X, Y)                           |
+| X & !Y                    | setdiff(X, Y)                         |
+| xor(X, Y)                 | setdiff(union(X, Y), intersect(X, Y)) |
+
+::: {.tip-box}
+
+**xor**: Stands for *exclusive or* and returns TRUE if exactly one of X or Y is TRUE and the other is FALSE
+
+:::
+
+`which()` allows the conversion from a Boolean representation to integer, but a function needs to be created to reverse the operation.
+
+```{r}
+(x1 <- 1:10 %% 2 == 0)
+#> [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+(x2 <- which(x1))
+#> [1]  2  4  6  8 10
+
+unwhich <- function(x, n) {
+  out <- rep(FALSE, n)
+  out[x] <- TRUE
+  out
+}
+
+unwhich(x2, 10)
+#> [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE
+```
+

@@ -1,0 +1,680 @@
+---
+title: "Advanced R: Functionals"
+subtitle: "Applying R to Lifestyle and Brain Health Research"
+author: "Brian C. Helsel, PhD"
+institute: "University of Kansas Medical Center"
+date: today
+format:
+  revealjs:
+    theme: [default, "../../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  echo: true
+  eval: false
+  freeze: auto
+---
+
+## Introduction
+
+R is a functional programming language. It uses functions to solve problems.
+
+Functional programming languages have two common features:
+
+- **First-class functions**: Functions that behave like any other data structure. For example, you can assign functions to variables, store them in lists, pass them as arguments to other functions, create them inside functions, and return them as a result from another function.
+- **Functions must be pure**: A function is pure if the output only depends on the inputs (i.e., the same inputs lead to the same outputs each time the function is called) and the function has no unintended side-effects.
+
+## Functionals
+
+A **functional** is a function that takes a function as an input and returns a vector as an output. 
+
+```{r}
+randomize <- function(f) f(runif(1e3))
+
+set.seed(123)
+randomize(mean)
+#> [1] 0.4972778
+
+set.seed(321)
+randomize(sum)
+#> [1] 511.1584
+```
+
+Common functionals in R that you may have already used include the `apply` family and `purrr::map`. It is likely that you have used one of these functions as a **for** loop replacement. Each functional is tailored for a specific task.
+
+## A Basic Functional
+
+The most fundamental functional is `purrr::map`. It takes a vector and a function, calls the function once for each element in the vector, and returns the results in a list.
+
+```{r}
+triple <- function(x) x * 3
+
+purrr::map(1:3, triple)
+
+#> [[1]]
+#> [1] 3
+
+#> [[2]]
+#> [1] 6
+
+#> [[3]]
+#> [1] 9
+```
+
+::: {.columns}
+::: {.column}
+
+- `purrr::map(1:3, triple)` is the same as **list(triple(1), triple(2), triple(3))**
+- **map** comes from mathematics and refers to *an operation that associates each element of a given set (or vector) with one or more elements of a second set*
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/functionals/map.png){.nostretch}
+
+:::
+:::
+
+::: {.highlight-box}
+
+All map functions return a vector the same length as the input and each function must return a single value.
+
+:::
+
+```{r}
+pair <- function(x) c(x, x)
+
+purrr::map_dbl(1:2, pair)
+
+#> Error: Result must be length 1, not 2.
+```
+
+You will also get an error if the function returns the wrong type of result (e.g., `purrr::map_dbl(1:2, as.character)`). Switching back to **map** solves this as it can accept any type of output.
+
+## Anonymous Functions and Shortcuts
+
+Instead of using **map** with an existing function, you can create an inline anonymous function. It also supports a special short cut. 
+
+```{r}
+purrr::map_dbl(mtcars[1:5], function(x) length(unique(x)))
+
+#>  mpg  cyl disp   hp drat
+#>   25    3   27   22   22
+
+purrr::map_dbl(mtcars[1:5], ~ length(unique(.x)))
+
+#>  mpg  cyl disp   hp drat
+#>   25    3   27   22   22
+```
+
+The shortcut works as all **purrr** functions translate formulas created by `~` (pronounced "twiddle") into functions. You can use **as_mapper** to see what is happening behind the scenes.
+
+
+```{r}
+purrr::as_mapper(~ length(unique(.x)))
+
+#> <lambda>
+#> function (..., .x = ..1, .y = ..2, . = ..1)
+#> length(unique(.x))
+#> attr(,"class")
+#> [1] "rlang_lambda_function" "function"
+```
+
+The shortcut is useful for generating random data. However, it should only be used if your function does not span multiple lines. The **map** functions also have shortcuts for extracting elements from a vector. This is useful for extracting elements of deeply nested lists often found when working with JSON data.
+
+```{r}
+x <- list(
+  list(-1, x = 1, y = c(2), z = "a"),
+  list(-2, x = 4, y = c(5, 6), z = "b"),
+  list(-3, x = 8, y = c(9, 10, 11))
+)
+
+# Select by name
+purrr::map_dbl(x, "x")
+#> [1] 1 4 8
+
+# Select by position
+purrr::map_dbl(x, 1)
+#> [1]  -1 -2 -3
+
+# Select by name and position
+purrr::map_dbl(x, list("y", 1))
+#> [1] 2 5 9
+
+# You will get an error if a component does not exist
+# Unless you provide a default value
+purrr::map_chr(x, "z", .default = NA)
+#> [1] "a" "b" NA
+```
+
+## Passing Arguments with ...
+
+It can be convenient to pass additional arguments to the function that you are calling. This can be accomplished with anonymous functions. However, since `map` functions pass ... along, a simpler form
+is available.
+
+```{r}
+x <- list(1:5, c(1:10, NA))
+
+purrr::map_dbl(x, ~ mean(.x, na.rm = TRUE))
+#> [1] 3.0 5.5
+
+purrr::map_dbl(x, mean, na.rm = TRUE)
+#> [1] 3.0 5.5
+```
+
+::: {.tip-box}
+
+It is important to write out the full names of the arguments (e.g., **na.rm = TRUE**). Instead, if you write out `purrr::map_dbl(x, mean, TRUE)`, the TRUE value is a positional argument and goes to *trim*, the second argument in the mean function.
+
+:::
+
+## Purrr Style
+
+Here is a realistic example of fitting a linear model to multiple subgroups and extracting the coefficients from the models. 
+
+```{r}
+library(magrittr)
+
+# Split the mtcars dataset into 4, 6, and 8 cylinders
+by_cyl <- split(mtcars, mtcars$cyl)
+
+# Fit a linear model and extract the second coefficient (i.e., slope).
+by_cyl %>%
+  purrr::map(~ lm(mpg ~ wt, data = .x)) %>%
+  purrr::map(coef) %>%
+  purrr::map_dbl(2)
+
+#>         4         6         8
+#> -5.647025 -2.780106 -2.192438
+
+# In base R, you could accomplish this with lapply and vapply
+models <- lapply(by_cyl, function(data) lm(mpg ~ wt, data = data))
+vapply(models, function(x) coef(x)[[2]], double(1))
+#>         4         6         8
+#> -5.647025 -2.780106 -2.192438
+
+# Or with a for loop
+intercepts <- double(length(by_cyl))
+for (i in seq_along(by_cyl)) {
+  model <- lm(mpg ~ wt, data = by_cyl[[i]])
+  intercepts[[i]] <- coef(model)[[2]]
+}
+intercepts
+#> [1] -5.647025 -2.780106 -2.192438
+```
+
+We iterate 3 times with `purrr`, 2 times with the apply function, and 1 time with the for loop. The `purrr` package uses more but simpler steps and is easier to follow.
+
+## Map Variants
+
+There are 23 variants of `map`. Learning all of the variants requires an understanding of five new ideas: 
+
+- Output same type as input with `modify()`
+- Iterate over two inputs with `map2()`
+- Iterate with an index using `imap()`
+- Return nothing with `walk()`
+- Iterate over any number of inputs with `pmap()`
+
+The map family of functions has orthogonal input and outputs.
+
+|                       | List         | Atomic          | Same Type  | Nothing |
+|:---------------------:|:------------:| :--------------:|:----------:|:-------:|
+| One Argument          | map()        | map_lgl(), ...  | modify()   | walk()  |
+| Two Arguments         | map2()       | map2_lgl(), ... | modify2()  | walk2() |
+| One Argument + Index  | imap()       | imap_lgl(), ... | imodify()  | iwalk() |
+| N Arguments           | pmap         | pmap_lgl(), ... | ---------- | pwalk() |
+
+## Same Type of Output as Input (modify)
+
+Imagine you wanted double every column in a data frame. Modify would be a way to return
+a data frame whereas map would return a list.
+
+```{r}
+df <- data.frame(x = 1:3, y = 6:4)
+
+purrr::map(df, ~ .x * 2)
+
+#> $x
+#> [1] 2 4 6
+
+#> $y
+#> [1] 12 10  8
+
+purrr::modify(df, ~ .x * 2)
+
+#>   x  y
+#> 1 2 12
+#> 2 4 10
+#> 3 6  8
+```
+
+::: {.tip-box}
+
+The `purrr::modify` function does not modify in place but rather returns a modified copy. If you want to permanently modify
+the object, you must assign the result of `purrr::modify` to the object.
+
+:::
+
+The basic implementation of **modify** is simpler than **map** as we do not need to create a new output vector. Instead,
+we progressively replace the input.
+
+```{r}
+simple_modify <- function(x, f, ...) {
+  for (i in seq_along(x)) {
+    x[[i]] <- f(x[[i]], ...)
+  }
+  return(x)
+}
+
+simple_modify(df, f = function(x) x * 2)
+
+#>   x  y
+#> 1 2 12
+#> 2 4 10
+#> 3 6  8
+```
+
+## Two Inputs (map2)
+
+The **map** function is vectorized over a single argument and only varies over `.x` when calling `.f`. This is
+problematic for some types of problems like calculating weighted means where you have a list of observations and weights.
+
+$$
+\text{Avg MET} = \frac{\sum_{i=1}^{n} \bigl(\text{minutes}_i \times \text{MET}_i\bigr)}{\sum_{i=1}^{n} \text{minutes}_i}
+$$
+
+```{r}
+# Weekly minutes of physical activity for each participant
+activity <- list(
+  person1 = c(walk = 150, run = 60, bike = 90),
+  person2 = c(walk = 200, run = 0, bike = 30),
+  person3 = c(walk = 100, run = 120, bike = 60)
+)
+
+# MET values (energy cost for each activity type)
+# Walk ~3.3 METs, Run ~7 METs, Bike ~6 METs
+met_weights <- list(
+  person1 = c(walk = 3.3, run = 7.0, bike = 6.0),
+  person2 = c(walk = 3.3, run = 7.0, bike = 6.0),
+  person3 = c(walk = 3.3, run = 7.0, bike = 6.0)
+)
+
+# Weighted mean activity intensity (minutes weighted by METs)
+weighted_activity <- purrr::map2_dbl(
+  activity,
+  met_weights,
+  ~ sum(.x * .y) / sum(.x)
+)
+
+weighted_activity
+#>  person1  person2  person3
+#> 4.850000 3.652174 5.464286
+```
+
+The basic implementation of `map2` is like `map` except it iterates over two vectors in parellel.
+
+```{r}
+simple_map2 <- function(x, y, f, ...) {
+  out <- vector("list", length(x))
+  for (i in seq_along(x)) {
+    out[[i]] <- f(x[[i]], y[[i]], ...)
+  }
+  return(unlist(out))
+}
+
+simple_map2(activity, met_weights, f = function(x, y) sum(x * y) / sum(x))
+#> [1] 4.850000 3.652174 5.464286
+```
+
+## No Output (walk)
+
+Most functions are called for their returned value. However, some functions are called primarily for their side-effects
+(e.g., cat, write.csv, or ggsave). For example, the `cat` function returns NULL after printing out the result so `purrr::map`
+will return a list of NULL values.
+
+You can assign the results of `map` to a variable that you would never use or you can use `purrr::walk`. This function
+ignores the return values of the function and instead invisibly returns x.
+
+```{r}
+welcome <- function(x) {
+  cat("Welcome to RLAB, ", x, "!\n", sep = "")
+}
+
+names <- c("Brian", "Julianne", "Morgan", "Ashlyn", "Courtney")
+
+purrr::map(names, welcome)
+
+#> Welcome to RLAB, Brian!
+#> Welcome to RLAB, Julianne!
+#> Welcome to RLAB, Morgan!
+#> Welcome to RLAB, Ashlyn!
+#> Welcome to RLAB, Courtney!
+#> [[1]]
+#> NULL
+
+#> [[2]]
+#> NULL
+
+#> [[3]]
+#> NULL
+
+#> [[4]]
+#> NULL
+
+#> [[5]]
+#> NULL
+
+# Returned value is invisble but here we can see it is equal to .x
+all(purrr::walk(names, welcome) == names)
+#> Welcome to RLAB, Brian!
+#> Welcome to RLAB, Julianne!
+#> Welcome to RLAB, Morgan!
+#> Welcome to RLAB, Ashlyn!
+#> Welcome to RLAB, Courtney!
+#> [1] TRUE
+```
+
+::: {.tip-box}
+
+One of the most useful `walk` variants is `walk2`. It allows you to iterate over an object and path when saving
+something to your computer which makes it easier to save a list of a data frames (e.g., subsetted or filtered) 
+to your computer.
+
+:::
+
+## Iterating Over Values and Indices (imap)
+
+The `imap` function iterates over indices or names. It is comparable to `map2` in that your function is called with
+2 arguments. However, both are derived from the vector.
+
+- **imap(x, f)** equals map2(x, names(x), f) when x has names.
+- **imap(x, f)** equals map2(x, seq_along(x), f) when x does not have names.
+
+```{r}
+# Creating labels
+purrr::imap_chr(
+  data.frame(t(mtcars))[1:5], # Transpose data frame so car names are columns
+  ~ paste0("The mpg for ", .y, " is ", .x[[1]], "\n")
+) |>
+  cat() # Interpret newline character for display
+
+#> The mpg for Mazda.RX4 is 21
+#> The mpg for Mazda.RX4.Wag is 21
+#> The mpg for Datsun.710 is 22.8
+#> The mpg for Hornet.4.Drive is 21.4
+#> The mpg for Hornet.Sportabout is 18.7
+```
+
+## Any Number of Inputs (pmap)
+
+The `pmap` function takes a list containing any number of arguments (i.e., equal-length vectors as in a data frame). In the
+case of map2, **pmap(list(x, y), f)** equals **map2(x, y, f)**. A big difference between `pmap` and the other map functions is
+finer control over argument matching by using named lists. Naming the components will increase the clarity related to how the
+function will be called.
+
+```{r}
+purrr::pmap_dbl(list(na.rm = TRUE), mean, x = c(1, NA, 3, NA, 5))
+#> [1] 3
+```
+
+We can also use pmap to draw random uniform numbers with varying parameters by first setting up our parameters in a data frame.
+
+```{r}
+# n, min, and max are the argument names for runif
+params <- data.frame(
+  n = c(1:3),
+  min = c(0, 10, 100),
+  max = c(1, 100, 1000)
+)
+
+set.seed(123)
+purrr::pmap(params, runif)
+
+#> [[1]]
+#> [1] 0.2875775
+
+#> [[2]]
+#> [1] 80.94746 46.80792
+
+#> [[3]]
+#> [1] 894.7157 946.4206 141.0008
+```
+
+::: {.highlight-box}
+
+The base equivalents to `pmap()` would be `Map()` or `mapply()`. However, the **Map** function requires that arguments do not vary and **mapply** has similar drawbacks to `sapply` as it simplifies the output of `Map`.
+
+:::
+
+## Reduce Family
+
+::: {.columns}
+::: {.column}
+
+Takes a vector of length *n* and produces a vector of length 1 by calling a function with a pair of values at a time. 
+For example, `reduce(1:4, f)` equals **f(f(f(1, 2), 3), 4)**. It allows a function programmed to work with 2 inputs
+(i.e., a binary function) to work with any number of inputs. 
+
+:::
+::: {.column}
+
+![](https://adv-r.hadley.nz/diagrams/functionals/reduce.png){.nostretch}
+
+:::
+:::
+
+Imagine you have a physical activity intervention lasting 7 days with 15 participants and you have the participants' daily
+minutes of moderate-to-vigorous physical activity recorded in a vector by participant within a list. You could use 
+`purrr::reduce` to get the weekly total instead of needing to add repeatedly.
+
+```{r}
+# Generate a random data set representing minutes of daily activity for 25 participants
+set.seed(123)
+minutes_of_activity <- purrr::map(1:7, ~ sample(0:60, 15, replace = TRUE))
+names(minutes_of_activity) <- paste0("Day ", 1:length(minutes_of_activity))
+
+str(minutes_of_activity)
+#> List of 7
+#>  $ Day 1: int [1:15] 30 14 50 13 2 41 49 53 42 36 ...
+#>  $ Day 2: int [1:15] 26 4 50 26 56 27 56 8 28 34 ...
+#>  $ Day 3: int [1:15] 18 35 13 16 42 38 52 11 14 31 ...
+#>  $ Day 4: int [1:15] 9 22 26 59 52 6 52 26 31 37 ...
+#>  $ Day 5: int [1:15] 11 12 17 32 56 26 24 37 20 14 ...
+#>  $ Day 6: int [1:15] 15 51 29 5 42 7 21 21 38 30 ...
+#>  $ Day 7: int [1:15] 33 3 12 4 53 50 24 51 21 24 ...
+
+# Without purrr::reduce
+out <- minutes_of_activity[[1]]
+out <- out + minutes_of_activity[[2]]
+out <- out + minutes_of_activity[[3]]
+out <- out + minutes_of_activity[[4]]
+out <- out + minutes_of_activity[[5]]
+out <- out + minutes_of_activity[[6]]
+out <- out + minutes_of_activity[[7]]
+out
+#> [1] 142 141 197 155 303 195 278 207 194 206 241 222 195 207 192
+
+# With purrr::reduce
+purrr::reduce(minutes_of_activity, `+`)
+#> [1] 142 141 197 155 303 195 278 207 194 206 241 222 195 207 192
+```
+
+The implementation of `reduce` can be seen using a simple wrapper around a for loop. The base R equivalent is **Reduce** but
+the argument order is different and the user can not add additional arguments.
+
+```{r}
+simple_reduce <- function(x, f) {
+  out <- x[[1]]
+  for (i in seq(2, length(x))) {
+    out <- f(out, x[[i]])
+  }
+  return(out)
+}
+
+simple_reduce(minutes_of_activity, function(x, y) x + y)
+#> [1] 142 141 197 155 303 195 278 207 194 206 241 222 195 207 192
+
+Reduce(f = function(x, y) x + y, x = minutes_of_activity)
+#> [1] 142 141 197 155 303 195 278 207 194 206 241 222 195 207 192
+```
+
+## Accumulate
+
+A variant of reduce that returns the intermediate results of each step. When using `+` in our example, this
+would be the cumulative sum of minutes after each of the days.
+
+```{r}
+purrr::accumulate(minutes_of_activity, `+`)
+
+#> $`Day 1`
+#>  [1] 30 14 50 13  2 41 49 53 42 36 51 13 53 24 25
+
+#> $`Day 2`
+#>  [1]  56  18 100  39  58  68 105  61  70  70  58  38  59  65  33
+
+#> $`Day 3`
+#>  [1]  74  53 113  55 100 106 157  72  84 101  99  82  65  73  73
+
+#> $`Day 4`
+#>  [1]  83  75 139 114 152 112 209  98 115 138 123 115  93  77  80
+
+#> $`Day 5`
+#>  [1]  94  87 156 146 208 138 233 135 135 152 163 161 118 136 110
+
+#> $`Day 6`
+#>  [1] 109 138 185 151 250 145 254 156 173 182 210 177 171 185 158
+
+#> $`Day 7`
+#>  [1] 142 141 197 155 303 195 278 207 194 206 241 222 195 207 192
+```
+
+::: {.tip-box}
+
+Both **reduce** and **accumulate** can take an *.init* argument as the first value used to start the accumulation rather
+than using `.x[[1]]`. This ensures that these functions return a correct value when *.x* is empty rather than throwing
+an error (e.g., **purrr::reduce(integer(), `+`, .init = 0)**). It also ensures that errors are thrown if `.x` is not valid
+for the function (e.g., **purrr::reduce("a", `+`, .init = 0)**)
+
+:::
+
+## Predicate Functionals
+
+A predicate is a function that returns TRUE or FALSE (e.g., is.character, is.null, all). We say that a predicate *matches*
+a vector if it returns TRUE.
+
+A **predicate functional** applies a predicate to each element of a vector. The `purrr` package provides 6 useful functions 
+in 3 pairs: 
+
+- **some(.x, .p)**: returns TRUE if any element matches; **every(.x, .p)**: returns TRUE if all elements match
+- **detect(.x, .p)**: returns the value of the first match; **detect_index(.x, .p)**: returns the location of the first match
+- **keep(.x, .p)**: keeps all matching elements; **discard(.x, .p)**: drops all matching elements
+
+```{r}
+df <- data.frame(x = 1:3, y = letters[1:3])
+
+purrr::detect(df, is.numeric)
+#> [1] 1 2 3
+
+purrr::detect_index(df, is.numeric)
+#> [1] 1
+
+str(purrr::keep(df, is.numeric))
+#> 'data.frame':	3 obs. of  1 variable:
+#>  $ x: int  1 2 3
+
+str(purrr::discard(df, is.numeric))
+#> 'data.frame':	3 obs. of  1 variable:
+#>  $ y: chr  "a" "b" "c"
+```
+
+## Map Variants
+
+Both map and modify come in variants that also take predicate functions.
+
+```{r}
+df <- data.frame(
+  num1 = c(0, 10, 20),
+  num2 = c(5, 6, 7),
+  chr1 = c("a", "b", "c")
+)
+
+str(purrr::map_if(df, is.numeric, mean))
+#> List of 3
+#>  $ num1: num 10
+#>  $ num2: num 6
+#>  $ chr1: chr [1:3] "a" "b" "c"
+
+str(purrr::modify_if(df, is.numeric, mean))
+#> 'data.frame':	3 obs. of  3 variables:
+#>  $ num1: num  10 10 10
+#>  $ num2: num  6 6 6
+#>  $ chr1: chr  "a" "b" "c"
+
+str(purrr::map(purrr::keep(df, is.numeric), mean))
+#> List of 2
+#>  $ num1: num 10
+#>  $ num2: num 6
+```
+
+## Matrices and Arrays
+
+The `base::apply` function is designed to work with matrices and arrays. It is an operation that summarizes a matrix
+or array by collapsing each row or column into a single value. The `apply` function has four arguments: 
+
+- **X**: the matrix or array
+- **MARGIN**: An integer vector giving the dimensions to summarize over (i.e., 1: rows; 2: columns)
+- **FUN**: A summary function
+- **...***: Additional arguments to pass to FUN
+
+```{r}
+a2d <- matrix(1:20, nrow = 5)
+
+#>      [,1] [,2] [,3] [,4]
+#> [1,]    1    6   11   16
+#> [2,]    2    7   12   17
+#> [3,]    3    8   13   18
+#> [4,]    4    9   14   19
+#> [5,]    5   10   15   20
+
+# Row Means
+apply(X = a2d, MARGIN = 1, FUN = mean)
+#> [1]  8.5  9.5 10.5 11.5 12.5
+
+# Column Means
+apply(X = a2d, MARGIN = 2, FUN = mean)
+#> [1] 3 8 13 18
+```
+
+You can add multiple dimensions to MARGIN to summarize high-dimensional arrays.
+
+```{r}
+# Creates an array of 4 matrices with 2 rows and 3 columns
+a3d <- array(1:24, c(2, 3, 4))
+
+str(a3d)
+#> int [1:2, 1:3, 1:4] 1 2 3 4 5 6 7 8 9 10 ...
+
+# Row Means for ALL arrays
+apply(X = a3d, MARGIN = 1, FUN = mean)
+
+# Row BY Column Means for ALL Arrays
+apply(X = a3d, MARGIN = c(1, 2), FUN = mean)
+```
+
+::: {.tip-box}
+
+Never use the apply function with a data frame as it coerces it to a matrix and may lead to undesirable results if
+your data frame contains non-numeric data. The apply function will also automatically simplify the output to a list,
+matrix, or vetor, reducing the predictability of using the function.
+
+:::

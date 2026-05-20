@@ -1,0 +1,18 @@
+# Advanced R - Foundations
+
+1. [Names and Values](presentations/AdvancedR/Foundations/names-values.html)
+2. [Vectors](presentations/AdvancedR/Foundations/vectors.html)
+3. [Subsetting](presentations/AdvancedR/Foundations/subsetting.html)
+4. [Control Flow](presentations/AdvancedR/Foundations/control-flow.html)
+5. [Functions](presentations/AdvancedR/Foundations/functions.html)
+6. [Environments](presentations/AdvancedR/Foundations/environments.html)
+7. [Conditions](presentations/AdvancedR/Foundations/conditions.html)
+
+# Advanced R - Special Topics
+
+1. [Functionals](presentations/AdvancedR/SpecialTopics/functionals.html)
+2. [Function Factories](presentations/AdvancedR/SpecialTopics/function-factories.html)
+3. [Function Operators](presentations/AdvancedR/SpecialTopics/function-operators.html)
+4. [Object-Oriented Programming](presentations/AdvancedR/SpecialTopics/object-oriented-programming.html)
+5. [Meta-Programming](presentations/AdvancedR/SpecialTopics/meta-programming.html)
+6. [Performance](presentations/AdvancedR/SpecialTopics/performance.html)

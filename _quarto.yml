@@ -1,0 +1,36 @@
+project:
+  type: website
+  # Remove folder if Quarto needs to re-render due to change
+  render: 
+    - "*.qmd"
+    # - "!template.qmd"
+    # - "!DataScience/"
+    # - "!Foundations/"
+    # - "!SpecialTopics/"
+
+website:
+  title: "R for Lifestyle and Brain Health (R-LAB)"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: introduction.qmd
+        text: Introduction to R
+      - href: presentations.qmd
+        text: Presentations
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true
+
+execute: 
+  freeze: auto
+
+
+
