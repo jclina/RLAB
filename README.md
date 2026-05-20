@@ -1,4 +1,4 @@
-# RLAB <img src="man/figures/RLAB.png" align="right" height="150" />
+# RLAB <img src="https://github.com/bhelsel/RLAB/raw/main/images/rlab.png" align="right" height="150" />
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -18,49 +18,11 @@ The goal of R-LAB is to foster a supportive community where emerging scientists
 can sharpen their programming skills, enhance their research rigor, and
 accelerate their contributions to the field.
 
-## Installation
+## Website
 
-You can install the development version of RLAB from [GitHub](https://github.com/bhelsel/RLAB) with:
+You can view the R-LAB website at <a href="https://bhelsel.github.io/RLAB/">https://bhelsel.github.io/RLAB</a>
 
-```r
-# install.packages("devtools")
-devtools::install_github("bhelsel/RLAB")
-```
-
-## Render a Presentation
-
-To render a presentation, there is a utility function called `render_presentation`
-
-```r
-library(RLAB)
-# Set your output directory to the location you want the presentation stored
-# The function will create the folder if it does not exisit
-outpath <- "full/path/to/your/output/directory"
-render_presentation(outdir = outpath, name = "02")
-
-```
-
-The `name` argument uses matching via regular expressions, so it can be **02**
-or the full name **02-AdvR-Names-Values**.
-
-The list of completed presentations include:
-
-- 01-R-Basics
-- 02-AdvR-Names-Values
-- 03-AdvR-Vectors
-- 04-AdvR-Subsetting
-- 05-AdvR-Control-Flow
-- 06-AdvR-Functions
-- 07-AdvR-Environments
-- 08-AdvR-Conditions
-- 09-AdvR-Functionals
-
-## Hex Sticker
-
-This is code used to generate and download the Hex sticker after the package is
-installed. Change the file name if you want to save it in a different location
-
-```r
+<!-- ```r
 
 hexSticker::sticker(
   system.file("images/brain.png", package = "RLAB"),
@@ -84,4 +46,4 @@ hexSticker::sticker(
   dpi = 600
 )
 
-```
+``` -->
