@@ -3,623 +3,483 @@ title: "Basics of R"
 subtitle: "R-LAB (R for Lifestyle and Brain Health)"
 author: "Julianne Clina, PhD"
 institute: "University of Kansas Medical Center"
-date: June 25 2025
+date: "2026-05-28"
+
 format:
-  revealjs:
-    theme: [default, "styles/styleReveal.scss"]
-    slide-number: true
-    preview-links: auto
-    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
-    footer: "R Basics"
-    transition: slide
-    background-transition: fade
-    highlight-style: github
-    code-line-numbers: true
-    code-block-bg: true
-    incremental: false
-    date-format: long
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    number-sections: true
+    smooth-scroll: true
+    code-copy: true
+    code-overflow: wrap
     embed-resources: true
-execute: 
+
+execute:
   echo: true
   eval: false
+  warning: false
+  message: false
   freeze: auto
 ---
+# Downloading Materials from GitHub
 
-## Downloading this presentation (or anything from Github!){.pattern-dots}
+Make sure you have the `devtools` package installed.
 
-Make sure you have the "remotes" package downloaded
-
-1. Install the package you are trying to download 
-`(devtools::install_github("bhelsel/RLAB")`
-2. Call in the function from the package and set any parameters 
-`(RLAB::render_presentation(outdir = "whereever_you_want_this_stored", name = "01"))`
-
-
-## What are R and RStudio? {.title-slide}
-
-**What is R?**
-
-R is a **programming language** for statistical computing and graphics.
-
-**What is RStudio?**  
-
-RStudio is an **Integrated Development Environment (IDE)** — a software that provides a user-friendly interface to write, organize, and run R code more easily.
-
-. . . 
-
-![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png){.nostretch}
-
-**Analogy**: R is like a **car engine** and RStudio is like a car **dashboard**. 
-
-
-
-## Components of RStudio {.pattern-dots}
-
-::: {.columns}
-
-::: {.column}
-
-| Component | Description |
-|-----------|-------------|
-| Console | Run R commands directly and view error messages |
-| Source | Write, edit, and save scripts or projects |
-| Environment | Shows data objects (e.g., variables, data frames) |
-| Output | Displays plots and tables.
-
-:::
-
-::: {.column}
-
-![](https://docs.posit.co/ide/user/ide/guide/ui/images/rstudio-panes-labeled.jpeg){.nostretch}
-
-:::
-
-:::
-
-. . .
-
-Additional components and functions:
-
-- **History**: Keeps track of the commands you’ve run.
-- **Files**: Manage your project files and folders.  
-- **Packages**: Install and load add-ons that extend R’s functionality.  
-- **Help**: Access documentation and help files.  
-- **Viewer**: Display web content or interactive visualizations within RStudio.
-- **Terminal**: A command-line interface where you can run system commands or use other programming languages alongside R.
-
-## Starting a Project in RStudio {.pattern-dots} 
-
-::: {.columns}
-
-::: {.column}
-**Starting a Project**
-
-- Keeps files organized by project.  
-- Prevents mixing data or scripts from different analyses.  
-- Makes sharing and reproducing work easier.
-
-:::
-
-::: {.column}
-![](https://bradleyboehmke.github.io/uc-bana-7025/images/new_project.png){.nostretch}
-:::
-
-:::
-
-. . .
-
-::: {.columns}
-
-::: {.column} 
-
-**What is the Working Directory?**  
-
-- The folder where R reads and saves files by default.  
-- Acts as R’s “home folder” during your session.
-
-:::
-
-::: {.column} 
-
-**Setting the working directory**
-![](https://raw.githubusercontent.com/NEONScience/NEON-Data-Skills/main/graphics/r-skills/RStudio-GUI-setWD.png){.nostretch}
-
-:::
-
-::: 
-
-**How the Working Directory Works with Projects**  
-
-- When you start a new project, RStudio sets the working directory to that project’s folder.  
-- Any files you create or export are saved there by default.  
-- This helps keep all your project files together and easy to find.
-
-## Packages and Functions in R 
-
-**What is a Package?** 
-
-- A set of functions, data, or code designed to accomplish specific tasks
-
-**What is a Function?** 
-
-- Functions **take input**, **do something**, and **return output**
-
-::: {.highlight-box}
-Think of it like a toolbox. A package is like a toolbox, and a function is a specific tool in the box. 
-:::
-
-The `tidyverse` is a collection of packages in R that are designed for data science. 
-
-**Essential `tidyverse` Packages** 
-
-| Package | Purpose | Example Functions |
-|---------|---------|---------|
-| dplyr | Data Wrangling | filter, select, mutate | 
-| tidyr | Data Organization | pivot_longer, drop_na |
-| ggplot2 |Data Visualization | geom_point, facet_wrap | 
-| readr | Data Import | read_csv |
-
-
-## Basics of Using a Function
-
-::: {.columns}
-
-::: {.column}
-
-- In order to use a function, you have to feed it the information it needs to complete its task
-- You can use the help function `help(function_name)` or its shortcut `?function_name`. You can also click the "Help" tab.
-- Here you read about the package usage, descriptions arguments, details etc. 
-
-:::
-
-::: {.column}
-
-![](https://intro2r.com/images/rs_help.png){.nostretch}
-
-:::
-
-:::
-
-## Making Your Very Own Function! 
-
-- Writing your own functions helps increase efficiency if doing the same task over and over 
-- Components of the function are the function name, input, code that explains what you want the function to do, and the output
-
-::: {.code-box}
+## Install the RLAB package
 
 ```{r}
-#| echo: true
-library(dplyr)
-
-fahrenheit_to_celsius <- function(f_temp) {
-  c_temp <- (f_temp - 32) * 5 / 9
-  return(c_temp)
-}
-fahrenheit_to_celsius(98.6)
-
-get_bmi_category <- function(wt, ht) {
-  bmi <- wt / ht^2
-  category <- case_when(
-    bmi < 18.5 ~ "Underweight",
-    bmi >= 18.5 & bmi < 24.9 ~ "Normal weight",
-    bmi >= 25 & bmi < 29.9 ~ "Overweight",
-    bmi >= 30 ~ "Obesity",
-  )
-  return(paste0("BMI = ", round(bmi, 1), " (", category, ")"))
-}
-get_bmi_category(85, 1.54)
+install.packages("devtools")
+devtools::install_github("bhelsel/RLAB")
 ```
 
-:::
+## Render a Presentation
 
-## Package Cheat Sheets
+```{r}
+RLAB::render_presentation(
+  outdir = "where_you_want_this_stored",
+  name = "01"
+)
+```
 
-**tidyr** 
+# What Are R and Positron?
 
-![](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/tidyr-thumbs.png)
+## What is R?
 
-**ggplot2**
+R is a programming language designed for:
 
-![](https://rstudio.github.io/cheatsheets/pngs/data-visualization.png)
+* statistical analysis
+* data visualization
+* reproducible research
+* data science workflows
 
-**dplyr**
+## What is Positron?
 
-![](https://rstudio.github.io/cheatsheets/pngs/data-transformation.png) 
+Positron is a modern development environment created by Posit for working with R and Python.
 
-## Updating R Studio and Packages
+Compared to traditional RStudio, Positron offers:
 
-**Why even bother?**
+* a cleaner interface
+* modern editor features
+* AI-assisted coding tools
+* multi-language support
+* improved performance
 
-- Get **new features**, **bug fixes**, and better performance  
-- Ensure **compatibility** with newer packages  
-- Stay consistent with collaborators and tutorials  
+> R is the language. Positron/RStudio is the workspace where you write and run code.
 
-When you open R Studio it will tell you what version you are using 
+![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png){width=70%}
 
-<!-- ![](http://mercury.webster.edu/aleshunas/R_learning_infrastructure/images/R%20version%20screen.png) -->
+# Components of an IDE
 
-**Update RStudio**
+| Component   | Description                    |
+| ----------- | ------------------------------ |
+| Console     | Run R commands and view errors |
+| Source      | Write and save scripts         |
+| Environment | View objects and datasets      |
+| Output      | Display plots and tables       |
+| Files       | Manage project files           |
+| Packages    | Install and load packages      |
+| Help        | Access documentation           |
+| Terminal    | Run system commands            |
 
-1. Visit [https://posit.co/download/rstudio/](https://posit.co/download/rstudio/)
-2. Choose your operating system (Windows or Mac)
-3. Download and install the latest version
+## IDE Layout
 
-. . . 
+![](https://docs.posit.co/ide/user/ide/guide/ui/images/rstudio-panes-labeled.jpeg){width=80%}
 
-**Update Your Packages**
+# Console vs Script Files
 
-Updated packages makes sure you are working with the latest versions which can include fixes of old bugs.
-Occasionally, if in the middle of an analysis or project, updated a package might not be desirable.
+## Console
 
-**Tools → Check for Package Updates** → Select and update
-<!-- ![](https://r.kellogg.northwestern.edu/images/software_update_packages.png) -->
+The Console runs commands immediately.
 
-**OR**
+Use it for:
+
+* quick calculations
+* testing code
+* exploring objects
+
+Example:
+
+```{r}
+2 + 2
+```
+
+## Script Files
+
+Scripts let you save and organize code.
+
+Benefits include:
+
+* reproducibility
+* easier debugging
+* collaboration
+* cleaner workflows
+
+Most analyses should be written in scripts instead of directly in the Console.
+
+```{r}
+my_number <- 2 + 2
+```
+
+# Running Code in Positron
+
+Common shortcuts:
+
+| Action        | Windows      | Mac         |
+| ------------- | ------------ | ----------- |
+| Run line/code | Ctrl + Enter | Cmd + Enter |
+| Save file     | Ctrl + S     | Cmd + S     |
+| Find          | Ctrl + F     | Cmd + F     |
+
+You can run:
+
+* one line
+* selected code
+* entire scripts
+
+# Projects and Working Directories
+
+## Why Use Projects?
+
+Projects help:
+
+* keep files organized
+* separate analyses
+* improve reproducibility
+* simplify collaboration
+
+## What is a Working Directory?
+
+The working directory is the default folder where R reads and saves files.
+
+![](https://raw.githubusercontent.com/NEONScience/NEON-Data-Skills/main/graphics/r-skills/RStudio-GUI-setWD.png){width=75%}
+
+When you open a project, the working directory is automatically set to that project folder.
+
+# Creating Objects in R
+
+R stores information in objects using the assignment operator `<-`.
+
+```{r}
+age <- 25
+study_group <- "control"
+height_inches <- 68
+```
+
+## Naming Tips
+
+Good variable names are:
+
+* descriptive
+* lowercase
+* consistent
+
+Recommended style:
+
+```{r}
+blood_pressure
+participant_age
+study_group
+```
+
+Avoid vague names like:
+
+```{r}
+x
+data1
+thing
+```
+
+# Packages and Functions in R
+
+## What is a Package?
+
+A package is a collection of functions, datasets, and tools designed for a specific purpose.
+
+## What is a Function?
+
+Functions:
+
+* take input
+* perform an action
+* return output
+
+> A package is like a toolbox. A function is a single tool inside the toolbox.
+
+# Essential tidyverse Packages
+
+| Package | Purpose           | Example Functions      |
+| ------- | ----------------- | ---------------------- |
+| dplyr   | Data wrangling    | `filter()`, `mutate()` |
+| tidyr   | Data organization | `pivot_longer()`       |
+| ggplot2 | Visualization     | `geom_point()`         |
+| readr   | Importing data    | `read_csv()`           |
+
+# Installing vs Loading Packages
+
+Installing only happens once:
+
+```{r}
+install.packages("ggplot2")
+```
+
+Loading happens every session:
+
+```{r}
+library(ggplot2)
+```
+
+# Using Functions in R
+
+Functions require inputs called arguments.
 
 Use:
 
-- `update.packages(ask=FALSE)`
-- `install.packages("package_name")` 
+```{r}
+help(mean)
+```
 
-Set the dependencies argument to `TRUE` for installing the package "Suggests" (default is to install "Depends", "Imports", and "LinkingTo") 
-
-## Atomic Data Types in R {.pattern-grid}
-
-**Fundamental Data Types**
-
-- In R, variables can be stored as several types of data
-- Different data types can do different things
-
-**Data Types We Might Use**
-
-| Data Type| Example | Use |
-|---------|---------|---------|
-| double| 120, 34.2 | blood pressures, bmi | 
-| integer | 15, 26, 0003 | steps, number of siblings, participant ID |
-| character (string) | placebo, tall | randomization arm, category | 
-| logical (boolean) | TRUE, FALSE | survival, presence of health condition |
-
-::: {.tip-box}
-
-Double and Integer data are both types of **Numeric Data**
-
-::: 
-
-. . . 
-
-::: {.code-box}
+or:
 
 ```{r}
-#| echo: true
-# Double data: BMI
+?mean
+```
+
+to access documentation.
+
+![](https://intro2r.com/images/rs_help.png){width=75%}
+
+# Reading Error Messages
+
+Errors are a normal part of programming.
+
+Common causes include:
+
+* misspelled object names
+* missing parentheses
+* missing packages
+* incorrect data types
+
+Learning to read error messages carefully is an essential R skill.
+
+Example:
+
+```{r}
+mean(c(1, 2, "3"))
+```
+
+# Updating Positron and Packages
+
+## Why Update?
+
+Updating software helps:
+
+* fix bugs
+* improve performance
+* add new features
+* improve package compatibility
+
+## Update Packages
+
+```{r}
+update.packages(ask = FALSE)
+```
+
+Install an individual package:
+
+```{r}
+install.packages("package_name")
+```
+
+# Atomic Data Types in R
+
+## Common Data Types
+
+| Type      | Example     | Typical Use         |
+| --------- | ----------- | ------------------- |
+| double    | `34.2`      | BMI, blood pressure |
+| integer   | `15L`       | IDs, counts         |
+| character | `"placebo"` | Labels, groups      |
+| logical   | `TRUE`      | Conditions          |
+
+> Integers and doubles are both numeric types.
+
+```{r}
+# Double
 bmi <- 24.8
-is.double(bmi)
 class(bmi)
 
-# Integer data: Participant ID
-id <- 0003L
+# Integer
+id <- 3L
 class(id)
-is.double(id)
 
-# Character data: randomization group
+# Character
 treatment_arm <- "placebo"
 class(treatment_arm)
 
-# Logical data: presence of hypertension
+# Logical
 has_hypertension <- FALSE
 class(has_hypertension)
 ```
 
-:::
+# Why Data Types Matter
 
-## Why Data Types Matter in R
-
-- Knowing your data types helps prevent bugs and weird results
-- Functions behave differently depending on type
-- Mistakes often create **errors** (and that’s OK!)
-
-::: {.code-box}
+Functions behave differently depending on data type.
 
 ```{r}
-#| echo: true
-#| error: true
-# Numeric vs. character: Addition
 num1 <- 5
 num1 + 2
 
 num2 <- "5"
 num2 + 2
-
-# Logical used in math
-x <- TRUE
-y <- FALSE
-sum(c(x, y, TRUE))
-
-# Sorting: numeric vs. character
-ages <- c(15, 9, 2)
-sort(ages)
-
-as_char <- as.character(ages)
-sort(as_char)
-
-# Missing Data
-# Numeric NA
-num_values <- c(100, NA, 200)
-mean(num_values)
-mean(num_values, na.rm = TRUE)
-
-# Logical NA
-logical_values <- c(TRUE, NA, FALSE)
-sum(logical_values)
-sum(logical_values, na.rm = TRUE)
-
-# Character NA
-char_values <- c("yes", NA, "no")
-paste("Answer:", char_values)
 ```
 
-:::
+# Vectors
 
-## Vectors in R
-
-- A **vector** is the most basic data structure in R.
-- Vectors are **everywhere** in R — for example, each column in a data frame is a vector.
-- It is a sequence of values that are **all the same data type** (if not, R will force it to be)
-
-::: {.code-box}
+Vectors store multiple values of the same type.
 
 ```{r}
-#| echo: true
 v1 <- c(1:5)
-is.numeric(v1)
 
 v2 <- c("cat", "house", "bunny")
-is.character(v2)
 
 v3 <- c(v1, v2)
 v3
-is.character(v3)
 ```
 
-:::
+# Factors
 
-## Factor
-
-- A factor is a type of vector for categorical data
-- Used when there is an order or levels to a variable (i.e "short", "medium", "tall")
-- Responds differently to certain functions 
-
-::: {.code-box}
+Factors are used for categorical variables.
 
 ```{r}
-#| echo: true
-bloodtype_vector <- c("A", "B", "AB", "O")
-summary(bloodtype_vector)
-
-bloodtype_factor <- factor(bloodtype_vector)
-summary(bloodtype_factor)
-
-height_vector <- c("tall", "short", "medium", "extra tall", "very short")
-sort(height_vector)
+bloodtype_factor <- factor(c("A", "B", "AB", "O"))
 
 height_factor <- factor(
-  height_vector,
+  c("short", "medium", "tall"),
   ordered = TRUE,
-  levels = c("very short", "short", "medium", "tall", "extra tall")
+  levels = c("short", "medium", "tall")
 )
-sort(height_factor)
 ```
 
-:::
+# Lists
 
-## Lists
-
-- A **list** can hold elements of different types and lengths (unlike a vector)
-- Useful for storing models, results, or datasets together.
-
-::: {.code-box}
+Lists can store mixed data types.
 
 ```{r}
-#| echo: true
 my_list <- list(
   name = "Bill",
   age = 35,
-  scores = c(92, 87, 95),
-  passed = TRUE
+  scores = c(92, 87, 95)
 )
 
 my_list
-
-#Results are stored as a list
-model <- lm(mpg ~ wt, data = mtcars)
-class(model)
-
-is.list(model)
-
-str(model)
-
-model$coefficients
 ```
 
-:::
+# Data Frames vs Tibbles
 
-## Combining Vectors or Lists in R
+## Data Frames
 
-You can use the `c()` function to concatenate values into a vector or list.
-These can be simple or you can combine lists or nested structures.
-The argument `recursive = TRUE/FALSE` is useful when combining lists or nested structures.
-Set `recursive = TRUE` to flatten the input.
-Set `recursive = FALSE` to preserve the structure.
+* Base R structure
+* Allows partial matching
+* May automatically convert types
 
-::: {.code-box}
+## Tibbles
 
-```{r}
-#| echo: true
-# Combine character vectors
-a <- c("red", "blue")
-b <- c("green", "yellow")
-colors <- c(a, b)
-colors
-
-# Combining lists
-x <- list("red", 1, TRUE)
-y <- list("green", list("yellow", FALSE, 6))
-combo1 <- c(x, y, recursive = FALSE)
-combo1
-
-combo2 <- c(x, y, recursive = TRUE)
-combo2
-
-# Practical example of recursive
-person1 <- list(name = "Ava", score = 88)
-person2 <- list(name = "Ben", score = 92)
-people <- list(person1, person2)
-paired <- c(people, recursive = FALSE)
-str(paired)
-paired[[1]]$name
-paired[[1]]$score
-
-flattened <- c(people, recursive = TRUE)
-str(flattened)
-```
-
-:::
-
-## Data Structures 
-
-**What is a Data Frame?**
-
-- The basic R structure for storing tabular data
-- Built into base R
-- Converts strings to factors by default (unless told not to)
-- Can sometimes change column types automatically
-- Allows **partial matching** of column names (can cause subtle bugs)
-
-**What is a Tibble?**
-
-- A tibble is a data frame (with a modern twist!)
-- Part of the **tidyverse**
-- Never converts strings to factors, never changes variable names, never creates row names 
-- Prints cleaner summaries (only first 10 rows and columns shown)
-- Better handling of large or complex data
-- **Does NOT allow partial matching** — safer and more predictable  
-
-. . . 
-
-**Partial Matching Example:**
-
-Sometimes, base R data frames will let you access columns by partially matching the name — which can lead to silent errors.
-
-Tibbles require **exact column names**, preventing this problem.
-
-::: {.code-box}
+* Part of the tidyverse
+* Cleaner printing
+* Requires exact column names
+* Safer behavior
 
 ```{r}
-#| echo: true
-#| error: true
 library(tibble)
-
-df1 <- data.frame(experiment_group = c("control", "treatment"))
-df1$experiment
-tb1 <- tibble(experiment_group = c("control", "treatment"))
-tb1$experiment
-
-# Example where partial matching can cause bugs.
-#Say you have a dataframe with age and height. You want to calcualte the age
-# when people will graduate based on their current age:
-df <- data.frame(
-  age = c(25, 30, 45),
-  average_height = c(55, 62, 50)
-)
-df$grad_age <- df$ave + 5
-print(df)
-
 
 tb <- tibble(
   age = c(25, 30, 45),
   average_height = c(55, 62, 50)
 )
-tb$grad_age <- tb$ave + 5
 
-# Create and print normal data frame and tibble for comparison
-class(mtcars)
-mtcars
-
-tb3 <- as_tibble(mtcars)
-class(tb3)
-tb3
+tb
 ```
 
-:::
+# GitHub and CRAN
 
-## GitHub and CRAN
+| Source | Purpose              | Install Method               |
+| ------ | -------------------- | ---------------------------- |
+| CRAN   | Stable releases      | `install.packages()`         |
+| GitHub | Development versions | `devtools::install_github()` |
 
-| Source  | Description | When to Use | Install With |
-|---------|-------------|-------------|--------------|
-| **CRAN** | Official R package repository | Most stable and tested version | `install.packages("pkgname")` |
-| **GitHub** | Developer’s source code (often in progress) | Get latest features or unreleased updates | `devtools::install_github("user/pkgname")` |
+## Install from CRAN
 
-> Think of **CRAN** like the **App Store** — safe, reviewed, and stable.  
-> Think of **GitHub** like the **developer’s lab** — early access, but maybe still being tested.
+```{r}
+install.packages("ggplot2")
+```
 
-*Install from CRAN*
-`install.packages("ggplot2")`
+## Install from GitHub
 
-*Install from GitHub*
-`install.packages("devtools")`
-`devtools::install_github("bhelsel/RLAB")`
+```{r}
+install.packages("devtools")
 
-**GitHub packages may require additional setup or dependencies.**
+devtools::install_github("bhelsel/RLAB")
+```
 
-## Forking vs Cloning in Github
+# Forking vs Cloning
 
-|                | **Forking** 🪄                          | **Cloning** 🔄                       |
-|----------------|-----------------------------------------|--------------------------------------|
-| **What it is** | Copies a repo to *your* GitHub account  | Copies a repo to your *local* machine |
-| **Where**      | Happens on **GitHub.com**               | Happens on **your computer**         |
-| **Use case**   | You want to contribute or customize     | You want to use or explore code      |
-| **Editable?**  | Yes — you own the forked version        | Yes — but you can’t push to original* |
-| **Common for** | Submitting a pull request               | Working privately or learning        |
+| Forking                       | Cloning                  |
+| ----------------------------- | ------------------------ |
+| Copies repo to GitHub account | Copies repo locally      |
+| Used for contributing         | Used for working locally |
 
-> ✨ You usually **fork first**, then **clone your fork** to your computer.
+> Typically you fork first, then clone your fork.
 
-## Forking a Repository on GitHub
+# Reproducible Research
 
-**Fork** - Your own copy of someone else's repository
+One major goal of R programming is reproducibility.
 
-[Fork and Clone Tutorial](https://github.com/rstats-tln/fork-and-clone-repo)
+A reproducible project allows someone else to:
 
-Steps:
+* run the same code
+* obtain the same results
+* understand the workflow
 
-1. Go to the GitHub repo you want to contribute to  
-   e.g., `https://github.com/bhelsel/RLAB`
+Good practices include:
 
-2. Click **"Fork"** (top right corner)
+* using projects
+* organizing files
+* saving scripts
+* commenting code
 
-3. Choose your account → GitHub will create your copy
+# What is Quarto?
 
-4. Clone it to your local machine
+Quarto combines:
 
-Now you can make changes and eventually make a pull request!
+* code
+* text
+* figures
+* results
 
-<!-- ![](https://pages.github.nceas.ucsb.edu/lter/github-workshop/images/git-fork-workflow.png){.nostretch} -->
+into a single document.
 
-## Fun FREE Resources 
+Quarto can create:
 
-[R Programming 101 Youtube](https://www.youtube.com/@RProgramming101)
+* HTML pages
+* PDFs
+* presentations
+* websites
 
-[Data Daft Introduction to R Playlist Youtube](https://www.youtube.com/watch?v=DjFz-LC0Et4&list=PLiC1doDIe9rDjk9tSOIUZJU4s5NpEyYtE&ab_channel=DataDaft)
+This document was created using Quarto.
 
-[Marin Stats Lectures Youtube](https://www.youtube.com/watch?v=riONFzJdXcs&list=PLqzoL9-eJTNBlVXxWvJkq0dtVut2sICUW&ab_channel=MarinStatsLectures-RProgramming%26Statistics)
+# Free Learning Resources
 
-[Equitable Equations Youtube](https://www.youtube.com/@EquitableEquations)
+**Cheat Sheets**
+![](https://rstudio.github.io/cheatsheets/pngs/tidyr.png)
+![](https://miro.medium.com/v2/resize:fit:1400/1*O4LZwd_rTEGY2zMyDkvR9A.png)
+![](https://miro.medium.com/v2/resize:fit:1400/1*W08jooOkrVu7iok96jsJpA.jpeg)
+![](https://static.docsity.com/documents_first_pages/2020/10/09/82263d4bbcf42919791a17225318fe46.png)
 
-[Dynamic Data Script Yotube](https://www.youtube.com/@ProgrammingDDS)
-
-[R for Data Science Book](https://r4ds.hadley.nz/)
-
-[Data Flair R Programming](https://data-flair.training/blogs/r-tutorials-home/)
-
-[R Programming from Johns Hopkins](https://www.coursera.org/learn/r-programming?irclickid=Vjy32XwgbxycWja1XXwhhQTpUksV6MTvpwg5080&irgwc=1&utm_medium=partners&utm_source=impact&utm_campaign=3310965&utm_content=b2c&utm_campaignid=MLTUT&utm_term=14726_CR_1164545_)
-
-[Random persons google drive with tons of free PDFs](https://drive.google.com/drive/folders/1W3S0r_g8PascdS8LLo4vcfcb3rY4fuHG)
+* https://r4ds.hadley.nz/
+* https://www.youtube.com/@RProgramming101
+* https://www.youtube.com/@EquitableEquations
+* https://data-flair.training/blogs/r-tutorials-home/
+* https://www.coursera.org/learn/r-programming
