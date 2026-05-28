@@ -472,6 +472,12 @@ This document was created using Quarto.
 
 # Free Learning Resources
 
+**Cheat Sheets**
+![](https://rstudio.github.io/cheatsheets/pngs/tidyr.png)
+![](https://miro.medium.com/v2/resize:fit:1400/1*O4LZwd_rTEGY2zMyDkvR9A.png)
+![](https://miro.medium.com/v2/resize:fit:1400/1*W08jooOkrVu7iok96jsJpA.jpeg)
+![](https://static.docsity.com/documents_first_pages/2020/10/09/82263d4bbcf42919791a17225318fe46.png)
+
 * https://r4ds.hadley.nz/
 * https://www.youtube.com/@RProgramming101
 * https://www.youtube.com/@EquitableEquations
