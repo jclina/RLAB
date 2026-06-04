@@ -1,84 +1,66 @@
+![R Logo](https://www.r-project.org/Rlogo.png){width=100px style="float:left; margin-right:1rem;"}
+![RLAB Logo](https://github.com/bhelsel/RLAB/raw/main/images/rlab.png){width=150px style="float:right; margin-left:1rem; mix-blend-mode: multiply;"}
+
+# R for Lifestyle and Brain Health
+
+Build R programming skills to support research.
+
 ---
-title: "R for Lifestyle and Brain Health"
-format:
-  html:
-    toc: false
-    page-layout: full
-    css: styles.css
+
+> **STARTS JUNE 24!** Hands-on journey into R for data science and advanced programming.
+
 ---
 
-```{=html}
-<div class="container">
+## What We'll Cover
 
-  <!-- HERO -->
-  <div class="hero">
-    <img src="https://www.r-project.org/Rlogo.png" style="width: 100px;" alt="R logo">
-    <div>
-      <h1>R for<br>Lifestyle and<br>Brain Health</h1>
-      <p>Build R programming skills to support research.</p>
-    </div>
-    <img src="https://github.com/bhelsel/RLAB/raw/main/images/rlab.png" style="width: 150px;" alt="RLAB logo">
-  </div>
+:::: {.columns}
 
-  <!-- DATE BAR -->
-  <div class="date-bar">
-    <strong>STARTS JUNE 24!</strong>
-    <span>Hands-on journey into R for data science and advanced programming.</span>
-  </div>
+::: {.column width="50%"}
+### R for Data Science
+Build skills to wrangle, visualize, and model data.
 
-  <!-- WHAT WE'LL COVER -->
-  <div class="section-title">WHAT WE'LL COVER</div>
+- 📊 Import and transform data
+- 📈 Visualize data with ggplot2
+- 🧠 Write and use your own functions
+:::
 
-  <div class="grid-2">
+::: {.column width="50%"}
+### Advanced R
+Take your R skills to the next level.
 
-    <div class="card">
-      <h3>R for Data Science</h3>
-      <p>Build skills to wrangle, visualize, and model data.</p>
-      <div class="bullet">📊 Import and transform data</div>
-      <div class="bullet">📈 Visualize data with ggplot2</div>
-      <div class="bullet">🧠 Write and use your own functions</div>
-    </div>
+- ⚙️ Object-Oriented Programming
+- 🧩 Metaprogramming
+- 🚀 Improving Code Performance
+:::
 
-    <div class="card">
-      <h3>Advanced R</h3>
-      <p>Take your R skills to the next level.</p>
-      <div class="bullet">⚙️ Object-Oriented Programming</div>
-      <div class="bullet">🧩 Metaprogramming</div>
-      <div class="bullet">🚀 Improving Code Performance</div>
-    </div>
+::::
 
-  </div>
+---
 
-  <!-- WHY / OUTCOMES -->
-  <div class="grid-2 alt">
+## Why This Course?
 
-    <div class="card">
-      <h3>Why this course?</h3>
-      <ul class="checklist">
-        <li>Connects early-career researchers</li>
-        <li>Bridges data &amp; domain expertise</li>
-        <li>Build practical, career-advancing skills</li>
-        <li>Advances research software development</li>
-      </ul>
-    </div>
+:::: {.columns}
 
-    <div class="card">
-      <h3>You'll walk away with:</h3>
-      <ul class="checklist">
-        <li>Strong programming skills in R</li>
-        <li>Ability to develop new research tools</li>
-        <li>Skills to build reproducible workflows</li>
-        <li>Confidence using R to support research</li>
-      </ul>
-    </div>
+::: {.column width="50%"}
+**Why this course?**
 
-  </div>
+- Connects early-career researchers
+- Bridges data & domain expertise
+- Build practical, career-advancing skills
+- Advances research software development
+:::
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <span>Connect with other scientists interested in learning R to support lifestyle and brain health research.</span>
-  </div>
+::: {.column width="50%"}
+**You'll walk away with:**
 
-</div>
-```
+- Strong programming skills in R
+- Ability to develop new research tools
+- Skills to build reproducible workflows
+- Confidence using R to support research
+:::
 
+::::
+
+---
+
+*Connect with other scientists interested in learning R to support lifestyle and brain health research.*

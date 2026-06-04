@@ -1,9 +1,10 @@
 ---
-title: "Advanced R: Names and Values"
+title: "Names and Values"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Brian C. Helsel, PhD"
 institute: "University of Kansas Medical Center"
-date: today
+date: 2026-08-12
+image: "../../../images/thumbnails/names-values.png"
 format:
   revealjs:
     theme: [default, "../../../styles/styleReveal.scss"]
@@ -24,77 +25,6 @@ execute:
   eval: false
   freeze: auto
 ---
-
-## R as a Language: More Than Just Stats {.title-slide}
-
-::: {.highlight-box}
-**R is a language and environment for statistical computing and graphics**
-
-:::
-
-**You will advance your R skills related to:**
-
-- Research Software Engineering
-- Building Packages and Reports
-- Creating Dashboards and Web Apps
-
-::: notes
-
-This course isn’t about using R’s data analysis tools, but by strengthening your
-understanding of R as a programming language, you’ll gain deeper insight into
-how those tools work—and how to use them more effectively.
-
-:::
-
-
-## Getting Started {.pattern-dots}
-
-::: {.columns}
-::: {.column width="60%"}
-**Installation Requirements:**
-
-- **Base R**: Core language
-- **Integrated development environment (IDE)**
-
-::: {.tip-box}
-💡 **Tip**: Common Integrated Development Environments Options Include R Studio, Positron, and Visual Studio Code.
-:::
-:::
-
-::: {.column width="40%"}
-**Essential Packages:**
-
-| Package | Purpose |
-|---------|---------|
-| lobstr | Understanding R Objects |
-| tibble | A Modern Data Frame |
-| dplyr | Data wrangling |
-
-:::
-:::
-
-::: notes
-
-To get started with our lessons, you'll need to have R installed, along with an
-integrated development environment (IDE).
-
-Common IDEs include RStudio, Positron, and Visual Studio Code. Each has
-different strengths:
-– RStudio is popular for R-specific workflows and ease of use
-– VS Code is more customizable and good for multi-language projects
-– Positron (if you're using it) is a lightweight option for quick scripting
-
-For our first few lessons, make sure you install the following packages:
-– lobstr – to explore how R manages objects in memory
-– tibble – a modern, tidyverse-friendly version of data frames
-– dplyr – for efficient data wrangling and manipulation
-
-You’ll also want to create a GitHub account and install GitHub Desktop. This
-will make it easier to access course materials, track your code, and eventually
-build your own R packages or Shiny apps.
-
-:::
-
 
 ## Binding Basics
 

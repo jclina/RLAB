@@ -1,9 +1,10 @@
 ---
-title: "Advanced R: Subsetting"
+title: "Subsetting"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Brian C. Helsel, PhD"
 institute: "University of Kansas Medical Center"
-date: today
+date: 2026-08-26
+image: "../../../images/thumbnails/image-template.png"
 format:
   revealjs:
      theme: [default, "../../../styles/styleReveal.scss"]

@@ -1,9 +1,10 @@
 ---
-title: "Advanced R: Functions"
+title: "Functions"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
-author: "Brian C. Helsel, PhD"
-institute: "University of Kansas Medical Center"
-date: today
+author: "Ashlyn Barry"
+institute: "University of Wisconsin - Madison"
+date: 2026-09-09
+image: "../../../images/thumbnails/image-template.png"
 format:
   revealjs:
     theme: [default, "../../../styles/styleReveal.scss"]

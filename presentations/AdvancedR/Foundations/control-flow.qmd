@@ -1,9 +1,10 @@
 ---
-title: "Advanced R: Control Flow"
+title: "Control Flow"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Julianne G. Clina, PhD"
 institute: "University of Kansas Medical Center"
-date: today
+date: 2026-09-02
+image: "../../../images/thumbnails/image-template.png"
 format:
   revealjs:
     theme: [default, "../../../styles/styleReveal.scss"]

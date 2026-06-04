@@ -1,18 +1,48 @@
-# Advanced R - Foundations
+---
+title: "Presentations"
+---
 
-1. [Names and Values](presentations/AdvancedR/Foundations/names-values.html)
-2. [Vectors](presentations/AdvancedR/Foundations/vectors.html)
-3. [Subsetting](presentations/AdvancedR/Foundations/subsetting.html)
-4. [Control Flow](presentations/AdvancedR/Foundations/control-flow.html)
-5. [Functions](presentations/AdvancedR/Foundations/functions.html)
-6. [Environments](presentations/AdvancedR/Foundations/environments.html)
-7. [Conditions](presentations/AdvancedR/Foundations/conditions.html)
+In R-LAB, you will develop highly practical, career-advancing programming 
+skills as we cover topics related to data science and advanced R programming. 
+We will work our way through the *R for Data Science* and *Advanced R* books 
+together from June 24 to October 28, with a weekly presentation followed by 
+a practical skill development activity. Below is the course outline:
 
-# Advanced R - Special Topics
+---
 
-1. [Functionals](presentations/AdvancedR/SpecialTopics/functionals.html)
-2. [Function Factories](presentations/AdvancedR/SpecialTopics/function-factories.html)
-3. [Function Operators](presentations/AdvancedR/SpecialTopics/function-operators.html)
-4. [Object-Oriented Programming](presentations/AdvancedR/SpecialTopics/object-oriented-programming.html)
-5. [Meta-Programming](presentations/AdvancedR/SpecialTopics/meta-programming.html)
-6. [Performance](presentations/AdvancedR/SpecialTopics/performance.html)
+### [R for Data Science](DataScience.html)
+**6 weeks | June 24 – July 29**
+
+Begin your R-LAB journey by building the foundational skills every data 
+professional needs. Working through *R for Data Science*, you will learn how 
+to import, transform, and visualize data using the tidyverse, apply core 
+programming concepts in R, and communicate your findings through polished 
+reports and reproducible analyses.
+
+*45-minute presentation + 45-minute skill development activity each week.*
+
+---
+
+### [Advanced R Foundations](Foundations.html)
+**7 weeks | August 12 – September 23**
+
+Deepen your understanding of R as a programming language by exploring the 
+internals that power everything you write. Drawing from *Advanced R*, this 
+module covers vectors, subsetting, control flow, function creation, 
+environments, and conditions — giving you a precise mental model of how R 
+actually works under the hood.
+
+*60-minute presentation + 45-minute skill development activity each week.*
+
+---
+
+### [Advanced R Special Topics](SpecialTopics.html)
+**4 weeks | October 7 – October 28**
+
+Cap the program with R's most powerful and expressive capabilities. This 
+final module dives into functional and object-oriented programming, 
+metaprogramming, and performance optimization — the techniques that 
+distinguish proficient R users from expert ones and that open doors to 
+building production-ready tools and packages.
+
+*90-minute presentation + 45-minute skill development activity each week.*

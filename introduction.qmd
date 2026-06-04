@@ -1,13 +1,11 @@
 ---
-title: "Basics of R"
-subtitle: "R-LAB (R for Lifestyle and Brain Health)"
+title: "R Basics"
 author: "Julianne Clina, PhD"
 institute: "University of Kansas Medical Center"
 date: "2026-05-28"
 
 format:
   html:
-    theme: lumen
     toc: true
     toc-depth: 2
     toc-location: left
@@ -24,27 +22,8 @@ execute:
   message: false
   freeze: auto
 ---
-# Downloading Materials from GitHub
 
-Make sure you have the `devtools` package installed.
-
-## Install the RLAB package
-
-```{r}
-install.packages("devtools")
-devtools::install_github("bhelsel/RLAB")
-```
-
-## Render a Presentation
-
-```{r}
-RLAB::render_presentation(
-  outdir = "where_you_want_this_stored",
-  name = "01"
-)
-```
-
-# What Are R and Positron?
+# R and Positron
 
 ## What is R?
 
@@ -123,7 +102,7 @@ Most analyses should be written in scripts instead of directly in the Console.
 my_number <- 2 + 2
 ```
 
-# Running Code in Positron
+# Running Code
 
 Common shortcuts:
 
@@ -139,7 +118,7 @@ You can run:
 * selected code
 * entire scripts
 
-# Projects and Working Directories
+# Projects and Directories
 
 ## Why Use Projects?
 
@@ -158,7 +137,7 @@ The working directory is the default folder where R reads and saves files.
 
 When you open a project, the working directory is automatically set to that project folder.
 
-# Creating Objects in R
+# Creating Objects
 
 R stores information in objects using the assignment operator `<-`.
 
@@ -192,7 +171,7 @@ data1
 thing
 ```
 
-# Packages and Functions in R
+# Packages and Functions
 
 ## What is a Package?
 
@@ -208,7 +187,7 @@ Functions:
 
 > A package is like a toolbox. A function is a single tool inside the toolbox.
 
-# Essential tidyverse Packages
+# tidyverse Packages
 
 | Package | Purpose           | Example Functions      |
 | ------- | ----------------- | ---------------------- |
@@ -217,7 +196,7 @@ Functions:
 | ggplot2 | Visualization     | `geom_point()`         |
 | readr   | Importing data    | `read_csv()`           |
 
-# Installing vs Loading Packages
+# Installing vs Loading
 
 Installing only happens once:
 
@@ -251,7 +230,7 @@ to access documentation.
 
 ![](https://intro2r.com/images/rs_help.png){width=75%}
 
-# Reading Error Messages
+# Error Messages
 
 Errors are a normal part of programming.
 
@@ -270,7 +249,7 @@ Example:
 mean(c(1, 2, "3"))
 ```
 
-# Updating Positron and Packages
+# Updating Packages
 
 ## Why Update?
 
@@ -293,7 +272,7 @@ Install an individual package:
 install.packages("package_name")
 ```
 
-# Atomic Data Types in R
+# Atomic Data Types
 
 ## Common Data Types
 
@@ -470,7 +449,7 @@ Quarto can create:
 
 This document was created using Quarto.
 
-# Free Learning Resources
+# Free Learning
 
 **Cheat Sheets**
 ![](https://rstudio.github.io/cheatsheets/pngs/tidyr.png)

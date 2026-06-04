@@ -1,9 +1,10 @@
 ---
-title: "Advanced R: Measuring and Improving Performance"
+title: "Measuring and Improving Performance"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Brian C. Helsel, PhD"
 institute: "University of Kansas Medical Center"
-date: today
+date: 2026-10-28
+image: "../../../images/thumbnails/image-template.png"
 format:
   revealjs:
     theme: [default, "../../../styles/styleReveal.scss"]

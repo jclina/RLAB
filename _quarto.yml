@@ -14,20 +14,16 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: about.qmd
-        text: About
       - href: introduction.qmd
-        text: Introduction to R
+        text: R Basics
       - href: presentations.qmd
         text: Presentations
 
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      - lumen
     css: styles.css
-    toc: true
 
 execute: 
   freeze: auto
