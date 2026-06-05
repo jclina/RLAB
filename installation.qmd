@@ -24,13 +24,6 @@ execute:
   freeze: auto
 ---
 
-::: {.callout-important}
-## Complete this before our first class meeting!
-Please work through all sections below **before Day 1**. If you run into issues, please email one of the course instructors.
-:::
-
----
-
 ## Install R
 
 R is the statistical programming language we'll use throughout this course. You need to install it first before installing RStudio or Positron.
@@ -41,14 +34,16 @@ R is the statistical programming language we'll use throughout this course. You 
 4. Open the R application once to confirm it installed correctly, you should see the R console
 
 ::: {.callout-tip}
-**Which version?** Always download the latest release. As of this writing that is R 4.5.3 Avoid older versions.
+**Which version?** Always download the latest release. As of this writing that is R 4.5.3.
 :::
 
 ---
 
-## Install an R IDE: Positron (Preferred) or RStudio
+## Development Environment
 
-You'll want an Integrated Development Environment (IDE) to write and run your R code comfortably. We recommend **Positron**, though RStudio is a perfectly fine alternative.
+You'll want an Integrated Development Environment (IDE) to write and run your R
+code comfortably. We recommend **Positron**, though RStudio is a perfectly fine
+alternative.
 
 ### Option A: Positron (Preferred)
 
@@ -84,7 +79,7 @@ We'll use GitHub to share code, submit assignments, and practice version control
 
 1. Go to [https://github.com](https://github.com)
 2. Click **Sign up** and create a free account
-3. Choose a username.
+3. Choose a username
 4. Verify your email address
 
 
@@ -98,7 +93,7 @@ GitHub Desktop gives you a visual interface for working with Git and GitHub.
 4. You're all set — we'll walk through using it together in class
 
 
-## Course Textbooks (Free Online!)
+## Course Textbooks
 
 We'll draw from two excellent, freely available online books throughout this course. Bookmark both now.
 
@@ -115,9 +110,8 @@ The go-to introduction to doing data science in R using the tidyverse. Covers da
 A deeper dive into how R works under the hood, functions, environments, object-oriented programming, and performance. We'll reference this later in the course.
 
 [https://adv-r.hadley.nz](https://adv-r.hadley.nz)
----
 
-## Getting Started: Helpful Resources
+## Helpful Resources
 
 Not sure where to begin with Git or R? These beginner-friendly resources will help you feel more comfortable before we dive in.
 
@@ -131,18 +125,17 @@ Once you have GitHub Desktop set up, one of the first things you'll do is **clon
 
 Sometimes it's easier to watch someone do it first. Here are a few videos to get you oriented:
 
-**Git and GitHub for Beginners**
+[**Git and GitHub for Beginners**](https://www.youtube.com/watch?v=FY8BISK5DpM).
+A great overview of Git concepts and how to use GitHub, covers the core ideas
+you'll need for this course.
 
-A great overview of Git concepts and how to use GitHub, covers the core ideas you'll need for this course.
-- [Git and GitHub for Beginners – freeCodeCamp](https://www.youtube.com/watch?v=FY8BISK5DpM)
-
-**Learn R in 39 Minutes**
+[**Learn R in 39 Minutes Video**](https://www.youtube.com/watch?v=yZ0bV2Afkjc&t=38s).
 A great overview of downloading and using R. 
-- [Learn R in 39 Minutes Video](https://www.youtube.com/watch?v=yZ0bV2Afkjc&t=38s)
 
-**R Programming for Beginners**
-A beginner, follow-along lesson. This channel is great for learning basics! 
-- [R Programming for Beginners Video](https://www.youtube.com/watch?v=FY8BISK5DpM)
+
+[**R Programming for Beginners**](https://www.youtube.com/watch?v=FY8BISK5DpM).
+A beginner, follow-along lesson great for learning basics! 
+
 
 ---
 
