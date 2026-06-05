@@ -10,7 +10,7 @@ a practical skill development activity. Below is the course outline:
 
 ---
 
-### [R for Data Science](DataScience.html)
+### [R for Data Science](presentations/DataScience.html)
 **6 weeks | June 24 – July 29**
 
 Begin your R-LAB journey by building the foundational skills every data 
@@ -23,7 +23,7 @@ reports and reproducible analyses.
 
 ---
 
-### [Advanced R Foundations](Foundations.html)
+### [Advanced R Foundations](presentations/Foundations.html)
 **7 weeks | August 12 – September 23**
 
 Deepen your understanding of R as a programming language by exploring the 
@@ -36,7 +36,7 @@ actually works under the hood.
 
 ---
 
-### [Advanced R Special Topics](SpecialTopics.html)
+### [Advanced R Special Topics](presentations/SpecialTopics.html)
 **4 weeks | October 7 – October 28**
 
 Cap the program with R's most powerful and expressive capabilities. This 
