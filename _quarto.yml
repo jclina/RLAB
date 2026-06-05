@@ -18,6 +18,8 @@ website:
         text: R Basics
       - href: presentations.qmd
         text: Presentations
+      - href: attendees.qmd
+        text: 2026 Attendees
 
 format:
   html:
