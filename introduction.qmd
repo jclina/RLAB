@@ -50,6 +50,10 @@ Compared to traditional RStudio, Positron offers:
 
 ![](https://bradleyboehmke.github.io/uc-bana-7025/images/R_vs_RStudio_1.png){width=70%}
 
+::: {.callout-tip}
+See this tutorial on [**Installing R and Positron**](installation.html) if you need help prior to the first day of R-LAB.
+:::
+
 # Components of an IDE
 
 | Component   | Description                    |

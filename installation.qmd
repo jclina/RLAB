@@ -1,0 +1,153 @@
+---
+title: "Before Day 1: Getting Set Up for R Lab"
+subtitle: "Everything you need to install before our first class"
+author: "Julianne Clina, PhD"
+institute: "University of Kansas Medical Center"
+date: "2026-06-05"
+
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    number-sections: true
+    smooth-scroll: true
+    code-copy: true
+    code-overflow: wrap
+    embed-resources: true
+
+execute:
+  echo: true
+  eval: false
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Install R
+
+R is the statistical programming language we'll use throughout this course. You need to install it first before installing RStudio or Positron.
+
+1. Go to [https://cran.r-project.org](https://cran.r-project.org)
+2. Click **Download R** for your operating system (Windows, macOS, or Linux)
+3. Follow the installer instructions
+4. Open the R application once to confirm it installed correctly, you should see the R console
+
+::: {.callout-tip}
+**Which version?** Always download the latest release. As of this writing that is R 4.5.3.
+:::
+
+---
+
+## Development Environment
+
+You'll want an Integrated Development Environment (IDE) to write and run your R
+code comfortably. We recommend **Positron**, though RStudio is a perfectly fine
+alternative.
+
+### Option A: Positron (Preferred)
+
+[Positron](https://github.com/posit-co/positron) is a next-generation data science IDE built by Posit (the same team behind RStudio). It's built on VS Code and offers a modern, flexible environment for R and Python.
+
+1. Go to [https://github.com/posit-co/positron/releases](https://github.com/posit-co/positron/releases)
+2. Download the latest release for your operating system
+3. Install and open Positron
+4. Open a new R file and run `1 + 1` to confirm R is connected
+
+::: {.callout-important}
+**Why Positron?** Positron has a cleaner interface, better multi-language support, and is the direction the R ecosystem is heading. We'll be using it in class demos.
+:::
+
+### Option B: RStudio
+
+RStudio is the classic, battle-tested R IDE and is a great choice if you prefer something more established.
+
+1. Go to [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
+2. Scroll down and download the **free RStudio Desktop** version for your OS
+3. Install and open RStudio
+4. In the Console pane, type `1 + 1` and press Enter to confirm R is working
+
+::: {.callout-tip}
+Either IDE will work fine for this course. Just pick one and stick with it!
+:::
+
+---
+
+## Create a GitHub Account
+
+We'll use GitHub to share code, submit assignments, and practice version control.
+
+1. Go to [https://github.com](https://github.com)
+2. Click **Sign up** and create a free account
+3. Choose a username
+4. Verify your email address
+
+
+## Install GitHub Desktop
+
+GitHub Desktop gives you a visual interface for working with Git and GitHub.
+
+1. Go to [https://desktop.github.com](https://desktop.github.com)
+2. Download and install GitHub Desktop for your OS
+3. Open GitHub Desktop and sign in with your GitHub account
+4. You're all set — we'll walk through using it together in class
+
+
+## Course Textbooks
+
+We'll draw from two excellent, freely available online books throughout this course. Bookmark both now.
+
+### R for Data Science (2nd Edition)
+**Hadley Wickham, Mine Çetinkaya-Rundel & Garrett Grolemund**
+
+The go-to introduction to doing data science in R using the tidyverse. Covers data import, tidying, visualization, and more.
+
+[https://r4ds.hadley.nz](https://r4ds.hadley.nz)
+
+### Advanced R (2nd Edition)
+**Hadley Wickham**
+
+A deeper dive into how R works under the hood, functions, environments, object-oriented programming, and performance. We'll reference this later in the course.
+
+[https://adv-r.hadley.nz](https://adv-r.hadley.nz)
+
+## Helpful Resources
+
+Not sure where to begin with Git or R? These beginner-friendly resources will help you feel more comfortable before we dive in.
+
+### GitHub: Cloning a Repository
+
+Once you have GitHub Desktop set up, one of the first things you'll do is **clone** a repository (that means downloading a copy of a project from GitHub to your computer). The official GitHub docs walk you through exactly how to do this:
+
+[Cloning a repository — GitHub Docs](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+
+### Beginner Video Tutorials
+
+Sometimes it's easier to watch someone do it first. Here are a few videos to get you oriented:
+
+[**Git and GitHub for Beginners**](https://www.youtube.com/watch?v=FY8BISK5DpM).
+A great overview of Git concepts and how to use GitHub, covers the core ideas
+you'll need for this course.
+
+[**Learn R in 39 Minutes Video**](https://www.youtube.com/watch?v=yZ0bV2Afkjc&t=38s).
+A great overview of downloading and using R. 
+
+
+[**R Programming for Beginners**](https://www.youtube.com/watch?v=FY8BISK5DpM).
+A beginner, follow-along lesson great for learning basics! 
+
+
+---
+
+## Quick Checklist
+
+Before our first class, make sure you have:
+
+- [ ] R installed ([cran.r-project.org](https://cran.r-project.org))
+- [ ] Positron **or** RStudio installed and connected to R
+- [ ] A GitHub account created
+- [ ] GitHub Desktop installed and signed in
+- [ ] Both course textbooks bookmarked
+- [ ] Watched the beginner GitHub video
+
+See you on Day 1! 
