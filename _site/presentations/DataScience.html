@@ -82,9 +82,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-subtitle','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -197,7 +197,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(0)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -211,7 +211,34 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1783486800000" data-listing-file-modified-sort="1781043242586" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3896">
+<div class="thumbnail"><a href="../presentations/DataScience/transform.html" class="no-external">
 
+<img loading="lazy" src="../images/thumbnails/image-template.png" class="thumbnail-image" style="height: 200px;">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="../presentations/DataScience/transform.html" class="no-external">Transform</a>
+</h3>
+<div class="listing-subtitle">
+<a href="../presentations/DataScience/transform.html" class="no-external">Tools to Work with Common Variable Types</a>
+</div>
+<div class="delink listing-description"><a href="../presentations/DataScience/transform.html" class="no-external">
+
+</a></div>
+</div>
+<div class="metadata">
+<a href="../presentations/DataScience/transform.html" class="no-external">
+<div class="listing-date">
+Jul 8, 2026
+</div>
+<div class="listing-author">
+Brian C. Helsel, PhD
+</div>
+</a>
+</div>
+</div>
 </div>
 <div class="listing-no-matching d-none">No matching items</div>
 </div></main> <!-- /main -->
