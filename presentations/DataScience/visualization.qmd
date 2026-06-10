@@ -1,0 +1,591 @@
+---
+title: "Visualization"
+subtitle: "Introduction to ggplot2"
+author: "Ashlyn Barry"
+institute: "University of Wisconsin-Madison"
+date: 2026-07-08
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  freeze: auto
+---
+
+## What is ggplot2? {.title-slide}
+
+::: {.highlight-box}
+**ggplot2 is a popular R package for creating data visualizations**
+
+"Grammar of Graphics" - build visualization by combining independent components
+:::
+
+. . .
+
+**Key Strengths:**
+
+- Versatile (scatterplots, boxplots, barcharts...)
+- Customizable: easily change formatting, fonts, colors...
+- Publication-quality graphics
+- Open source and free
+
+## 7 components of creating a chart with ggplot
+![](overview_graphic-1.png)
+
+- Essential components: data, mapping, and layer
+- Optional components: scales, facets, coordinates, and themes
+  - Default modes unless modified directly
+
+## Essential Components
+
+**Data**: Specifies the dataset for the plot
+```{r}
+#| eval: false
+#| echo: true
+ggplot(data = datasetname)
+```
+
+**Mapping**: set of instructions on how to "map" data
+- In other words, it defines which variables to include and how
+- Uses aes() function to define aesthetics of plot
+```{r}
+#| eval: false
+#| echo: true
+ggplot(data = datasetname, mapping = aes(x = height, y = weight))
+```
+
+**Layers**: defines how to display the mapped data
+- geom_() function: defines geometry to determine how data is displayed (points, lines, etc.). *More on this soon!*
+
+```{r}
+#| eval: false
+#| echo: true
+ggplot(
+  data = datasetname,
+  mapping = aes(x = height, y = weight) +
+    geom_point()
+)
+```
+
+## Getting Started
+
+**Installation Requirements:**
+
+- ggplot2 is a core package of the tidyverse
+- tidyverse must be installed and loaded
+- You only need to install the package once, but need to load it every time you start a session.
+
+```{r}
+#| eval: false
+#| echo: true
+install.packages("tidyverse") # install package (once)
+```
+
+```{r}
+#| echo: true
+library(tidyverse) # load tidyverse (every new session)
+```
+
+::: {.tip-box}
+💡 **Tip**: Update R and packages regularly for latest features
+:::
+
+## Palmer Penguin Package
+
+::: {.highlight-box}
+**Penguins dataset** from the plamerpenguin package contains body measurements of penguins on three islands in the Palmer Archipelago, Antartica. We will be using this dataset to explore different visualizations using ggplot2.
+:::
+
+```{r}
+#| echo: true
+library(palmerpenguins) # load palmer penguins dataset
+penguins # load a preview of the data
+```
+
+::: {.tip-box}
+You may need to run **install.packages("palmerpenguins")** if it wasn't previously loaded on your system.
+:::
+
+## Creating a ggplot with penguins
+
+::: {.highlight-box}
+What is the relationship between flipper length and body mass index of penguins?
+:::
+
+**Step 1:** begin with the function ggplot(), telling it what data to use
+
+**Step 2:** add mapping layer, which defines the aesthetics (layout) of your plot, including defining your x and y axes
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+)
+```
+
+
+## Base plot
+```{r}
+#| echo: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+)
+```
+
+## Geometrical object layer (geom_)
+
+The geom_*() layer defines your plot type. We will create a scatterplot with penguins.
+
+
+| Plot type |  geom_  |
+|-----------|---------|
+| Bar chart | geom_bar() |
+| Line chart | geom_line() |
+| Boxplot | geom_boxplot() |
+| Scatterplot | geom_point() |
+| Violin plot | geom_violin() |
+| Histogram | geom_histogram() |
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point()
+```
+
+
+## Plot data
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point()
+```
+
+## Categorizing by species
+
+::: {.highlight-box}
+Does the relationship between flipper length and body mass index differ by species?
+:::
+
+```{r}
+#| echo: true
+names(penguins) # view variable names in dataset
+```
+
+Modify aesthetics to categorize species by color.
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point()
+```
+
+## Categorize species by color
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point()
+```
+
+## Adding lines of best fit
+
+Next we will ad smooth curves displaying the realtionship between body mass and flipper length by species.
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+# geom_smooth(): geometric object representing data with a smooth line
+# method = "lm": line of best fit based on a linear model
+```
+
+## Linear models
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)
+) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+## Single line of best fit
+
+What if we want a single line of best fit, but still want to categorize by species?
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+
+# color = species in geom_point: only apply color to points
+# geom_smooth(method = "lm") now applied to mapping = aes()
+```
+
+
+## Single line of best fit
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+
+## Categorizing by shape
+
+People perceive colors differently, so it is generally not a good idea to categorize only by color. In addition to color, we can also categorize by shapes.
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+
+## Categorizing by shape
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+
+## Specify Titles and Axes
+We likely do not want the variable name in our dataset to be the title of our axes. We can specify the "labels" of our plot using the labs() function in a new layer. We can also add a title and subtitle in this function.
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  )
+```
+
+## Clean titles and axes
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  )
+```
+
+## Theme Component
+Optional component: controls visuals of the plot that are not controlled by the data
+- Used to specify look and feel of your plot beyond ggplot default
+- Many options, from changing locations of titles and legends to changing the background color
+
+Built-in themes: theme_*() functions
+
+| theme_*() |  Description  |
+|-----------|---------------|
+| theme_grey() | Default theme: light grey background with white gridlines |
+| theme_bw() | Black and white theme with white background and gridlines |
+| theme_minimal() | Minimalist: white background and no gridlines |
+| theme_classic() | Classic R: white background with solid axes and no gridlines |
+| theme_void() | Empty theme: removes all backgrounds, axes, gridlines and labels |
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal()
+```
+
+## theme_minimal()
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal()
+```
+
+## Manually modifying theme
+::: {.highlight-box}
+theme() allows you to manually adjust your theme based your preferences
+:::
+For example, you can adjust the locations of the title, subtitle, and legend 
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # hor. adjust title to center
+    plot.subtitle = element_text(hjust = 0.5), # hor. adjust subtitle to center
+    legend.position = c(0.85, 0.2) # x, y from bottom-left corner on scale 0-1
+  )
+```
+
+## Manually adjust text location
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5), # hor. adjust to center
+    plot.subtitle = element_text(hjust = 0.5), # hor. adjust to center
+    legend.position = c(0.85, 0.2) # x, y from bottom-left corner on scale 0-1
+  )
+```
+
+## Remove gridlines
+The function element_blank() removes an element entirely. Setting panel.grid.major and panel.grid.minor to element_blank() will remove them from your figure.
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = c(0.85, 0.2),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Blank gridlines
+```{r}
+#| echo: false
+#| eval: true
+#| code-line-numbers: 2|3|4
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = c(0.85, 0.2),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Black lines identifying axes
+What if you don't want gridlines but still want a solid line to signify your x and y axes? You can tell ggplot to draw axes lines using axis.line = element_line().
+```{r}
+#| echo: true
+#| eval: false
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = c(0.85, 0.2),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+## Black lines for axes
+```{r}
+#| echo: false
+#| eval: true
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = c(0.85, 0.2),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+## Facets
+
+
+## Extensions: ggpubr
+
+
+
+## Next steps
+- Devlop instructions for individual practice time:
+  Bring back geometrical object layer (geom_) table layer
+  - Have them create a different type of plot (ie, not scatterplot) with penguins
+  - ~30 minutes of independent work time, Ashlyn/Brian/Julianne/others available for questions/help
+  - ~10-15 minutes of share time
+    - Back up: Ashlyn will have another plot created with code that she can walk through if nobody wants to share
