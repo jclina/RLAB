@@ -4,6 +4,7 @@ subtitle: "Introduction to ggplot2"
 author: "Ashlyn Barry"
 institute: "University of Wisconsin-Madison"
 date: 2026-07-08
+image: "../../images/thumbnails/image-template.png"
 format:
   revealjs:
     theme: [default, "../../styles/styleReveal.scss"]
@@ -41,7 +42,7 @@ execute:
 - Open source and free
 
 ## 7 components of creating a chart with ggplot
-![](overview_graphic-1.png)
+![](https://ggplot2.tidyverse.org/articles/ggplot2_files/figure-html/overview_graphic-1.png)
 
 - Essential components: data, mapping, and layer
 - Optional components: scales, facets, coordinates, and themes
