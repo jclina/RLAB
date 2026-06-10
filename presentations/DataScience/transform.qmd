@@ -519,5 +519,28 @@ You can lag or lead by more than one position by using the second argument,
 
 :::
 
-
 ## Strings
+
+You can create strings with single quotes (`'`) or double quotes (`"`). If you
+want to add a quote inside a string, then you should use single quotes.
+
+```{r}
+string1 <- "This is a string"
+string2 <- 'If I want to include a "quote" inside a string'
+```
+
+You can use `\` as an **escape** to include a literal single or double quote or
+other special characters in a string.
+
+```{r}
+single_quote <- "\'"
+double_quote <- "\""
+backslash <- "\\"
+x <- c(single_quote, double_quote, backslash)
+x
+#> [1] "'"  "\"" "\\"
+stringr::str_view(x)
+#> [1] │ '
+#> [2] │ "
+#> [3] │ \
+```
