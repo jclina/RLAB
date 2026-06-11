@@ -1,5 +1,5 @@
 ---
-title: "Advanced R: Conditions"
+title: "Conditions"
 subtitle: "Applying R to Lifestyle and Brain Health Research"
 author: "Brian C. Helsel, PhD"
 institute: "University of Kansas Medical Center"

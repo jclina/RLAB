@@ -620,7 +620,7 @@
     "href": "presentations/Foundations.html",
     "title": "Advanced R Foundations",
     "section": "",
-    "text": "Names and Values\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 12, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nVectors\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 19, 2026\n\n\nMorgan Brucks, CCRP\n\n\n\n\n\n\n\n\n\n\n\n\nSubsetting\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 26, 2026\n\n\nJulianne Clina, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nControl Flow\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 2, 2026\n\n\nJulianne G. Clina, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nFunctions\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 9, 2026\n\n\nAshlyn Barry\n\n\n\n\n\n\n\n\n\n\n\n\nEnvironments\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 16, 2026\n\n\nIan Weidling, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nAdvanced R: Conditions\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\nNo matching items"
+    "text": "Names and Values\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 12, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nVectors\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 19, 2026\n\n\nMorgan Brucks, CCRP\n\n\n\n\n\n\n\n\n\n\n\n\nSubsetting\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nAug 26, 2026\n\n\nJulianne Clina, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nControl Flow\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 2, 2026\n\n\nJulianne G. Clina, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nFunctions\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 9, 2026\n\n\nAshlyn Barry\n\n\n\n\n\n\n\n\n\n\n\n\nEnvironments\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 16, 2026\n\n\nIan Weidling, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nConditions\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "presentations/AdvancedR/Foundations/vectors.html#types-of-vectors",
@@ -754,5 +754,152 @@
     "title": "Vectors",
     "section": "NULL",
     "text": "NULL\nA unique type that is always length zero and cannot have any attributes\n\ntypeof(NULL)\n#&gt; [1] NULL\nlength(NULL)\n#&gt; [1] 0\nx &lt;- NULL\nattr(x, \"y\") &lt;- 1\n#&gt; Error in `attr(x, \"y\") &lt;- 1`: attempt to set an attribute on NULL\n\nNULL is commonly used to:\n\nRepresent an empty vector (length 0) of an arbitrary type\nRepresent an absent vector (e.g., an optional argument in a function)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#subsetting",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#subsetting",
+    "title": "Subsetting",
+    "section": "Subsetting",
+    "text": "Subsetting\nSubsetting in R is easy to learn but hard to master\n\nSix ways to subset atomic vectors\nThree subsetting operators ([[, [, and $)\nOperators interact differently with different vector types\nSubsetting can be combined with assignment\n\n\nThe interactive viewer can help you understand the structure of complex objects."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#atomic-vectors",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#atomic-vectors",
+    "title": "Subsetting",
+    "section": "Atomic Vectors",
+    "text": "Atomic Vectors\nPositive integers return elements at the specified positions.\n\nx &lt;- c(2.1, 4.2, 3.3, 5.4)\n\n\nx[c(3, 1)]\n#&gt; [1] 3.3 2.1\n\nNegative integers exclude elements at the specified positions.\n\nx[-c(3, 1)]\n#&gt; [1] 4.2 5.4\n\nLogical vectors select the elements where the logical value is TRUE\n\nx[c(TRUE, FALSE, TRUE, FALSE)]\n#&gt; [1] 2.1 3.3\n\n# Recycling Rules:\n# In x[y], shorter object is recycled if different lengths\n\nx[c(TRUE, FALSE)]\n#&gt; [1] 2.1 3.3"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#named-vectors",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#named-vectors",
+    "title": "Subsetting",
+    "section": "Named Vectors",
+    "text": "Named Vectors\nCharacter vectors can be used to return elements with matching names.\n\ny &lt;- setNames(x, letters[1:4])\n#&gt; a   b   c   d\n#&gt; 2.1 4.2 3.3 5.4\n\ny[c(\"d\", \"c\", \"a\")]\n#&gt; d   c   a\n#&gt; 5.4 3.3 2.1\n\n# When subsetting with [, names are matched exactly\nz &lt;- c(abc = 1, def = 2)\nz[c(\"a\", \"d\")]\n#&gt; &lt;NA&gt; &lt;NA&gt;\n#&gt;   NA   NA\n\n# Subsetting with factors use the integer vector and not character levels\ny[factor(\"b\")]\n#&gt; a\n#&gt; 2.1"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#lists",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#lists",
+    "title": "Subsetting",
+    "section": "Lists",
+    "text": "Lists\nSubsetting with a list works the same as an atomic vector except that [ always returns a list and [[ and $ must be used to extract list elements.\n\nl &lt;- list(a = 1, b = c(x = 2, y = 3, z = 4), c = letters[1:5])\n\nl[2]\n#&gt; $b\n#&gt; x y z\n#&gt; 2 3 4\n\nl[[2]]\n#&gt; x y z\n#&gt; 2 3 4\n\nl[2]$b\n#&gt; x y z\n#&gt; 2 3 4"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#matrices-and-arrays",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#matrices-and-arrays",
+    "title": "Subsetting",
+    "section": "Matrices and Arrays",
+    "text": "Matrices and Arrays\nSubsetting higher-dimensional structures can happen with multiple vectors, a single vector, or a matrix.\n\na &lt;- matrix(1:9, nrow = 3)\ncolnames(a) &lt;- c(\"A\", \"B\", \"C\")\n\n# Blank subsetting allows you to keep all the rows or columns\na[1:2, ]\n#&gt;      A B C\n#&gt; [1,] 1 4 7\n#&gt; [2,] 2 5 8\n\na[c(TRUE, FALSE, TRUE), c(\"B\", \"A\")]\n#&gt;      B A\n#&gt; [1,] 4 1\n#&gt; [2,] 6 3\n\n# By default, [ simplifies the results to the lowest dimensionality\na[1, ]\n#&gt; A B C\n#&gt; 1 4 7\n\nMatrices and arrays are vectors with special dimension attributes stored in column-major order. This allows subsetting as if they were a single vector.\n\nvals &lt;- outer(1:5, 1:5, FUN = \"paste\", sep = \", \")\n#&gt;       [,1]   [,2]   [,3]   [,4]   [,5]\n#&gt; [1,] \"1, 1\" \"1, 2\" \"1, 3\" \"1, 4\" \"1, 5\"\n#&gt; [2,] \"2, 1\" \"2, 2\" \"2, 3\" \"2, 4\" \"2, 5\"\n#&gt; [3,] \"3, 1\" \"3, 2\" \"3, 3\" \"3, 4\" \"3, 5\"\n#&gt; [4,] \"4, 1\" \"4, 2\" \"4, 3\" \"4, 4\" \"4, 5\"\n#&gt; [5,] \"5, 1\" \"5, 2\" \"5, 3\" \"5, 4\" \"5, 5\"\n\nvals[c(4, 15)]\n#&gt; [1] \"4, 1\" \"5, 3\"\n\nYou can also use 2 column matrix to subset a matrix and a 3 column matrix to subset an array.\n\nselect &lt;- matrix(c(1, 1, 3, 1, 2, 4), ncol = 2, byrow = TRUE)\n#&gt;       [,1] [,2]\n#&gt; [1,]    1    1\n#&gt; [2,]    3    1\n#&gt; [3,]    2    4\n\nvals[select]\n#&gt; [1] \"1, 1\" \"3, 1\" \"2, 4\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#data-frames-and-tibbles",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#data-frames-and-tibbles",
+    "title": "Subsetting",
+    "section": "Data frames and Tibbles",
+    "text": "Data frames and Tibbles\nData frames have the characteristics of lists and matrices.\nSubsetting with a single index returns columns while two indices selects the rows and columns.\n\ndf &lt;- data.frame(x = 1:3, y = 3:1, z = letters[1:3])\n\n# Comparable to a list\ndf[1:2]\n#&gt;   x y\n#&gt; 1 1 3\n#&gt; 2 2 2\n#&gt; 3 3 1\n\n# Comparable to a matrix\ndf[1:3, ]\n#&gt;   x y z\n#&gt; 1 1 3 a\n#&gt; 2 2 2 b\n#&gt; 3 3 1 c\n\nWhen selecting a single column, matrix-like subsetting simplifies by default. Subsetting a tibble with [ always returns a tibble.\n\nstr(df[\"x\"])\n#&gt; 'data.frame':    3 obs. of  1 variable:\n#&gt;  $ x: int  1 2 3\n\nstr(df[, \"x\"])\n#&gt; int [1:3] 1 2 3\n\ntbldf &lt;- df\nclass(tbldf) &lt;- c(\"tbl_df\", \"tbl\", \"data.frame\")\nstr(tbldf[, \"x\"])\n#&gt; tibble [3 × 1] (S3: tbl_df/tbl/data.frame)\n#&gt;  $ x: int [1:3] 1 2 3"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#preserving-dimensionality",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#preserving-dimensionality",
+    "title": "Subsetting",
+    "section": "Preserving dimensionality",
+    "text": "Preserving dimensionality\nAdding drop = FALSE will preserve the original dimensionality when subsetting like a matrix.\n\np &lt;- matrix(1:9, nrow = 3)\nstr(p[1, ])\n#&gt; int[1:3] 1 4 7\n\nstr(p[1, , drop = FALSE])\n#&gt; int [1, 1:3] 1 4 7\n\nstr(data.frame(p)[1, , drop = FALSE])\n#&gt; 'data.frame':    1 obs. of  3 variables:\n#&gt;  $ X1: int 1\n#&gt;  $ X2: int 4\n#&gt;  $ X3: int 7\n\nThe default drop = TRUE can be a common source of bugs in functions. When writing functions, get in the habit of using drop = FALSE or tibbles.\n\nFactor subsetting also has a drop argument to control levels and not dimensions. Unused levels will be dropped when subsetting factors with drop = TRUE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#selecting-a-single-element",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#selecting-a-single-element",
+    "title": "Subsetting",
+    "section": "Selecting a Single Element",
+    "text": "Selecting a Single Element\nThe two other subsetting operators, [[ and $, are used for extracting single items.\n\nThe $ is a useful shorthand for x[[\"y\"]] (i.e., x$y).\nThe [[ operator is important when working with lists because subsetting a list with [ always returns a smaller list.\n\n\nOnly a single positive integer or string can be used with [[ since it can only return a single item. A vector causes [[ to subset recursively (e.g., x[[c(1, 2)]] is the same as x[[1]][[2]])"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#a-train-metaphor",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#a-train-metaphor",
+    "title": "Subsetting",
+    "section": "A Train Metaphor",
+    "text": "A Train Metaphor\n\nx &lt;- list(1:3, \"a\", 4:6)\n\n\nCreate a smaller train using [ or extact the contents of a car with [["
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#selecting-a-single-data-frame-element",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#selecting-a-single-data-frame-element",
+    "title": "Subsetting",
+    "section": "Selecting a Single Data Frame Element",
+    "text": "Selecting a Single Data Frame Element\nThe $ can be used to access variables in a data frame, but [[ must be used if the name of the column is stored in a variable.\n\nvariable &lt;- \"x\"\n\ndf$variable\n#&gt; NULL\n\ndf[[variable]]\n#&gt; [1] 1 2 3\n\nAnother difference between $ and [[ is that the $ operator does left-to-right partial matching.\n\nx &lt;- list(abc = 1)\n\nx$a\n#&gt; [1] 1\n\nx[[\"a\"]]\n#&gt; NULL\n\n\nSetting options(warnPartialMatchDollar = TRUE) will issue a warning when partial matching occurs.\n\n\noptions(warnPartialMatchDollar = TRUE)\n\nx$a\n#&gt; Warning message:\n#&gt; In x$a : partial match of 'a' to 'abc'\n#&gt; [1] 1"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#missing-and-out-of-bounds-indices",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#missing-and-out-of-bounds-indices",
+    "title": "Subsetting",
+    "section": "Missing and Out-of-Bounds Indices",
+    "text": "Missing and Out-of-Bounds Indices\nInconsistencies when using [[ to subset with an invalid index.\n\n\n\nrow[[col]]\nZero-length\nOOB (int)\nOOB (chr)\nMissing\n\n\n\n\nAtomic\nError\nError\nError\nError\n\n\nList\nError\nError\nNULL\nNULL\n\n\nNULL\nNULL\nNULL\nNULL\nNULL\n\n\nOOB: Out of Bounds\n\n\n\n\n\n\n\nFunctions in the purrr package can be used for more predictable behavior when subsetting errors may occur.\n\npurrr::pluck: Always returns NULL or the .default argument\npurrr::chuck: Always throws an error\n\n\nThe function purrr::pluck is useful for deeply nested data structures where the component you are searching for may not exist. An example of this is JSON data from web application programming interfaces (APIs).\n\nUsing purrr::pluck allows you to mix integer and character indices and provides an alternative default value if an item does not exist.\n\nx &lt;- list(\n  a = list(1, 2, 3),\n  b = list(4, 5, 6)\n)\n\npurrr::pluck(x, \"a\", 1)\n#&gt; [1] 1\n\npurrr::pluck(x, \"c\", 1, .default = NA)\n#&gt; [1] NA"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#subsetting-and-assignment",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#subsetting-and-assignment",
+    "title": "Subsetting",
+    "section": "Subsetting and Assignment",
+    "text": "Subsetting and Assignment\nSubassignment: All subsetting operators can be combined with assignment to modify selected values. The basic form is x[i] &lt;- value.\n\nx &lt;- 1:5\nx[1:2] &lt;- c(101, 102)\nx\n#&gt; [1] 101 102 3 4 5\n\n\nMake sure that length(value) is the same as length(x[i]) and that i is unique to avoid recycling.\n\nSubsetting with nothing can be useful with assignment to preserve the original object’s structure.\n\nstr(lapply(df, as.character))\n#&gt; List of 3\n#&gt;  $ x: chr [1:3] \"1\" \"2\" \"3\"\n#&gt;  $ y: chr [1:3] \"3\" \"2\" \"1\"\n#&gt;  $ z: chr [1:3] \"a\" \"b\" \"c\"\n\ndf[] &lt;- lapply(df, as.character)\nstr(df)\n#&gt; 'data.frame':    3 obs. of  3 variables:\n#&gt;  $ x: chr  \"1\" \"2\" \"3\"\n#&gt;  $ y: chr  \"3\" \"2\" \"1\"\n#&gt;  $ z: chr  \"a\" \"b\" \"c\"\n\n\nYou can remove a component from a list with x[[i]] &lt;- NULL or add a literal NULL with x[[i]] &lt;- list(NULL)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#subsetting-applications",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#subsetting-applications",
+    "title": "Subsetting",
+    "section": "Subsetting Applications",
+    "text": "Subsetting Applications\n\nMany of the basic subsetting principles have been integrated within functions like subset(), merge(), dplyr::select(), and dplyr::filter(). However, a deeper understanding of how subsetting principles have been implemented will be valuable when encountering a situation where functions you need do not exist.\n\nHere are 8 subsetting applications:\n\nLookup tables\nMatching and merging by hand\nRandom samples and bootstraps\nOrdering\nExpanding aggregated counts\nRemoving columns from data frames\nSelecting rows based on a condition\nBoolean algebra vs. sets"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#lookup-tables",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#lookup-tables",
+    "title": "Subsetting",
+    "section": "Lookup Tables",
+    "text": "Lookup Tables\nUse character matching to create lookup tables.\n\nactivity_codes &lt;- c(\"sed\", \"lig\", \"lig\", \"mod\", \"sed\", \"vig\", \"lig\")\n\nlookup &lt;- c(\n  sed = \"Sedentary\",\n  lig = \"Light\",\n  mod = \"Moderate\",\n  vig = \"Vigorous\"\n)\n\nunname(lookup[activity_codes])\n#&gt; [1] \"Sedentary\" \"Light\" \"Light\" \"Moderate\" \"Sedentary\" \"Vigorous\" \"Light\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#matching-and-merging-by-hand",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#matching-and-merging-by-hand",
+    "title": "Subsetting",
+    "section": "Matching and Merging by Hand",
+    "text": "Matching and Merging by Hand\nComplex lookup tables with multiple columns using match to return the position where each activity_code is found in the activity_info$code.\n\nactivity_info &lt;- data.frame(\n  code = c(\"sed\", \"lig\", \"mod\", \"vig\"),\n  label = c(\"Sedentary\", \"Light\", \"Moderate\", \"Vigorous\"),\n  mvpa = c(FALSE, FALSE, TRUE, TRUE)\n)\n\nactivity_info[match(activity_codes, activity_info$code), ]\n#&gt;     code     label  mvpa\n#&gt; 1    sed Sedentary FALSE\n#&gt; 2    lig     Light FALSE\n#&gt; 2.1  lig     Light FALSE\n#&gt; 3    mod  Moderate  TRUE\n#&gt; 1.1  sed Sedentary FALSE\n#&gt; 4    vig  Vigorous  TRUE\n#&gt; 2.2  lig     Light FALSE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#random-sampling",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#random-sampling",
+    "title": "Subsetting",
+    "section": "Random Sampling",
+    "text": "Random Sampling\nInteger indices can be used to randomly sample a vector or data frame.\n\ndf &lt;- activity_info[match(activity_codes, activity_info$code), ]\n\n# Run to reproduce random sample output\nset.seed(1)\n\n# Randomly reorder\ndf[sample(nrow(df)), ]\n#&gt;     code     label  mvpa\n#&gt; 1    sed Sedentary FALSE\n#&gt; 3    mod  Moderate  TRUE\n#&gt; 2.2  lig     Light FALSE\n#&gt; 2    lig     Light FALSE\n#&gt; 1.1  sed Sedentary FALSE\n#&gt; 2.1  lig     Light FALSE\n#&gt; 4    vig  Vigorous  TRUE\n\n# Select 3 random rows\nset.seed(1)\ndf[sample(nrow(df), size = 3), ]\n#     code     label  mvpa\n# 1    sed Sedentary FALSE\n# 3    mod  Moderate  TRUE\n# 2.2  lig     Light FALSE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#ordering",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#ordering",
+    "title": "Subsetting",
+    "section": "Ordering",
+    "text": "Ordering\nThe order() function returns an integer vector describing how to order the subsetted vector.\n\nYou can also change the order from ascending to descending by using decreasing = TRUE.\nMissing values are placed at the end, but you can remove them with na.last = NA or put them at the front with na.last = FALSE.\n\n\nx &lt;- c(\"b\", \"c\", \"d\", \"b\", \"f\", \"e\", \"a\")\n\norder(x)\n#&gt; [1] 7 1 4 2 3 6 5\n\nx[order(x)]\n#&gt; [1] \"a\" \"b\" \"b\" \"c\" \"d\" \"e\" \"f\"\n\n\nUse sort() or dplyr::arrange() to directly sort a vector or data frame."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#expanding-aggregated-counts",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#expanding-aggregated-counts",
+    "title": "Subsetting",
+    "section": "Expanding aggregated counts",
+    "text": "Expanding aggregated counts\nExpanding identical rows that have been collapsed with a count column is easier with rep() and integer subsetting since rep(x, y) repeats x[i] y[i] times.\n\ndf &lt;- subset(\n  data.frame(table(df$code, df$label, df$mvpa)),\n  Freq &gt; 0\n)\n\ncolnames(df) &lt;- c(\"code\", \"label\", \"mvpa\", \"count\")\nrownames(df) &lt;- NULL\n\ndf\n#&gt;   code     label  mvpa count\n#&gt; 1  lig     Light FALSE     3\n#&gt; 2  sed Sedentary FALSE     2\n#&gt; 3  mod  Moderate  TRUE     1\n#&gt; 4  vig  Vigorous  TRUE     1\n\n(df &lt;- df[rep(1:nrow(df), df$count), ])\n#     code     label  mvpa count\n# 1    lig     Light FALSE     3\n# 1.1  lig     Light FALSE     3\n# 1.2  lig     Light FALSE     3\n# 2    sed Sedentary FALSE     2\n# 2.1  sed Sedentary FALSE     2\n# 3    mod  Moderate  TRUE     1\n# 4    vig  Vigorous  TRUE     1"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#removing-columns-from-data-frames",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#removing-columns-from-data-frames",
+    "title": "Subsetting",
+    "section": "Removing columns from data frames",
+    "text": "Removing columns from data frames\nRemoving columns from a data frame can be done through subsetting or setting individual columns to NULL. Operations like setdiff can be used if you are not sure what columns to keep.\n\nkeep &lt;- setdiff(names(df), \"count\")\n\nkeep\n#&gt; [1] \"code\" \"label\" \"mvpa\"\n\ndf[keep]\n#&gt;     code     label  mvpa\n#&gt; 1    lig     Light FALSE\n#&gt; 1.1  lig     Light FALSE\n#&gt; 1.2  lig     Light FALSE\n#&gt; 2    sed Sedentary FALSE\n#&gt; 2.1  sed Sedentary FALSE\n#&gt; 3    mod  Moderate  TRUE\n#&gt; 4    vig  Vigorous  TRUE\n\ndf$count &lt;- NULL"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#selecting-rows-based-on-a-condition",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#selecting-rows-based-on-a-condition",
+    "title": "Subsetting",
+    "section": "Selecting rows based on a condition",
+    "text": "Selecting rows based on a condition\nLogical subsetting allows you to easily combine conditions from multiple columns to extract rows out of a data frame.\n\ndf[df$mvpa == TRUE, ]\n#&gt;   code    label mvpa\n#&gt; 3  mod Moderate TRUE\n#&gt; 4  vig Vigorous TRUE\n\ndf[df$label == \"Light\", ]\n#&gt;     code label  mvpa\n#&gt; 1    lig Light FALSE\n#&gt; 1.1  lig Light FALSE\n#&gt; 1.2  lig Light FALSE\n\ndf[df$code == \"mod\" & df$mvpa == TRUE, ]\n#&gt;   code    label mvpa\n#&gt; 3  mod Moderate TRUE\n\nRemember to use the vector boolean operators & for and and | for or when subsetting on multiple columns instead of && and || which are short-circuiting scalar operators that are more useful inside if statements.\n\nDe Morgan’s laws can be used to simplify negations:\n\n!(X & Y) == !X | !Y: The negation of “X and Y” is the same as “not X or not Y”\n!(X | Y) == !X & !Y: The negation of “X or Y” is the same as “not X and not Y”\n\nExample: !(X & !(Y | Z)) == !X | !!(Y | Z) == !X | Y | Z"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/subsetting.html#boolean-algebra-vs.-sets",
+    "href": "presentations/AdvancedR/Foundations/subsetting.html#boolean-algebra-vs.-sets",
+    "title": "Subsetting",
+    "section": "Boolean algebra vs. sets",
+    "text": "Boolean algebra vs. sets\nUsing set operations (integer subsetting) over Boolean algebra (logical subsetting) may be more effective when you want to find the first (or last) TRUE or you only have a few TRUE values.\nHere are the Boolean operators with their set equivalents.\n\n\n\nBoolean Algebra (Logical)\nSet Operators (Integer)\n\n\n\n\nX & Y\nintersect(X, Y)\n\n\nX | Y\nunion(X, Y)\n\n\nX & !Y\nsetdiff(X, Y)\n\n\nxor(X, Y)\nsetdiff(union(X, Y), intersect(X, Y))\n\n\n\n\nxor: Stands for exclusive or and returns TRUE if exactly one of X or Y is TRUE and the other is FALSE\n\nwhich() allows the conversion from a Boolean representation to integer, but a function needs to be created to reverse the operation.\n\n(x1 &lt;- 1:10 %% 2 == 0)\n#&gt; [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE\n(x2 &lt;- which(x1))\n#&gt; [1]  2  4  6  8 10\n\nunwhich &lt;- function(x, n) {\n  out &lt;- rep(FALSE, n)\n  out[x] &lt;- TRUE\n  out\n}\n\nunwhich(x2, 10)\n#&gt; [1] FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE  TRUE"
   }
 ]
