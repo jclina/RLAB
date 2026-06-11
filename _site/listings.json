@@ -5,5 +5,17 @@
       "/presentations/DataScience/transform.html",
       "/presentations/DataScience/visualization.html"
     ]
+  },
+  {
+    "listing": "/presentations/Foundations.html",
+    "items": [
+      "/presentations/AdvancedR/Foundations/names-values.html",
+      "/presentations/AdvancedR/Foundations/vectors.html",
+      "/presentations/AdvancedR/Foundations/subsetting.html",
+      "/presentations/AdvancedR/Foundations/control-flow.html",
+      "/presentations/AdvancedR/Foundations/functions.html",
+      "/presentations/AdvancedR/Foundations/environments.html",
+      "/presentations/AdvancedR/Foundations/conditions.html"
+    ]
   }
 ]
