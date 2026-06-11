@@ -1027,5 +1027,75 @@
     "title": "Conditions",
     "section": "No Default Behavior",
     "text": "No Default Behavior\nYou can signal a condition that does not inherit from a message, warning, or error. In this case, there is no default behavior and the condition has no effect unless the user requests it. For example, you could create a logging system based on conditions:\n\nlog &lt;- function(message, level = c(\"info\", \"error\", \"fatal\")) {\n  level &lt;- match.arg(level)\n  rlang::signal(message, \"log\", level = level)\n}\n\nlog(\"This code was run\")\n\nThe condition is signalled, but nothing happens with the code above as it has no default handler. To activate logging, you need a handler that does something with the log condition.\n\nrecord_log &lt;- function(expr, path = stdout()) {\n  withCallingHandlers(\n    log = function(cnd) {\n      cat(\n        \"[\",\n        cnd$level,\n        \"] \",\n        cnd$message,\n        \"\\n\",\n        sep = \"\",\n        file = path,\n        append = TRUE\n      )\n    },\n    expr\n  )\n}\n\nrecord_log(log(\"Hello\"))\n#&gt; [info] Hello\n\nYou could even add another function to selectively ignore some logging levels.\n\nignore_log_levels &lt;- function(expr, levels) {\n  withCallingHandlers(\n    log = function(cnd) {\n      if (cnd$level %in% levels) {\n        rlang::cnd_muffle(cnd)\n      }\n    },\n    expr\n  )\n}\n\nrecord_log(ignore_log_levels(log(\"Hello\"), \"info\"))"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#control-flow",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#control-flow",
+    "title": "Control Flow",
+    "section": "Control Flow",
+    "text": "Control Flow\n\nControl flow just refers to the order in which the code is executed.\n\nThe primary tools for controlling flow are choices and loops. Choices allow you to run different code depending on the input (e.g., if statements and switch). Loops allow you to repeatedly run code with changing options (e.g., for and while loops)."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#if-else-and-else-if",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#if-else-and-else-if",
+    "title": "Control Flow",
+    "section": "If, Else, and Else If",
+    "text": "If, Else, and Else If\nA basic if statement will evaluate if some expression is true or false and then execute a specific task if the expression is true.\n\nx &lt;- 10\nif (x &gt; 5) {\n  print(\"x is greater than 5\")\n}\n# [1] \"x is greater than 5\"\n\ny &lt;- 3\nif (y &gt; 5) {\n  print(\"y is greater than 5\")\n}\n# [1]\n\nTo enhance the if statement, you can add an else condition. This means that the true_action is evaluated if the condition is TRUE and the false_action is evaluated if the condition is FALSE.\n\nif (y &gt; 5) {\n  print(\"y is greater than 5\")\n} else {\n  print(\"y is less than 5\")\n}\n#[1] \"y is less than 5\"\n\nUsing else if allows you to make a chain of statements where each input is evaluated through this chain of statements. This means that you are giving a list of conditions and seeing which matches your input. The actions are often compound statements contained within { and returns a value so you can assign the results.\n\ngrade &lt;- function(x) {\n  if (x &gt; 90) {\n    \"A\"\n  } else if (x &gt; 80) {\n    \"B\"\n  } else if (x &gt; 50) {\n    \"C\"\n  } else {\n    \"F\"\n  }\n}\n\n(c(grade(85), grade(98)))\n#&gt; [1] \"B\" \"A\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#ifelse-and-case_when",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#ifelse-and-case_when",
+    "title": "Control Flow",
+    "section": "ifelse and case_when",
+    "text": "ifelse and case_when\nThe choices we just talked about do not work with vectors with multiple values, only single inputs at one time. So what if you want to evaluate a vector with multiple inputs?\nBelow is an example of ifelse() where all the numbers in the sequence 1 through 12 are being checked to see if they are divisible by 5. If they are, it will print “XXX”, otherwise it will just print the value as a character.\n\nx &lt;- 1:12\nifelse(x %% 5 == 0, \"XXX\", as.character(x))\n#[1] \"1\"   \"2\"   \"3\"   \"4\"   \"XXX\" \"6\"   \"7\"   \"8\"   \"9\"  \"XXX\" \"11\"  \"12\"\n\nAnd here is an example of case_when() where you are evaluating multiple inputs for multiple conditions.\n\nlibrary(dplyr)\ncase_when(\n  x &gt; 10 ~ \"Big number\",\n  x &gt; 5 ~ \"Medium number\",\n  TRUE ~ \"Small number\"\n)\n# [1] \"Small number\"  \"Small number\"  \"Small number\"  Small number\"  \"Small number\"  \"Medium number\" \"Medium number\" \"Medium number\" \"Medium number\" \"Medium number\" \"Big number\"    \"Big number\"\n\n\n\n\nYou want to evaluate…\nType of Statement to use\n\n\n\n\nOne condition, one value\nif / else\n\n\nMultiple conditions, one value\nif / elseif / else\n\n\nOne condition, multiple values\nifelse() (vectorized)\n\n\nMultiple conditions, multiple values\ncase_when()"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#switch-statements",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#switch-statements",
+    "title": "Control Flow",
+    "section": "Switch Statements",
+    "text": "Switch Statements\nThe switch() function in R is a more compact alternative to writing long chains of if, else if, and else conditions when you are comparing a single input to several known options.\nInstead of checking conditions one by one, switch() directly matches the input to a predefined list of values and returns the associated result. Compare this example using else if:\n\nx_option &lt;- function(x) {\n  if (x == \"a\") {\n    \"option 1\"\n  } else if (x == \"b\") {\n    \"option 2\"\n  } else if (x == \"c\") {\n    \"option 3\"\n  } else {\n    print(\"Invalid `x` value\")\n  }\n}\nx_option(\"a\")\n# [1] \"option 1\"\nx_option(\"hand\")\n# [1] \"Invalid `x` value\"\n\nWith this example using switch\n\nx_option &lt;- function(x) {\n  switch(\n    x,\n    a = \"option 1\",\n    b = \"option 2\",\n    c = \"option 3\",\n    stop(\n      \"Invalid x value\"\n    )\n  )\n}\nx_option(\"a\")\n# [1] \"option 1\"\nx_option(\"hand\")\n# [1] \"Invalid x value\"\n\nWith switch statements, if multiple inputs have the same value, you can leave it blank after the = and the input will fall through to the next value.\n\nlegs &lt;- function(x) {\n  switch(\n    x,\n    cow = ,\n    horse = ,\n    dog = 4,\n    human = ,\n    chicken = 2,\n    plant = 0,\n    stop(\"Unknown input\")\n  )\n}\n\nlegs(\"cow\")\n# [1] 4\nlegs(\"dog\")\n# [1] 4\nlegs(\"goat\")\n#[1] Error in legs(\"goat\") : Unknown input"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#loops",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#loops",
+    "title": "Control Flow",
+    "section": "Loops",
+    "text": "Loops\nLoops are used when you want to repeat a block of code on multiple inputs and have the following basic form: for (item in vector) perform_action\n\nfor (i in 1:3) {\n  print(i)\n}\n#&gt; [1] 1\n#&gt; [1] 2\n#&gt; [1] 3\n\nweights &lt;- c(60, 72, 85, 90)\nheight &lt;- 1.7\n\nfor (w in weights) {\n  bmi &lt;- w / height^2\n  print(paste(\"Weight:\", w, \"kg -&gt; BMI:\", round(bmi, 1)))\n}\n#&gt;[1] \"Weight: 60 kg -&gt; BMI: 20.8\"\n#&gt;[1] \"Weight: 72 kg -&gt; BMI: 24.9\"\n#&gt;[1] \"Weight: 85 kg -&gt; BMI: 29.4\"\n#&gt;[1] \"Weight: 90 kg -&gt; BMI: 31.1\"\n\nThere are two ways to terminate a for loop early:\n\nnext exits the current iteration.\nbreak exits the entire for loop.\n\nThis can be especially useful in large data sets\n\nfor (i in 1:10) {\n  if (i &lt; 3) {\n    next\n  }\n\n  print(i)\n\n  if (i &gt;= 5) {\n    break\n  }\n}\n#&gt; [1] 3\n#&gt; [1] 4\n#&gt; [1] 5"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#common-loop-pitfalls",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#common-loop-pitfalls",
+    "title": "Control Flow",
+    "section": "Common Loop Pitfalls",
+    "text": "Common Loop Pitfalls\nThere are three common pitfalls to watch out for when using for.\n\nFailing to pre-allocate output containers\nIterating over 1:length(x)\nIterating over S3 vectors"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-1-failing-to-pre-allocate-output-containers",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-1-failing-to-pre-allocate-output-containers",
+    "title": "Control Flow",
+    "section": "Pitfall 1: Failing to pre-allocate output containers",
+    "text": "Pitfall 1: Failing to pre-allocate output containers\nMake sure to pre-allocate the output container. Otherwise the loop will be very slow. This would be like you decide to put books on a bookshelf at home, but every time you get a new book, you have to go out to the store and buy a new bookshelf that is exactly 1 book larger than your last one.\n\ntimer &lt;- function(prealloc, label) {\n  set.seed(123)\n  daily_avg_steps &lt;- sample(x = 3000:12000, size = 1000000, replace = TRUE)\n  tictoc::tic(label)\n  for (i in seq_along(daily_avg_steps)) {\n    prealloc[[i]] &lt;- rpois(7, lambda = daily_avg_steps[i])\n  }\n  tictoc::toc()\n}\n\ntimer(prealloc = list(), label = \"Without preallocation\")\n# Without preallocation: 1.12 sec elapsed\n\ntimer(\n  prealloc = vector(\"list\", length(daily_avg_steps)),\n  label = \"With preallocation\"\n)\n# With preallocation: 0.77 sec elapsed"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-2-iterating-over-1lengthx",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-2-iterating-over-1lengthx",
+    "title": "Control Flow",
+    "section": "Pitfall 2: Iterating over 1:length(x)",
+    "text": "Pitfall 2: Iterating over 1:length(x)\nAttempting to iterate over 1:length(x) will fail in unexpected ways if x has a length of 0. If x is 0, then this is read as 1:0 which is a two element vector [1,0].\n\ndaily_avg_steps &lt;- c()\n\nfor (i in 1:length(daily_avg_steps)) {\n  print(daily_avg_steps[i])\n}\n# NULL\n# NULL\n\nfor (i in seq_along(daily_avg_steps)) {\n  print(daily_avg_steps[i])\n}"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-3-iterating-over-s3-vectors",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#pitfall-3-iterating-over-s3-vectors",
+    "title": "Control Flow",
+    "section": "Pitfall 3: Iterating over S3 vectors",
+    "text": "Pitfall 3: Iterating over S3 vectors\nDates are an example of an S3 class and in R, dates get stored as days since Jan 1 1970. So if you want to run a loop, you need to preserve the class attribute with seq_along() and double brackets [[]]\n\nbirthdays &lt;- as.Date(c(\"1990-05-01\", \"1985-09-20\"))\nstr(birthdays)\n# Date[1:2], format: \"1990-05-01\" \"1985-09-20\"\nclass(birthdays)\n#[1] \"Date\"\n\nfor (b in birthdays) {\n  print(b)\n}\n# [1] 7425\n# [1] 5741\n\nfor (i in seq_along(birthdays)) {\n  print(birthdays[[i]])\n}\n# [1] \"1990-05-01\"\n# [1] \"1985-09-20\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/control-flow.html#while-and-repeat",
+    "href": "presentations/AdvancedR/Foundations/control-flow.html#while-and-repeat",
+    "title": "Control Flow",
+    "section": "While and Repeat",
+    "text": "While and Repeat\nFor loops are useful if you know in advance the set of values that you want to iterate over. If you don’t know, there are two related tools with more flexible specifications:\nwhile(condition) action: performs action while condition is TRUE.\nrepeat(action): repeats action forever (i.e. until it encounters break).\n\nbpcut &lt;- 120\nbpsys &lt;- 126\n\nwhile (bpsys &gt; bpcut) {\n  print(\"Your systolic blood pressure is elevated\")\n  bpsys &lt;- bpsys - 1\n}\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n\nbpcut &lt;- 120\nbpsys &lt;- 126\n\nrepeat {\n  if (bpsys &lt;= bpcut) {\n    break\n  }\n  print(\"Your systolic blood pressure is elevated\")\n  bpsys &lt;- bpsys - 1\n}\n\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n# [1] \"Your systolic blood pressure is elevated\"\n\nstep_goal &lt;- 10000\ncurrent_steps &lt;- 6500\n\nrepeat {\n  if (current_steps &gt;= step_goal) {\n    print(\"Congrats! You've reached your daily step goal.\")\n    break\n  }\n\n  print(paste(\n    \"You have\",\n    step_goal - current_steps,\n    \"steps to go. Keep moving!\"\n  ))\n  steps_taken &lt;- sample(500:1500, 1)\n  current_steps &lt;- current_steps + steps_taken\n\n  Sys.sleep(1)\n}\n# {1] \"You have 3500 steps to go. Keep moving!\"\n# [1] \"You have 2901 steps to go. Keep moving!\"\n# [1] \"You have 2131 steps to go. Keep moving!\"\n# [1] \"You have 792 steps to go. Keep moving!\"\n# [1] \"Congrats! You've reached your daily step goal.\""
   }
 ]
