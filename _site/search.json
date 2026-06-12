@@ -1272,5 +1272,124 @@
     "title": "Functions",
     "section": "Special forms",
     "text": "Special forms\nThere are many language features in R that are written in special ways but also have prefix forms.\n\n\n\n\n\n\n\nSpecial\nPrefix\n\n\n\n\n(x)\n`(`(x)\n\n\n{x}\n`{`(x)\n\n\nx[i]\n`[`(x, i)\n\n\nx[[i]]\n`[[`(x, i)\n\n\nif (cond) true\n`if`(cond, true)\n\n\nif (cond) true else false\n`if`(cond, true, false)\n\n\nfor(var in seq) action\n`for`(var, seq, action)\n\n\nwhile(cond) action\n`while`(cond, action)\n\n\nrepeat expr\n`repeat`(expr)\n\n\nnext\n`next`()\n\n\nbreak\n`break`()\n\n\nfunction(arg1, arg2) {body}\n`function`(alist(arg1, arg2), body, env)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#environment-basics",
+    "href": "presentations/AdvancedR/Foundations/environments.html#environment-basics",
+    "title": "Environments",
+    "section": "Environment Basics",
+    "text": "Environment Basics\nAn environment is similar to a named list with four important exceptions:\n\nEvery name must be unique\nThe names in an environment are not ordered\nAn environment has a parent\nEnvironments are not copied when modified\n\nWe can use rlang::env() to create an environment.\n\ne1 &lt;- rlang::env(\n  a = FALSE,\n  b = \"a\",\n  c = 2:3,\n  d = 1:3\n)\n\n\n\nAn environment’s job is to bind a set of names to their values. The names in the environment are in no particular order.\n\n\n\n\n\nEnvironments are modified in place and do not create a copy. Unlike other R objects, environments can also contain themselves (e.g., e1$d &lt;- e1)\n\n\n\nPrinting an environment displays its memory address, but env_print can provide more useful information. We can also use names to retrieve a character vector of the names in the environment.\n\ne1\n#&gt; &lt;environment: 0x10c609af8&gt;\n\nrlang::env_print(e1)\n#&gt; Parent: &lt;environment: global&gt;\n#&gt; Bindings:\n#&gt; • a: &lt;lgl&gt;\n#&gt; • b: &lt;chr&gt;\n#&gt; • c: &lt;int&gt;\n#&gt; • d: &lt;int&gt;\n\nnames(e1)\n#&gt; [1] \"a\" \"b\" \"c\" \"d\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#current-and-global-environments",
+    "href": "presentations/AdvancedR/Foundations/environments.html#current-and-global-environments",
+    "title": "Environments",
+    "section": "Current and Global Environments",
+    "text": "Current and Global Environments\nTwo of the most fundamental environments are the current and global environment. The current environment is where your code is executing and the global environment is your workspace where interactive computation outside of a function takes place.\n\n# Access your current environment\nrlang::current_env()\n#&gt; &lt;environment: R_GlobalEnv&gt;\n\n# Access your global environment\nrlang::global_env()\n#&gt; &lt;environment: R_GlobalEnv&gt;\n\n# Check if the current and global environments are the same\nidentical(rlang::current_env(), rlang::global_env())\n#&gt; [1] TRUE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#parent-environments",
+    "href": "presentations/AdvancedR/Foundations/environments.html#parent-environments",
+    "title": "Environments",
+    "section": "Parent Environments",
+    "text": "Parent Environments\n\n\nEvery environment has a parent environment. This is used to implement lexical scoping, allowing R to look for values in the parent environment if they are not found in the current one.\n\n\n\nYou can set a parent environment by providing an unnamed argument to the env() function and identify the parent of an environment with env_parent.\n\ne2a &lt;- rlang::env(d = 4, e = 5)\ne2b &lt;- rlang::env(e2a, a = 1, b = 2, c = 3)\n\nrlang::env_parent(e2b)\n#&gt; &lt;environment: 0x11b0e5ac0&gt;\n\nidentical(rlang::env_parent(e2b), e2a)\n#&gt; [1] TRUE\n\nrlang::env_parent(e2a)\n#&gt; &lt;environment: R_GlobalEnv&gt;\n\n\n\nThe only environment that does not have a parent is the empty environment. The ancestors of every environment eventually terminate with the empty environment.\n\n\n\n\ne2c &lt;- rlang::env(rlang::empty_env(), d = 4, e = 5)\ne2d &lt;- rlang::env(e2c, a = 1, b = 2, c = 3)\n\nrlang::env_parents(e2b)\n#&gt; [[1]]   &lt;env: 0x13dcc5250&gt;\n#&gt; [[2]] $ &lt;env: global&gt;\n\nrlang::env_parents(e2d)\n#&gt; [[1]]   &lt;env: 0x13dd654f0&gt;\n#&gt; [[2]] $ &lt;env: empty&gt;\n\nBy default, env_parents will stop at the global environment as the ancestors of the global environment include all attached packages.\n\nrlang::env_parents(e2b, last = rlang::empty_env())\n\n#&gt;  [[1]]   &lt;env: 0x113640f70&gt;\n#&gt;  [[2]] $ &lt;env: global&gt;\n#&gt;  [[3]] $ &lt;env: tools:rstudio&gt;\n#&gt;  [[4]] $ &lt;env: tools:positron&gt;\n#&gt;  [[5]] $ &lt;env: package:stats&gt;\n#&gt;  [[6]] $ &lt;env: package:graphics&gt;\n#&gt;  [[7]] $ &lt;env: package:grDevices&gt;\n#&gt;  [[8]] $ &lt;env: package:utils&gt;\n#&gt;  [[9]] $ &lt;env: package:datasets&gt;\n#&gt; [[10]] $ &lt;env: package:methods&gt;\n#&gt; [[11]] $ &lt;env: Autoloads&gt;\n#&gt; [[12]] $ &lt;env: package:base&gt;\n#&gt; [[13]] $ &lt;env: empty&gt;"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#super-assignment",
+    "href": "presentations/AdvancedR/Foundations/environments.html#super-assignment",
+    "title": "Environments",
+    "section": "Super assignment",
+    "text": "Super assignment\nRegular assignment (&lt;-) creates a variable in the current environment. Super assignment (&lt;&lt;-) modifies an existing variable found in a parent environment.\n\nx &lt;- 0\nf &lt;- function() {\n  x &lt;&lt;- 1\n}\nf()\nx\n#&gt; [1] 1\n\n\nIf &lt;&lt;- does not find an existing variable in the parent environments, it will create one in the global environment."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#getting-and-setting",
+    "href": "presentations/AdvancedR/Foundations/environments.html#getting-and-setting",
+    "title": "Environments",
+    "section": "Getting and Setting",
+    "text": "Getting and Setting\nYou can use the subsetting operators $ and [[ to get and set elements of an environment. However, you can not pass numeric indices to [[ as the names are unordered.\n\ne3 &lt;- rlang::env(x = 1, y = 2)\ne3$x\n#&gt; [1] 1\n\ne3$z &lt;- 3\ne3[[\"z\"]]\n#&gt; [1] 3\n\ne3[[1]]\n#&gt; Error in `e3[[1]]`: ! wrong arguments for subsetting an environment\n\nA value of NULL is returned if the binding does not exisit, but env_get can be used to return an error or a default value.\n\ne3$xyz\n#&gt; NULL\n\nrlang::env_get(e3, \"xyz\")\n#&gt; Error in `rlang::env_get()`: ! Can't find `xyz` in environment.\n\nrlang::env_get(e3, \"xyz\", default = NA)\n#&gt; [1] NA\n\nYou can also add bindings to an environment with env_poke and env_bind.\n\nenv_poke takes a name and a value\nenv_bind allows you to bind multiple values\n\n\nrlang::env_poke(e3, \"a\", 100)\n\ne3$a\n#&gt;[1] 100\n\nrlang::env_bind(e3, a = 10, b = 20)\n\nnames(e3)\n#&gt; [1] \"x\" \"y\" \"z\" \"a\" \"b\"\n\nYou can determine whether a binding exisits with env_has and unbind a name from an environment with env_unbind.\n\nrlang::env_has(e3, \"a\")\n#&gt;   a\n#&gt; TRUE\n\nrlang::env_unbind(e3, \"a\")\nrlang::env_has(e3, \"a\")\n#&gt;   a\n#&gt; FALSE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#advanced-bindings",
+    "href": "presentations/AdvancedR/Foundations/environments.html#advanced-bindings",
+    "title": "Environments",
+    "section": "Advanced Bindings",
+    "text": "Advanced Bindings\nThe env_bind_lazy function creates delayed bindings to be evaluated the first time they are accessed. It’s primary use is in autoload to allow R packages to provide datasets that behave like they are loaded in memory (e.g., dplyr::starwars).\n\nrlang::env_bind_lazy(\n  rlang::current_env(),\n  b = {\n    Sys.sleep(1)\n    1\n  }\n)\n\nsystem.time(print(b))\n#&gt; [1] 1\n#&gt;    user  system elapsed\n#&gt;   0.001   0.002   1.002\n\nsystem.time(print(b))\n#&gt; [1] 1\n#&gt;    user  system elapsed\n#&gt;       0       0       0\n\nThe env_bind_active function creates active bindings to be recomputed each time they are accessed. These bindings are used to implement the active fields of R6 functions.\n\nrlang::env_bind_active(rlang::current_env(), z1 = function(val) runif(1))\n\nz1\n#&gt; [1] 0.7908209\n\nz1\n#&gt; [1] 0.6752419"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#recursing-over-environments",
+    "href": "presentations/AdvancedR/Foundations/environments.html#recursing-over-environments",
+    "title": "Environments",
+    "section": "Recursing over environments",
+    "text": "Recursing over environments\nOperating on every ancestor of an environment is possible with recursive functions. For example, writing a function like where can be used to find the environment of a given name using R’s scoping rules.\n\nwhere &lt;- function(name, env = rlang::caller_env()) {\n  if (identical(env, rlang::empty_env())) {\n    stop(\"Can't find \", name, call. = FALSE)\n  } else if (rlang::env_has(env, name)) {\n    env\n  } else {\n    where(name, rlang::env_parent(env))\n  }\n}\n\n# The base case\nwhere(\"yyy\")\n#&gt; Error: Can't find yyy\n\n# The successful case\nx &lt;- 5\nwhere(\"x\")\n#&gt; &lt;environment: R_GlobalEnv&gt;\n\n# The recursive case\nwhere(\"mean\")\n#&gt; &lt;environment: base&gt;"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#iteration-instead-of-recursion",
+    "href": "presentations/AdvancedR/Foundations/environments.html#iteration-instead-of-recursion",
+    "title": "Environments",
+    "section": "Iteration Instead of Recursion",
+    "text": "Iteration Instead of Recursion\nThe same where function can be rewritten with a while loop. We don’t often use recursion, so it may be easier to understand through iteration.\n\nwhere &lt;- function(name, env = rlang::caller_env()) {\n  while (!identical(env, rlang::empty_env())) {\n    if (rlang::env_has(env, name)) {\n      return(env)\n    } else {\n      env &lt;- rlang::env_parent(env)\n    }\n  }\n}\n\ne4a &lt;- rlang::env(rlang::empty_env(), a = 1, b = 2)\n\ne4b &lt;- rlang::env(e4a, x = 10, a = 11)\n\n# Finds a in environment e4b\nidentical(where(\"a\", e4b), e4b)\n#&gt; [1] TRUE\n\n# Finds b in parent environment e4a\nidentical(where(\"b\", e4b), e4a)\n#&gt; [1] TRUE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#package-environment",
+    "href": "presentations/AdvancedR/Foundations/environments.html#package-environment",
+    "title": "Environments",
+    "section": "Package Environment",
+    "text": "Package Environment\nEach package becomes a parent of the global environment when attached with library or require. The last package attached is the first parent of the global environment.\n\nThe search path allows you to see the order in which every package was attached. You can use base::search or rlang::search_envs to see the list of packages.\n\nbase::search()\n\n#&gt;  [1] \".GlobalEnv\"        \"tools:rstudio\"     \"tools:positron\"\n#&gt;  [4] \"package:stats\"     \"package:graphics\"  \"package:grDevices\"\n#&gt;  [7] \"package:utils\"     \"package:datasets\"  \"package:methods\"\n#&gt;  [10] \"Autoloads\"        \"package:base\"\n\nThe last two environments on the search path are always the same:\n\nAutoloads: Uses delayed bindings to save memory by only loading objects when needed\nBase: Environment of the base package\n\nWhen you attach another package, the parent of the global environment changes."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#function-environment",
+    "href": "presentations/AdvancedR/Foundations/environments.html#function-environment",
+    "title": "Environments",
+    "section": "Function Environment",
+    "text": "Function Environment\nA function binds the current environment when it is created (called a function environment). Across other programming languages, functions that capture (or enclose) their environments are called closures.\nYou can get the function environment with base::environment or rlang::fn_env.\n\ny &lt;- 1\n\nf &lt;- function(x) x + y\n\nbase::environment(f)\n#&gt; &lt;environment: R_GlobalEnv&gt;\n\n\n\nThe function f() binds the environment that binds the name f to the function.\n\n\n\nHowever, this isn’t always the case. Some times a name is bound to a new environment but the function binds the global environment.\n\ne &lt;- rlang::env()\ne$g &lt;- function() 1\n\n\n\nThe difference between binding and being bound is important as it changes how we find the name of the function vs how it finds its variables."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#namespaces",
+    "href": "presentations/AdvancedR/Foundations/environments.html#namespaces",
+    "title": "Environments",
+    "section": "Namespaces",
+    "text": "Namespaces\nThe goal of namespaces is to ensure that packages find their functions and that packages work the same regardless of what other packages are attached. R avoids this problem by associating every function in a package with a package and namespace environment.\n\nThe package environment is the external interface to the package and how you find functions (e.g., ::).\nThe namespace environment is the internal interface to the package and controls how the function finds its variables.\n\n\nEvery binding in the package environment is also found in the namespace environment to ensure that all functions can use every other function in the package. But some bindings only occur in the namespace environment (i.e., internal or non-exported objects.), allowing the ability to hide internal implementation details.\n\nEvery namespace has an imports environment that contains bindings to all the functions used by the package.\n\n\n\nThe parent of the imports environment is the base namespace to avoid the need to import all of the base functions\nThe parent of the base namespace is the global environment"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#execution-environments",
+    "href": "presentations/AdvancedR/Foundations/environments.html#execution-environments",
+    "title": "Environments",
+    "section": "Execution environments",
+    "text": "Execution environments\n\n\nA new environment is created to host execution every time a function is called. This is the execution environment and its parent is the function environment.\nTake this function as an example:\n\nh &lt;- function(x) {\n  # 1.\n  a &lt;- 2 # 2.\n  x + a\n}\n\ny &lt;- h(1) # 3.\n\nThe execution environment is garbage collected once the function completes.\n\n\n\nThere are a few ways to make the function environment stay around. First, you can explicitly return the environment.\n\nh2 &lt;- function(x) {\n  a &lt;- x * 2\n  rlang::current_env()\n}\n\ne &lt;- h2(x = 10)\n\nrlang::env_print(e)\n\n#&gt; &lt;environment: 0x13278ad98&gt;\n#&gt; Parent: &lt;environment: global&gt;\n#&gt; Bindings:\n#&gt; • a: &lt;dbl&gt;\n#&gt; • x: &lt;dbl&gt;\n\nSecond, you can return an object with a binding to that environment. The following example uses a function factory (i.e., a function that makes functions) to illustrate that idea.\n\nplus &lt;- function(x) {\n  function(y) x + y\n}\n\nplus_one &lt;- plus(1)\n\nplus_one\n\n#&gt; function(y) x + y\n#&gt; &lt;environment: 0x134575ba0&gt;\n\nplus_one(2)\n#&gt; [1] 3\n\n\n\nThe enclosing environment of plus_one is the execution environment of plus in this function factory.\nWhen plus_one is run, its execution environment captures the execution environment of plus."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#call-stacks",
+    "href": "presentations/AdvancedR/Foundations/environments.html#call-stacks",
+    "title": "Environments",
+    "section": "Call Stacks",
+    "text": "Call Stacks\nThe caller environment can be accessed with rlang::caller_env or base::parent.frame and provides the environment from which the function was called. It can be different based on how the function is called.\nExecuting a function creates two types of context:\n\nThe execution environment is a child of the function environment and determined by where the function was created.\nThe call stack is made up of frames and created by where the function was called."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#simple-call-stack",
+    "href": "presentations/AdvancedR/Foundations/environments.html#simple-call-stack",
+    "title": "Environments",
+    "section": "Simple Call Stack",
+    "text": "Simple Call Stack\nThe most common way to see a call stack in R is by looking at the traceback after an error has occurred.\n\nf &lt;- function(x) {\n  g(x = 2)\n}\n\ng &lt;- function(x) {\n  h(x = 3)\n}\n\nh &lt;- function(x) {\n  stop()\n}\n\nf(x = 1)\n#&gt; Error in `h()`\n\ntraceback()\n#&gt; 4: stop() at #2\n#&gt; 3: h(x = 3) at #2\n#&gt; 2: g(x = 2) at #2\n#&gt; 1: f(x = 1)\n\nWe can also use lobstr::cst to print out the call stack tree. It prints the call stack from the beginning rather than the end like traceback.\n\nh &lt;- function(x) {\n  lobstr::cst()\n}\n\nf(x = 1)\n\n#&gt;     ▆\n#&gt;  1. └─global f(x = 1)\n#&gt;  2.   └─global g(x = 2)\n#&gt;  3.     └─global h(x = 3)\n#&gt;  4.       └─lobstr::cst()"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#lazy-evaluation",
+    "href": "presentations/AdvancedR/Foundations/environments.html#lazy-evaluation",
+    "title": "Environments",
+    "section": "Lazy Evaluation",
+    "text": "Lazy Evaluation\nA call stack often happens on a single branch when all arguments are eagerly evaluated. A more complex call stack can be created by including lazy evaluation.\n\na &lt;- function(x) b(x)\nb &lt;- function(x) c(x)\nc &lt;- function(x) x\n\na(f())\n\n#&gt;     ▆\n#&gt;  1. ├─global a(f())\n#&gt;  2. │ └─global b(x)\n#&gt;  3. │   └─global c(x)\n#&gt;  4. └─global f()\n#&gt;  5.   └─global g(x = 2)\n#&gt;  6.     └─global h(x = 3)\n#&gt;  7.       └─lobstr::cst()\n\nThe tree gets 2 branches because x is lazily evaluated. First, a() calls b() and then b() calls c(). The second branch starts when c() evaluates its argument x. It gets a new branch as it is evaluated in the global environment and not the environment of c()."
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#frames",
+    "href": "presentations/AdvancedR/Foundations/environments.html#frames",
+    "title": "Environments",
+    "section": "Frames",
+    "text": "Frames\n\n\nEach element of the call stack is a frame, an internal data structure with three key components:\n\nAn expression (labelled with expr) giving the function call. This is what traceback prints.\nAn environment (labelled with env) that is generally the execution environment.\nA parent or the previous call in the call stack (shown with a grey arrow)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/Foundations/environments.html#environments-as-data-structures",
+    "href": "presentations/AdvancedR/Foundations/environments.html#environments-as-data-structures",
+    "title": "Environments",
+    "section": "Environments as Data Structures",
+    "text": "Environments as Data Structures\nEnvironments are useful data structures as they have reference semantics. There are three common problems that this can help solve:\n\nYou will never accidentally create a copy of an environment which avoids copying large data.\nAllows you to manage state across function calls within a package.\nSimulates a hashmap or a data structure that takes a constant time to find an object based on its name."
   }
 ]
