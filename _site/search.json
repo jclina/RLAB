@@ -1391,5 +1391,390 @@
     "title": "Environments",
     "section": "Environments as Data Structures",
     "text": "Environments as Data Structures\nEnvironments are useful data structures as they have reference semantics. There are three common problems that this can help solve:\n\nYou will never accidentally create a copy of an environment which avoids copying large data.\nAllows you to manage state across function calls within a package.\nSimulates a hashmap or a data structure that takes a constant time to find an object based on its name."
+  },
+  {
+    "objectID": "presentations/SpecialTopics.html",
+    "href": "presentations/SpecialTopics.html",
+    "title": "Advanced R Special Topics",
+    "section": "",
+    "text": "Functional Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 7, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nObject Oriented Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 14, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nMeta-Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 21, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nMeasuring and Improving Performance\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 28, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#measuring-performance",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#measuring-performance",
+    "title": "Measuring and Improving Performance",
+    "section": "Measuring Performance",
+    "text": "Measuring Performance\nImproving performance and making your code faster requires you to first figure out what is making it slow. This is a difficult task even for experienced programmers and requires profiling your code. Today we will talk about:\n\nMeasuring Performance: Is your code actually slow?\nImproving Performance: Practical speedup strategies\nC++ Integration: When and how to use Rcpp\n\n\nNever optimize without measuring first! Your intuition about what’s slow is often wrong."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#why-performance-matters-in-health-research",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#why-performance-matters-in-health-research",
+    "title": "Measuring and Improving Performance",
+    "section": "Why Performance Matters in Health Research",
+    "text": "Why Performance Matters in Health Research\n\nLarge datasets in public health and biomedical research\nComplex simulations (e.g., bootstrap) that require multiple iterations\nReal-time data processing and monitoring using high frequency data (e.g., wearables, EEG)\nA need for interactive dashboards for clinicians or other health researchers who have limited time\n\n\nMake code fast enough, not perfect. Programmers often spen a lot of time thinking about the speed of noncritical parts of their code. Working on efficiency may have a negative impact on debugging and maintenance."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#quick-timing-system.time",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#quick-timing-system.time",
+    "title": "Measuring and Improving Performance",
+    "section": "Quick Timing: system.time()",
+    "text": "Quick Timing: system.time()\n\n# Fitting models for each car type\nsystem.time({\n  results &lt;- lapply(rownames(mtcars), function(car) {\n    profvis::pause(0.1)\n    lm(mpg ~ cyl + wt, data = mtcars[rownames(mtcars) == car, ])\n  })\n})\n\n#&gt; user  system elapsed\n#&gt; 3.194   0.018   3.212\n\nThe system.time function returns the user, system, and elapsed time. The user time is the time spent executing your R code (i.e., the computation), the system time is the CPU time spent by the operating system, and the elapsed time is the real-world clock time."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#better-timing-microbenchmark",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#better-timing-microbenchmark",
+    "title": "Measuring and Improving Performance",
+    "section": "Better Timing: Microbenchmark",
+    "text": "Better Timing: Microbenchmark\nA microbenchmark is a measurement of the performance of a very small piece of code that may take milliseconds, microseconds, or nanoseconds. We can compare microbenchmarks for different functions using bench::mark. The output gives us important metrics like the median time, iterations per second, the number of iterations performed, memory allocation, and more.\n\n# Filtering data\nbenchmark1 &lt;- bench::mark(\n  base_subset = subset(iris, Sepal.Length &gt; 6 & Species == \"setosa\"),\n  dplyr_filter = dplyr::filter(iris, Sepal.Length &gt; 6, Species == \"setosa\"),\n  check = FALSE\n)\n\nbenchmark1[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 2 × 5\n#&gt;   expression     median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;   &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 base_subset    34.4µs    25847.    7.64KB  9996\n#&gt; 2 dplyr_filter  268.7µs     3612.    5.05KB  1733"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#profiling-finding-bottlenecks",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#profiling-finding-bottlenecks",
+    "title": "Measuring and Improving Performance",
+    "section": "Profiling: Finding Bottlenecks",
+    "text": "Profiling: Finding Bottlenecks\nYou can also use the profvis R package to profile larger parts of your code. It works best when you source the file as it ensures you get the best connection between profiling data and source code.\n\n# Read in from source file\nf &lt;- function() {\n  profvis::pause(0.1)\n  g()\n  h()\n}\ng &lt;- function() {\n  profvis::pause(0.1)\n  h()\n}\nh &lt;- function() {\n  profvis::pause(0.1)\n}\n\n\nprofvis::profvis(f())\n\n\n\nYou can interpret the profvis output by identifying wide bars representing slower code and by exploring the memory column (i.e., allocation issues) and flame graph (i.e., call stack)."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#the-performance-hierarchy",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#the-performance-hierarchy",
+    "title": "Measuring and Improving Performance",
+    "section": "The Performance Hierarchy",
+    "text": "The Performance Hierarchy\nNot all optimizations are created equal — start at the top and work your way down. Each level usually gives smaller gains but takes more effort.\n\nAlgorithm: Choose smarter methods first (e.g., use match instead of nested loops).\nVectorization: Use vector operations; they are often 10–100× faster than loops.\nMemory: Pre-allocate and minimize copies and use memory-efficient structures (e.g., hash tables).\nParallel: Split heavy, independent tasks across cores.\nC++: Rewrite only the slowest loops; can yield 50–100× speedups."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#vectorization",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#vectorization",
+    "title": "Measuring and Improving Performance",
+    "section": "Vectorization",
+    "text": "Vectorization\nVectorization replaces slow R loops with operations that act on entire vectors at once. Because these functions run in optimized C code, they avoid the overhead of per-element interpretation, often achieving 10–100× faster performance on large datasets while keeping code simpler and cleaner.\n\n# Calculating column means\nbenchmark2 &lt;- bench::mark(\n  for_loop = {\n    results &lt;- numeric(ncol(iris[, 1:4]))\n    for (i in 1:4) {\n      results[i] &lt;- mean(iris[, i])\n    }\n  },\n  vectorized = {\n    results &lt;- colMeans(iris[, 1:4])\n  },\n  check = FALSE,\n  iterations = 100\n)\n\nbenchmark2[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 2 × 5\n#&gt;   expression   median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 for_loop    867.4µs     1012.   14.04KB    99\n#&gt; 2 vectorized   25.9µs    36263.    4.73KB   100"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#pre-allocation",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#pre-allocation",
+    "title": "Measuring and Improving Performance",
+    "section": "Pre-allocation",
+    "text": "Pre-allocation\nPre-allocation reserves the full size of a vector or data frame before filling it. Without it, R must repeatedly copy and resize the object as it grows, which is costly. By allocating once and updating in place, you avoid unnecessary memory copies and greatly improve speed.\n\nbenchmark3 &lt;- bench::mark(\n  preallocation = {\n    n &lt;- nrow(mtcars)\n    mpg_per_cyl &lt;- numeric(n)\n    for (i in 1:n) {\n      mpg_per_cyl[i] &lt;- mtcars$mpg[i] / mtcars$cyl[i]\n    }\n  },\n\n  no_preallocation = {\n    mpg_per_cyl &lt;- c()\n    for (i in 1:nrow(mtcars)) {\n      mpg_per_cyl[i] &lt;- mtcars$mpg[i] / mtcars$cyl[i]\n    }\n  },\n\n  vectorized = {\n    mpg_per_cyl &lt;- mtcars$mpg / mtcars$cyl\n  },\n\n  check = FALSE,\n  iterations = 100,\n  memory = TRUE\n)\n\nbenchmark3[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 3 × 5\n#&gt;   expression         median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;       &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 preallocation      1.04ms      944.    23.4KB    98\n#&gt; 2 no_preallocation   1.07ms      922.      28KB    98\n#&gt; 3 vectorized          738ns  1243766.      304B   100"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#processing-accelerometer-data-example",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#processing-accelerometer-data-example",
+    "title": "Measuring and Improving Performance",
+    "section": "Processing Accelerometer Data Example",
+    "text": "Processing Accelerometer Data Example\n\ndata &lt;- MoveKC::read_agd(system.file(\n  \"extdata/example5sec.agd\",\n  package = \"agcounts\"\n))\n\nbenchmark4 &lt;- bench::mark(\n  preallocation = {\n    activity_counts &lt;- data.frame()\n    for (i in 1:nrow(data)) {\n      if (data$` Axis1`[i] &gt; 200) {\n        activity_counts &lt;- rbind(activity_counts, data[i, ])\n      }\n    }\n  },\n  vectorized = {\n    activity_counts &lt;- data[data$` Axis1`[i] &gt; 200, ]\n  },\n  check = FALSE,\n  iterations = 100\n)\n\nbenchmark4[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 2 × 5\n#&gt;   expression      median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;    &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 preallocation   2.57ms      385.   84.34KB    97\n#&gt; 2 vectorized     36.28µs    26759.    7.11KB   100"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#use-appropriate-data-structures",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#use-appropriate-data-structures",
+    "title": "Measuring and Improving Performance",
+    "section": "Use Appropriate Data Structures",
+    "text": "Use Appropriate Data Structures\nChoosing the right data structure dramatically affects performance. The vector search using %in% is fastest because it’s implemented in optimized C code and fully vectorized. The hash table (environment) is much quicker than a named list because it performs constant- time key lookups instead of sequential name scans. However, for large, repeated membership dchecks, %in% still wins due to its low-level vectorized design.\n\nparticipant_ids &lt;- paste0(\"P\", sprintf(\"%05d\", 1:5000))\n\nset.seed(123)\nrecords_to_check &lt;- sample(\n  c(participant_ids, paste0(\"P\", 10000:15000)),\n  50000,\n  replace = TRUE\n)\n\n# Create lookup structures\nid_vector &lt;- participant_ids\nid_list &lt;- setNames(\n  as.list(rep(TRUE, length(participant_ids))),\n  participant_ids\n)\n\n# --- Hash table version using environment (fastest base-R option)\nid_hash &lt;- new.env(hash = TRUE, parent = emptyenv())\nfor (id in participant_ids) {\n  id_hash[[id]] &lt;- TRUE\n}\n\n# Benchmark\nbenchmark5 &lt;- bench::mark(\n  named_list = {\n    vapply(records_to_check, function(id) !is.null(id_list[[id]]), logical(1))\n  },\n\n  hash_env = {\n    valid &lt;- vapply(\n      records_to_check,\n      function(id) !is.null(id_hash[[id]]),\n      logical(1)\n    )\n  },\n\n  vector_search = {\n    valid &lt;- records_to_check %in% id_vector\n  },\n\n  check = FALSE,\n  iterations = 25\n)\n\nbenchmark5[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 3 × 5\n#&gt;   expression      median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;    &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 named_list     990.3ms      1.01     204KB    15\n#&gt; 2 hash_env        18.2ms     54.3      204KB    15\n#&gt; 3 vector_search    687µs   1437.       885KB    25"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#avoid-unnecessary-copies",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#avoid-unnecessary-copies",
+    "title": "Measuring and Improving Performance",
+    "section": "Avoid Unnecessary Copies",
+    "text": "Avoid Unnecessary Copies\nIn R, modifying a data frame can trigger copy-on-modify, creating multiple copies if done repeatedly. Vectorized operations or replacing entire columns at once minimize copying, making code faster, more memory-efficient, and scalable.\n\ndf &lt;- mtcars[rep(1:nrow(mtcars), 500), ] # 16,000 rows\ncols_to_scale &lt;- c(\"mpg\", \"disp\", \"hp\", \"drat\", \"wt\")\n\nbenchmark6 &lt;- bench::mark(\n  iterative_copy = {\n    df_copy &lt;- df\n    for (col in cols_to_scale) {\n      df_copy[[col]] &lt;- scale(df_copy[[col]])\n    }\n  },\n\n  vectorized = {\n    df_copy &lt;- df\n    df_copy[cols_to_scale] &lt;- lapply(df_copy[cols_to_scale], scale)\n  },\n  check = FALSE,\n  iterations = 100\n)\n\nbenchmark6[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 2 × 5\n#&gt;   expression       median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;     &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 iterative_copy   2.19ms      388.    7.04MB    74\n#&gt; 2 vectorized       1.39ms      730.    7.02MB    71"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#parallel-processing",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#parallel-processing",
+    "title": "Measuring and Improving Performance",
+    "section": "Parallel Processing",
+    "text": "Parallel Processing\nParallel processing lets R run multiple tasks at once by splitting work across CPU cores. This approach greatly speeds up loops, simulations, and large data operations. Tools like parallel, future, and furrr make it easy to add parallelism with minimal code changes.\n\nset.seed(123)\nkbit2 &lt;- data.frame(\n  subject_label = 1:80,\n  age_at_visit = round(rnorm(80, mean = 40)),\n  kbit2verbkraw = round(rnorm(80, mean = 60)),\n  kbit2ridraw = round(rnorm(80, mean = 40)),\n  kbit2vnonvraw = round(rnorm(80, mean = 25))\n)\n\n\nbenchmark7 &lt;- bench::mark(\n  parallel = {\n    with(\n      kbit2,\n      abcds::calculate_kbit2_score(\n        age_at_visit,\n        kbit2verbkraw,\n        kbit2ridraw,\n        kbit2vnonvraw,\n        subject_label,\n        doParallel = TRUE\n      )\n    )\n  },\n  noparallel = with(\n    kbit2,\n    abcds::calculate_kbit2_score(\n      age_at_visit,\n      kbit2verbkraw,\n      kbit2ridraw,\n      kbit2vnonvraw,\n      subject_label,\n      doParallel = FALSE\n    )\n  ),\n  check = FALSE,\n  iterations = 10\n)\n\nbenchmark7[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n#&gt; A tibble: 2 × 5\n#&gt;   expression      median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;    &lt;bch:tm&gt;   &lt;dbl&gt;   &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 parallel        4.33s    0.232     3.7MB    10\n#&gt; 2 noparallel      6.34s    0.157    42.8MB    10"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#writing-functions-in-c",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#writing-functions-in-c",
+    "title": "Measuring and Improving Performance",
+    "section": "Writing Functions in C++",
+    "text": "Writing Functions in C++\nUse Rcpp when R code is too slow to vectorize — such as loops, recursion, or complex iterative algorithms. C++ lets you modify data directly and avoid R’s overhead. However, if your task is already vectorized in R, Rcpp won’t add much benefit.\n\nset.seed(123)\n\nbmi &lt;- data.frame(\n  weight = round(rnorm(80, mean = 68, sd = 10), 1),\n  height = round(rnorm(80, mean = 1.7, sd = 0.3), 1)\n)\n\nRcpp::cppFunction(\n  '\nNumericVector calculate_bmi_mean_cpp(NumericVector weight, NumericVector height) {\n  int n = weight.size();\n  NumericVector bmi(n);\n  \n  for (int i = 0; i &lt; n; i++) {\n    bmi[i] = weight[i] / (height[i] * height[i]);\n  }\n  \n  return bmi;\n}\n'\n)\n\nbenchmark8 &lt;- bench::mark(\n  rcpp = {\n    calculate_bmi_mean_cpp(bmi$weight, bmi$height)\n  },\n  vectorized = {\n    bmi$weight / bmi$height^2\n  },\n  preallocation = {\n    # bmires &lt;- numeric(length = nrow(bmi))\n    bmires &lt;- numeric(length = nrow(bmi))\n    for (i in 1:length(bmires)) {\n      bmires[i] &lt;- bmi[i, \"weight\"] / bmi[i, \"height\"]^2\n    }\n    bmires\n  },\n  iterations = 100,\n  time_unit = \"µs\"\n)\n\nbenchmark8[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n# A tibble: 3 × 5\n#&gt;   expression     median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt;      &lt;dbl&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 rcpp             1.93µs   150780.      688B   100\n#&gt; 2 vectorized       1.07µs   898683.      688B   100\n#&gt; 3 preallocation    1650µs      548.    25.9KB    99\n\n\nThe Rcpp package provides R functions as well as C++ classes which offer a seamless integration of R and C++. It allows you to write a function in C++ and immediately use it within your R script."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/performance.html#an-example-using-accelerometer-data",
+    "href": "presentations/AdvancedR/SpecialTopics/performance.html#an-example-using-accelerometer-data",
+    "title": "Measuring and Improving Performance",
+    "section": "An Example Using Accelerometer Data",
+    "text": "An Example Using Accelerometer Data\nWithin a R Package, you can include C++ code in a /src folder and export it using //[[Rcpp::export]]. Here is an example from the  agcounts R package which exports the gcalibrateC function\n\nfile &lt;- 'path/to/accelerometer/gt3x/file'\n#&gt; Brain Power A1301 (2020-01-31).gt3x\n\nI &lt;- GGIR::g.inspectfile(datafile = file)\n\nbenchmark9 &lt;- bench::mark(\n  GGIR = {\n    C &lt;- GGIR::g.calibrate(\n      datafile = file,\n      use.temp = FALSE,\n      printsummary = FALSE,\n      inspectfileobject = I\n    )\n  },\n  agcounts = {\n    agcounts:::gcalibrateC(pathname = file, sf = 30)\n  },\n  check = FALSE,\n  iterations = 1\n)\n\nbenchmark9[, c(\"expression\", \"median\", \"itr/sec\", \"mem_alloc\", \"n_itr\")]\n\n# A tibble: 2 × 5\n#&gt;   expression   median `itr/sec` mem_alloc n_itr\n#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt; &lt;int&gt;\n#&gt; 1 GGIR         17.59s    0.0568    10.3GB     1\n#&gt; 2 agcounts      7.58s    0.132      7.6GB     1"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#introduction",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#introduction",
+    "title": "Meta-Programming",
+    "section": "Introduction",
+    "text": "Introduction\nThe first big idea behind metaprogramming is that code is data. You can capture and compute on code like any other type of data. For example, the rlang::expr function can return exactly what you pass in.\n\nrlang::expr(mean(x, na.rm = TRUE))\n#&gt; mean(x, na.rm = TRUE)\n\nrlang::expr(10 + 100 + 1000)\n#&gt; 10 + 100 + 1000\n\nCaptured code is called an expression, a collective term for any of four types (call, symbol, constant, or pairlist). The rlang::expr allows you to capture code you type, but you need rlang::enexpr to capture code passed to a function.\n\ncapture_it &lt;- function(x, method) {\n  if (method == \"expr\") {\n    rlang::expr(x)\n  } else if (method == \"enexpr\") {\n    rlang::enexpr(x)\n  }\n}\n\ncapture_it(x = a + b + c, method = \"expr\")\n#&gt; x\n\ncapture_it(x = a + b + c, method = \"enexpr\")\n#&gt; a + b + c\n\nOnce you capture an expression, you can inspect and modify it like lists using [[ and $.\n\nf &lt;- rlang::expr(f(x = 1, y = 2))\n\nf$z &lt;- 3\nf\n#&gt; f(x = 1, y = 2, z = 3)\n\n# The first argument is in the second position as the first element\n# is the function to be called (i.e., f).\n\nf[[2]] &lt;- NULL\nf\n#&gt; f(y = 2, z = 3)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#code-is-a-tree",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#code-is-a-tree",
+    "title": "Meta-Programming",
+    "section": "Code is a Tree",
+    "text": "Code is a Tree\nMore complex manipulations with expressions require an understanding of their structure. Nearly every programming language represents code as an abstract syntax tree (AST). In R, you can inspect and manipulate the AST.\n\nlobstr::ast(1 + 2 * 3)\n\n█─`+` \n├─1 \n└─█─`*` \n  ├─2 \n  └─3 \n\nlobstr::ast(paste(\"Mean:\", mean(1:100), \"SD: \", sd(1:100)))\n\n█─paste \n├─\"Mean:\" \n├─█─mean \n│ └─█─`:` \n│   ├─1 \n│   └─100 \n├─\"SD: \" \n└─█─sd \n  └─█─`:` \n    ├─1 \n    └─100"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#code-can-generate-code",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#code-can-generate-code",
+    "title": "Meta-Programming",
+    "section": "Code can Generate Code",
+    "text": "Code can Generate Code\nYou can use rlang::call2 and unquoting to use code to create new trees. The rlang::call2 function constructs a function call from its components: the function to the call and the arguments to call it with.\n\nrlang::call2(\"+\", 1, rlang::call2(\"*\", 2, 3))\n#&gt; 1 + 2 * 3\n\nYou can build complex code trees by combining simpler ones with a template. The expr and enexpr functions have built-in support for this idea via !!, the unquote operator (pronounced bang-bang).\n\nxx &lt;- rlang::expr(x + y)\nyy &lt;- rlang::expr(y + y)\n\n# !!xx inserts the code tree stored in xx into the expression\n\nrlang::expr(!!xx / !!yy)\n#&gt; (x + y)/(y + y)\n\nUnquoting is even more useful inside a function. For example, here is an expression to calculate the coefficient of variation.\n\ncv &lt;- function(var) {\n  var &lt;- rlang::enexpr(var)\n  rlang::expr(sd(!!var) / mean(!!var))\n}\n\ncv(x)\n#&gt; sd(x)/mean(y)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation-runs-code",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation-runs-code",
+    "title": "Meta-Programming",
+    "section": "Evaluation Runs Code",
+    "text": "Evaluation Runs Code\nYou can evaluate (i.e., execute or run) an expression with base::eval. The eval function takes two arguments: the expression and environment. Omitting the environment causes eval to use the current one.\n\neval(rlang::expr(x + y), rlang::env(x = 1, y = 10))\n#&gt; [1] 11"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#customizing-evaluation-with-functions",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#customizing-evaluation-with-functions",
+    "title": "Meta-Programming",
+    "section": "Customizing Evaluation with Functions",
+    "text": "Customizing Evaluation with Functions\nYou can also bind names to functions when evaluating which can allow you to override the behavior of existing functions. For example, we can override the * and + function to work with strings.\n\nadd_string &lt;- function(x) {\n  e &lt;- rlang::env(\n    rlang::caller_env(),\n    `+` = function(x, y) paste0(x, y)\n  )\n  eval(rlang::enexpr(x), e)\n}\n\nname &lt;- \"Brian\"\nadd_string(\"Hello \" + name)\n#&gt; [1] \"Hello Brian\"\n\nThe dplyr package uses this idea to run code in an environment to generate SQL for execution in a remote database.\n\ncon &lt;- DBI::dbConnect(RSQLite::SQLite(), filename = \":memory:\")\nmtcars_db &lt;- dplyr::copy_to(con, mtcars)\n\nmtcars_db |&gt;\n  dplyr::filter(cyl &gt; 2) |&gt;\n  dplyr::select(mpg:hp) |&gt;\n  head(10) |&gt;\n  dplyr::show_query()\n\n#&gt; &lt;SQL&gt;\n#&gt; SELECT `mpg`, `cyl`, `disp`, `hp`\n#&gt; FROM `mtcars`\n#&gt; WHERE (`cyl` &gt; 2.0)\n#&gt; LIMIT 10\n\nDBI::dbDisconnect(con)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#customizing-evaluation-with-data",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#customizing-evaluation-with-data",
+    "title": "Meta-Programming",
+    "section": "Customizing Evaluation with Data",
+    "text": "Customizing Evaluation with Data\nYou can modify evaluation to look for variables in a data frame instead of an environment. This idea powers the base subset and transform functions, as well as many tidyverse functions like ggplot2::aes and dplyr::mutate. We can use rlang::eval_tidy which takes an expression, environment, and a data mask.\n\ndf &lt;- data.frame(x = 1:5, y = 6:10)\nrlang::eval_tidy(rlang::expr(x + y), df)\n#&gt; [1] 7 9 11 13 15\n\nWe can expand upon this idea by wrapping this pattern into a function using enexpr to get a similar function to base::with.\n\nwith2 &lt;- function(df, expr) {\n  rlang::eval_tidy(rlang::enexpr(expr), df)\n}\n\nwith2(df, x + y)\n#&gt; [1] 7 9 11 13 15"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quosures",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quosures",
+    "title": "Meta-Programming",
+    "section": "Quosures",
+    "text": "Quosures\nA problem arises with with2 in that the expression is evaluated inside of the function and not the environment where it was written. We can solve this problem by using a new data structure called a quosure which bundles the expression with an environment.\n\nwith2 &lt;- function(df, expr, method) {\n  a &lt;- 1000\n  if (method == \"enexpr\") {\n    rlang::eval_tidy(rlang::enexpr(expr), df)\n  } else if (method == \"enquo\") {\n    rlang::eval_tidy(rlang::enquo(expr), df)\n  }\n}\n\ndf &lt;- data.frame(x = 1:5)\na &lt;- 10\n\nwith2(df, x + a, method = \"enexpr\")\n#&gt; [1] 1001 1002 1003 1004 1005\n\nwith2(df, x + a, method = \"enquo\")\n#&gt; [1] 11 12 13 14 15"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#abstract-syntax-trees",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#abstract-syntax-trees",
+    "title": "Meta-Programming",
+    "section": "Abstract Syntax Trees",
+    "text": "Abstract Syntax Trees\nExpressions are also called abstract syntax trees (ASTs) because the structure of code is hierarchical and can be represented as a tree. We can use lobstr::ast to better understand this structure.\n\nlobstr::ast(f(g(1, 2), h(3, 4, i())))\n\n#&gt; █─f\n#&gt; ├─█─g\n#&gt; │ ├─1\n#&gt; │ └─2\n#&gt; └─█─h\n#&gt;   ├─3\n#&gt;   ├─4\n#&gt;   └─█─i\n\n\n\n\nThe leaves of the tree are symbols like f, g, h, and i or constants like 1, 2, 3, and 4. When printing in the console, symbols will be printed in purple.\nThe branches of the tree are call objects, representing function calls and drawn as orange rectangles in the console.\n\n\n\n\n\nASTs are abstract because they only capture important structural details of the code and not whitespace or comments."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#infix-calls",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#infix-calls",
+    "title": "Meta-Programming",
+    "section": "Infix Calls",
+    "text": "Infix Calls\n\n\n\nEvery call in R can be written in tree form as any call can be written in prefix form. For example, these expressions would produce the same ASTs.\nEven if you generate an expression with prefix calls, R will still print it in infix form.\n\n\n\n\n\nx &lt;- 2\n\ny &lt;- x * 10\n\n`&lt;-`(y, `*`(x, 10))\n\nlobstr::ast(y &lt;- x * 10)\n\n#&gt; █─`&lt;-`\n#&gt; ├─y\n#&gt; └─█─`*`\n#&gt;   ├─x\n#&gt;   └─10"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#expressions",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#expressions",
+    "title": "Meta-Programming",
+    "section": "Expressions",
+    "text": "Expressions\nExpressions are the data structures in ASTs. They are created by parsing code and can include constants, symbols, function calls, and pairlists (such as those from expr)."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#constants",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#constants",
+    "title": "Meta-Programming",
+    "section": "Constants",
+    "text": "Constants\nScalar constants are the simplest component of the AST. A constant is either NULL or an atomic vector of length one like TRUE, 1L, 2.5 or “x”. You can test for a constant with rlang::is_syntactic_literal. Constants are self-quoting and the expression used to represent the constant is the same as the constant.\n\nrlang::is_syntactic_literal(rlang::expr(TRUE))\n#&gt; [1] TRUE\n\nrlang::is_syntactic_literal(TRUE)\n#&gt; [1] TRUE\n\nidentical(rlang::expr(\"x\"), \"x\")\n#&gt; [1] TRUE"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#symbols",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#symbols",
+    "title": "Meta-Programming",
+    "section": "Symbols",
+    "text": "Symbols\nA symbol represents the name of an object like x, mtcars, or mean. In R, symbol and name are used interchangeably (i.e., is.symbol is equal to is.name). Creating a symbol can be done by capturing code that references an object with expr or turning a string into a symbol with sym. You can turn a symbol back into a string with as.character or rlang::as_string.\n\nis.symbol(rlang::expr(x))\n#&gt; [1] TRUE\n\nis.symbol(rlang::sym(\"x\"))\n#&gt; [1] TRUE\n\nstr(rlang::sym(\"x\"))\n#&gt; symbol x\n\nrlang::as_string(rlang::expr(x))\n#&gt; [1] \"x\"\n\n\nThe symbol type is not vectorized and is alway a length of one. If you want multiple symbols, you need to put them in a list with rlang::syms."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#calls",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#calls",
+    "title": "Meta-Programming",
+    "section": "Calls",
+    "text": "Calls\nA call object represents a captured function call and are a special type of list (i.e., pairlist) where the first component shows the function to call and the remaining elements are the function arguments.\n\nlobstr::ast(read.table(\"important.csv\", row.names = FALSE))\n#&gt; █─read.table\n#&gt; ├─\"important.csv\"\n#&gt; └─row.names = FALSE\n\nx &lt;- rlang::expr(read.table(\"important.csv\", row.names = FALSE))\nis.call(x)\n#&gt; [1] TRUE\n\n# typeof and str print language for function calls\n\ntypeof(x)\n#&gt; [1] \"language\"\n\nstr(x)\n#&gt;  language read.table(\"important.csv\", row.names = FALSE)\n\nCalls generally behave like lists and standard subsetting tools can be used to extract the function call and its arguments.\n\nx[[1]]\n#&gt; read.table\n\nas.list(x[-1])\n#&gt; [[1]]\n#&gt; [1] \"important.csv\"\n\n#&gt; $row.names\n#&gt; [1] FALSE\n\nx[[2]]\n#&gt; [1] \"important.csv\"\n\nx$row.names\n#&gt; [1] FALSE\n\nYou can construct a call object from its components using rlang::call2. The first argument is the name of the function to call and the remaining arguments will be passed along to the call.\n\nrlang::call2(\"mean\", x = rlang::expr(x), na.rm = TRUE)\n#&gt; mean(x = x, na.rm = TRUE)\n\nrlang::call2(\"&lt;-\", rlang::expr(x), 10)\n#&gt; x &lt;- 10"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#parsing-and-grammar",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#parsing-and-grammar",
+    "title": "Meta-Programming",
+    "section": "Parsing and Grammar",
+    "text": "Parsing and Grammar\nParsing is the process by which a computer language takes a string and constructs an expression. It is governed by a set of rules known as a grammar.\nOperator precedence is an example of the grammar used by programming languages. Predicting the precedence of arithmetic operations is easy because of how much time is spent on it in school; however, predicting other operators can be more challenging.\n\nlobstr::ast(1 + 2 * 3)\n#&gt; █─`+`\n#&gt; ├─1\n#&gt; └─█─`*`\n#&gt;   ├─2\n#&gt;   └─3\n\nlobstr::ast(!x %in% y)\n#&gt; █─`!`\n#&gt; └─█─`%in%`\n#&gt;   ├─x\n#&gt;   └─y\n\nlobstr::ast((1 + 2) * 3)\n#&gt; █─`*`\n#&gt; ├─█─`(`\n#&gt; │ └─█─`+`\n#&gt; │   ├─1\n#&gt; │   └─2\n#&gt; └─3\n\n\nMost operators are left-associative (i.e., the operations are evaluated from left to right). However, exponentiation and assignment are always evaluated right to left.\n\nYou can manually parse and deparse code using rlang::parse_expr and rlang::expr_text.\n\nx1 &lt;- \"y &lt;- x + 10\"\n\nx2 &lt;- rlang::parse_expr(x1)\nx2\n#&gt; y &lt;- x + 10\n\nx3 &lt;- rlang::expr_text(x2)\nx3\n#&gt; [1] \"y &lt;- x + 10\""
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quasiquotation",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quasiquotation",
+    "title": "Meta-Programming",
+    "section": "Quasiquotation",
+    "text": "Quasiquotation\nQuotation is the act of capturing an unevaluated expression and unquotation is the ability to selectively evaluate parts of an otherwise quoted expression. Together, quasiquotation makes it easy to create functions combining code written by the function’s author and user. Quasiquotation is one of the three pillars of tidy evaluation (quasiquotation, quosures, and the data mask)."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#motivation",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#motivation",
+    "title": "Meta-Programming",
+    "section": "Motivation",
+    "text": "Motivation\nImagine you are creating many strings by joining words together with the paste function and are tired of writing all those quotes. You can write a function that quotes all of its inputs.\n\npaste(\"Good\", \"morning\", \"RLAB\", \"attendees\")\n#&gt; [1] \"Good morning RLAB attendees\"\n\ncement &lt;- function(...) {\n  args &lt;- rlang::ensyms(...)\n  paste(purrr::map(args, rlang::as_string), collapse = \" \")\n}\n\ncement(Good, morning, RLAB, attendees)\n#&gt; [1] \"Good morning RLAB attendees\"\n\nA problem occurs when we want to use variables within cement as every input it automatically quoted. We can use !! (pronounced bang-bang) to tell a function to drop the implicit quotes.\n\ntime &lt;- \"morning\"\nclass &lt;- \"RLAB\"\n\ncement(Good, time, class, attendees)\n#&gt; [1] \"Good time class attendees\"\n\ncement(Good, !!time, !!class, attendees)\n#&gt; [1] \"Good morning RLAB attendees\"\n\n\nAn evaluated argument obeys R’s usual evaluation rules and a quoted argument is captured by the function and is processed in a custom way."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quoting",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quoting",
+    "title": "Meta-Programming",
+    "section": "Quoting",
+    "text": "Quoting\nQuotation, the first part of quasiquotation, is capturing an expression without evaluating it. There are four important quoting functions:\n\nexpr: captures its argument exactly as provided\nenexpr: captures what the caller supplied to the function by looking at the internal promise object that powers lazy evaluation\nenexprs: captures all arguments in …\nexprs: captures a list of expressions\nensym and ensyms converts to a symbol\n\n\nMany of the rlang functions described have a base R equivalent. For example, quote is the base R equivalent of expr, substitute is the base R equivalent of enexpr, and alist is the base R equivalent of exprs."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#substitution",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#substitution",
+    "title": "Meta-Programming",
+    "section": "Substitution",
+    "text": "Substitution\nThe substitute function is most often used to capture unevaluated arguments. It also does substitution, taking an expression and substituting the values of the symbols defined in the current environment.\n\nsubstitute(x * y * z, env = list(x = 10, y = quote(a + b)))\n#&gt; 10 * (a + b) * z"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#unquoting",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#unquoting",
+    "title": "Meta-Programming",
+    "section": "Unquoting",
+    "text": "Unquoting\nThe difference between the rlang functions from base R is that they are quasiquoting functions which means that they can also unquote. Unquoting allows you to selectively evaluate parts of the expression that would otherwise be quoted.\n\n\nUnquoting one argument can be accomplished with !! The diagram on the right shows what happens to expr(-1) assigned to x and provided to the expression expr(f(!!x), y). The !! operator also works with symbols, constants, and functions. Using !! with a function call evaluates it and puts it in the results, and preserves operator precedence.\n\n\n\n\nmean_rm &lt;- function(var) {\n  var &lt;- rlang::ensym(var)\n  rlang::expr(mean(!!var, na.rm = TRUE))\n}\n\nrlang::expr(!!mean_rm(x) + !!mean_rm(y))\n#&gt; mean(x, na.rm = TRUE) + mean(y, na.rm = TRUE)\n\nUnquoting a function and missing arguments are less common in practice, but the !! operator can handle both situations.\n\n# Unquoting a function needs an extra pair of parentheses\nf &lt;- rlang::expr(foo)\nrlang::expr((!!f)(x, y))\n#&gt; foo(x, y)\n\n# You can also use rlang::call2 which makes it clearer\nrlang::call2(f, rlang::expr(x), rlang::expr(y))\n#&gt; foo(x, y)\n\n# Use maybe_missing to unquote a missing argument\narg &lt;- rlang::missing_arg()\nrlang::expr(foo(!!rlang::maybe_missing(arg), !!rlang::maybe_missing(arg)))\n#&gt; foo(, )"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#unquoting-many-arguments",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#unquoting-many-arguments",
+    "title": "Meta-Programming",
+    "section": "Unquoting Many Arguments",
+    "text": "Unquoting Many Arguments\nThe !! operator is a one-to-one replacement. The unquote-splice !!! (pronounced bang-bang-bang) is a one-to-many replacement. It takes a list of expressions and inserts them at the location of !!!.\n\nxs &lt;- rlang::exprs(1, a, -b)\nrlang::expr(f(!!!xs, y))\n#&gt; f(1, a, -b, y)\n\n\n\nThe !!! operator can be used in any rlang function that takes ... regardless of whether … is quoted or evaluated."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#non-quoting",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#non-quoting",
+    "title": "Meta-Programming",
+    "section": "Non-quoting",
+    "text": "Non-quoting\nBase R has one function that implements quasiquotation. The bquote function is for quoting and it uses .() for unquoting.\n\nxyz &lt;- bquote((x + y + z))\nxyz\n#&gt; (x + y + z)\n\nbquote(-.(xyz) / 2)\n#&gt; -(x + y + z)/2\n\nThe bquote function is not used by any other function in base R and its use is challenging because it is difficult to use with code supplied by a user, it does not have an unquote-splice operator for multiple expressions, and can’t handle code in an environment (e.g., functions). Instead, base R uses non-quoting instead of unquoting which selectively turns off quoting and comes in four basic forms:\nA pair of quoting and non-quoting functions\n\nx &lt;- list(var = 1, y = 2)\n\nvar &lt;- \"y\"\n\nx$var\n#&gt; [1] 1\nx[[var]]\n#&gt; [1] 2\n\nA pair of quoting and non-quoting arguments\n\n# The rm function allows variable names in ... or a character\n# vector of variable names in a list\nx &lt;- 1\nrm(x)\n\ny &lt;- 2\nvars &lt;- c(\"y\", \"vars\")\nrm(list = vars)\n\n# data() and save() work similarly\n\nAn argument that controls whether a different argument is quoting or non-quoting\n\n# The library function has a character.only argument to\n# control the quoting behavior of the package argument\n\nlibrary(MASS)\n\npkg &lt;- \"MASS\"\nlibrary(pkg, character.only = TRUE)\n\n# demo, detach, example, and require work similarly\n\nQuoting if evaluation fails\n\nhelp(func)\n#&gt; No documentation for ‘func’ in specified packages and libraries:\n#&gt; you could try ‘??func’\n\nfunc &lt;- \"mean\"\nhelp(func)\n#&gt; Shows help for mean\n\n# ls, page, and match.fun work simlarly"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#base-modelling-and-plotting",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#base-modelling-and-plotting",
+    "title": "Meta-Programming",
+    "section": "Base Modelling and Plotting",
+    "text": "Base Modelling and Plotting\nThe base modelling and plotting functions also use quoting and non-quoting. For example, lm quotes the weight and subset arguments, and plot quotes the aesthetic arguments (e.g., col, pch, cex) when used with a formula.\n\npalette(RColorBrewer::brewer.pal(3, \"Set1\"))\nplot(\n  Sepal.Length ~ Petal.Length,\n  data = iris,\n  col = Species,\n  pch = 20,\n  cex = 2\n)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#the-dot-dot-dot-operator",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#the-dot-dot-dot-operator",
+    "title": "Meta-Programming",
+    "section": "The … (dot-dot-dot) Operator",
+    "text": "The … (dot-dot-dot) Operator\nWe can use !!! on a list of expressions that we want to insert into a call. This could be useful if the elements you want to put in … are already stored as a list.\n\ndfs &lt;- list(\n  a = data.frame(x = 1, y = 2),\n  b = data.frame(x = 3, y = 4),\n  c = data.frame(x = 5, y = 6)\n)\n\ndplyr::bind_rows(!!!dfs)\n\nWe can also use !! to supply the argument name indirectly. We use := (pronounced colon-equals) to allow expressions as argument names. It looks like = but allows expressions on either side, making it a more flexible alternative that is commonly used in the data.table package.\n\nvar &lt;- \"x\"\nval &lt;- c(4, 3, 9)\n\ntibble::tibble(!!var := val)\n#&gt;       x\n#&gt;   &lt;dbl&gt;\n#&gt; 1     4\n#&gt; 2     3\n#&gt; 3     9\n\n\nWe say that functions supporting these tools, without quoting arguments, have tiny dots. You can use tiny dots behavior in your own functions using rlang::list2."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#another-example-of-tiny-dots",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#another-example-of-tiny-dots",
+    "title": "Meta-Programming",
+    "section": "Another Example of Tiny Dots",
+    "text": "Another Example of Tiny Dots\nWe could use list2 to create a wrapper around attributes that allows us to set them flexibly.\n\nset_attr &lt;- function(.x, ...) {\n  attr &lt;- rlang::list2(...)\n  attributes(.x) &lt;- attr\n  .x\n}\n\nattrs &lt;- list(x = 1, y = 2)\nattr_name &lt;- \"z\"\nx &lt;- 1:10\n\n\nstr(set_attr(x, w = 0, !!!attrs, !!attr_name := 3))\n\n#&gt; int [1:10] 1 2 3 4 5 6 7 8 9 10\n#&gt;  - attr(*, \"w\")= num 0\n#&gt;  - attr(*, \"x\")= num 1\n#&gt;  - attr(*, \"y\")= num 2\n#&gt;  - attr(*, \"z\")= num 3"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#using-rlangexec",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#using-rlangexec",
+    "title": "Meta-Programming",
+    "section": "Using rlang::exec",
+    "text": "Using rlang::exec\nYou can use rlang::exec to use the tiny dots technique with a function that does not have tiny dots. With the exec function, you call a function with some arguments provided directly (in …) and others indirectly (in a list).\n\n# Directly\nrlang::exec(\"mean\", x = 1:10, na.rm = TRUE, trim = 0.1)\n#&gt; [1] 5.5\n\n## Indirectly\nargs &lt;- list(x = 1:10, na.rm = TRUE, trim = 0.1)\nrlang::exec(\"mean\", !!!args)\n#&gt; [1] 5.5\n\n# Mixed\nrlang::exec(\"mean\", x = 1:10, !!!args[2:3])\n#&gt; [1] 5.5\n\nYou can also provide argument names indirectly or call different functions with the same arguments.\n\narg_name &lt;- \"na.rm\"\narg_val = TRUE\n\nrlang::exec(\"mean\", 1:10, !!arg_name := arg_val)\n#&gt; [1] 5.5\n\nfuns &lt;- c(\"mean\", \"median\", \"sd\")\npurrr::map_dbl(funs, rlang::exec, 1:10, na.rm = TRUE)\n#&gt; [1] 5.50000 5.50000 3.02765\n\n\nThe rlang::list2 function is a wrapper around rlang::dots_list. The dots_list function allows users more control via additional arguments like .ignore_empty, .homonoyms, and .preserve_empty. See the help menu of rlang::dots_list for more details."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#solving-the-tidy-dot-problems-in-base-r",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#solving-the-tidy-dot-problems-in-base-r",
+    "title": "Meta-Programming",
+    "section": "Solving the Tidy Dot Problems in Base R",
+    "text": "Solving the Tidy Dot Problems in Base R\nThe do.call function has two main arguments: what gives a function to call and args provides a list of arguments to pass to that function.\n\ndfs &lt;- list(\n  a = data.frame(x = 1, y = 2),\n  b = data.frame(x = 3, y = 4),\n  c = data.frame(x = 5, y = 6)\n)\n\ndo.call(\"rbind\", dfs)\n#&gt;   x y\n#&gt; a 1 2\n#&gt; b 3 4\n#&gt; c 5 6\n\nvar &lt;- \"x\"\nval &lt;- c(4, 3, 9)\nargs &lt;- list(val)\nnames(args) &lt;- var\n\ndo.call(\"data.frame\", args)\n#&gt;   x\n#&gt; 1 4\n#&gt; 2 3\n#&gt; 3 9"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#a-practical-application",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#a-practical-application",
+    "title": "Meta-Programming",
+    "section": "A Practical Application",
+    "text": "A Practical Application\nYou can use the techniques learned with quasiquotation and apply that with functions in the purrr package to print out a linear equation.\n\nprint_linear_equation &lt;- function(formula, data) {\n  fit &lt;- lm(formula, data = data)\n  vars &lt;- names(coef(fit)[-1])\n  summands &lt;- purrr::map2(\n    round(coef(fit)[-1], 2),\n    vars,\n    ~ rlang::expr((!!.x * !!rlang::sym(.y)))\n  )\n  summands &lt;- c(round(coef(fit)[[1]], 2), summands)\n  purrr::reduce(summands, ~ expr(!!.x + !!.y))\n}\n\nprint_linear_equation(mpg ~ wt + cyl, data = mtcars)\n#&gt; 39.69 + (-3.19 * wt) + (-1.51 * cyl)\n\nprint_linear_equation(mpg ~ wt + cyl + hp, data = mtcars)\n#&gt; 38.75 + (-3.17 * wt) + (-0.94 * cyl) + (-0.02 * hp)"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation",
+    "title": "Meta-Programming",
+    "section": "Evaluation",
+    "text": "Evaluation\nProvides the developer the ability to evaluate quoted expressions in custom environments to achieve specific goals. In addition to quasiquotation, quosures and data masks make up the other two big ideas in tidy evaluation."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation-basics",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#evaluation-basics",
+    "title": "Meta-Programming",
+    "section": "Evaluation Basics",
+    "text": "Evaluation Basics\nThe eval function has two key arguments: expr and envir. The expr argument is the object to evaluate and env provides the environment in which the expression should be evaluated.\n\ny &lt;- 2\neval(rlang::expr(x + y), rlang::env(x = 1000))\n#&gt; [1] 1002"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-local",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-local",
+    "title": "Meta-Programming",
+    "section": "Application: local()",
+    "text": "Application: local()\nPerforming a part of a calculation that creates some intermediate variables with no long-term use and possibly quite large can negatively affect memory. You can clean them up each time with rm or use local.\n\nf &lt;- local({\n  x &lt;- 10\n  y &lt;- 200\n  x + y\n})\n\nf\n#&gt; [1] 210\n\nThe local function captures the input expression and creates a new environment to evaluate it. This simulates running expr inside an environment. The exact implementation of base::local uses eval and substitute in complex ways.\n\nlocal2 &lt;- function(expr) {\n  env &lt;- rlang::env(rlang::caller_env())\n  eval(rlang::enexpr(expr), env)\n}\n\nf2 &lt;- local2({\n  x &lt;- 10\n  y &lt;- 200\n  x + y\n})\n\nf2\n#&gt; [1] 210"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-source",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-source",
+    "title": "Meta-Programming",
+    "section": "Application: source()",
+    "text": "Application: source()\nA simple version of source can be created by combining eval and parse_expr. The source2 function below reads the file from disk, uses parse_expr to parse the string into a list of expressions, and then eval to evaluate each element.\n\nsource2 &lt;- function(path, env = rlang::caller_env()) {\n  file &lt;- paste(readLines(path, warn = FALSE), collapse = \"\\n\")\n  exprs &lt;- rlang::parse_exprs(file)\n  res &lt;- NULL\n  for (i in seq_along(exprs)) {\n    res &lt;- eval(exprs[[i]], env)\n  }\n  invisible(res)\n}"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quosures-1",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quosures-1",
+    "title": "Meta-Programming",
+    "section": "Quosures",
+    "text": "Quosures\nA quosure is an object that contains an expression and environment. There are three ways to create quosures:\nUse enquo and enquos to capture user-supplied expressions (most quosures should be created this way).\n\nfoo &lt;- function(x) rlang::enquo(x)\nfoo(a + b)\n#&gt; &lt;quosure&gt;\n#&gt; expr: ^a + b\n#&gt; env:  global\n\nUse quo and quos which exist to match expr and exprs and are only included for completeness. If you use them frequently, consider whether expr and careful unquoting can eliminate the need to captures the environment.\n\nquo(x + y + z)\n#&gt; &lt;quosure&gt;\n#&gt; expr: ^x + y + z\n#&gt; env:  global\n\nUse new_quosure to create a quosure from its components: an expression and its environment. It is rarely needed, but useful for learning purposes.\n\nrlang::new_quosure(rlang::expr(x + y), rlang::env(x = 1, y = 10))\n#&gt; &lt;quosure&gt;\n#&gt; expr: ^x + y\n#&gt; env:  0x15e95a4a8\n\nQuosures are paired with a new evaluation function called rlang::eval_tidy that takes a single quosure instead of an expression-environment pair.\n\nq1 &lt;- rlang::new_quosure(rlang::expr(x + y), rlang::env(x = 1, y = 10))\nrlang::eval_tidy(q1)\n#&gt; [1] 11"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#dots",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#dots",
+    "title": "Meta-Programming",
+    "section": "Dots",
+    "text": "Dots\nQuosures are often for convenience, making code cleaner because they pass around one object instead of an expression and environment. They become essential when working with ... as it is possible that each argument passed can have a different environment.\n\nf &lt;- function(...) {\n  x &lt;- 1\n  g(..., f = x)\n}\n\ng &lt;- function(...) {\n  rlang::enquos(...)\n}\n\nx &lt;- 0\nqs &lt;- f(global = x)\nqs\n\n#&gt; &lt;list_of&lt;quosure&gt;&gt;\n\n#&gt; $global\n#&gt; &lt;quosure&gt;\n#&gt; expr: ^x\n#&gt; env:  global\n\n#&gt; $f\n#&gt; &lt;quosure&gt;\n#&gt; expr: ^x\n#&gt; env:  0x159317bd0\n\npurrr::map_dbl(qs, rlang::eval_tidy)\n#&gt; global      f\n#&gt;      0      1\n\nQuosures are a subclass of formulas which means that quosures are call objects. You can extract the expression and environment from a quosure using get_expr and get_env from the rlang package.\n\nq4 &lt;- rlang::new_quosure(rlang::expr(x + y + z))\n\nclass(q4)\n#&gt; [1] \"quosure\" \"formula\"\n\nis.call(q4)\n#&gt; [1] TRUE\n\nrlang::get_expr(q4)\n#&gt; x + y + z\n\nrlang::get_env(q4)\n#&gt; &lt;environment: R_GlobalEnv&gt;"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#nested-quosures",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#nested-quosures",
+    "title": "Meta-Programming",
+    "section": "Nested Quosures",
+    "text": "Nested Quosures\nYou can embed a quosure into an expression. This is an advanced tool, but useful to know in case you need it or encounter this strategy in another developer’s code.\n\nq2 &lt;- rlang::new_quosure(rlang::expr(x), rlang::env(x = 1))\nq3 &lt;- rlang::new_quosure(rlang::expr(x), rlang::env(x = 10))\n\nx &lt;- rlang::expr(!!q2 + !!q3)\n\nrlang::eval_tidy(x)\n#&gt; [1] 11\n\n\nPrinting with rlang::expr_print in the console provides quosures that are colored based on their environment."
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#data-masks",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#data-masks",
+    "title": "Meta-Programming",
+    "section": "Data Masks",
+    "text": "Data Masks\nThe data mask is a data frame where the evaluated code will look first for variable definitions. It allows you to use variables from an environment and data frame in a single expression and powers many base functions (e.g., with, subset, transform) and used throughout the tidyverse packages.\n\nq1 &lt;- rlang::new_quosure(rlang::expr(x * y), rlang::env(x = 100))\ndf &lt;- data.frame(y = 1:10)\nrlang::eval_tidy(q1, df)\n#&gt; [1] 100 200 300 400 500 600 700 800 900 1000\n\nWe can combine this into a wrapper function to create something similar to the base::with function.\n\nwith2 &lt;- function(data, expr) {\n  expr &lt;- rlang::enquo(expr)\n  rlang::eval_tidy(expr, data)\n}\n\nx &lt;- 100\nwith2(df, x * y)\n#&gt; [1] 100 200 300 400 500 600 700 800 900 1000"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#pronouns",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#pronouns",
+    "title": "Meta-Programming",
+    "section": "Pronouns",
+    "text": "Pronouns\nUsing a data mask can make it challenging to know whether variables will come from the data frame or the environment. To resolve this, the data mask provides the .data and .env pronouns.\n\n.data$x always refers to x in the data mask\n.env$x always refers to x in the environment\n\n\nx &lt;- 1\ndf &lt;- data.frame(x = 2)\n\nwith2(df, .data$x)\n#&gt; [1] 2\n\nwith2(df, .env$x)\n#&gt; [1] 1"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-subset-and-transform",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#application-subset-and-transform",
+    "title": "Meta-Programming",
+    "section": "Application: subset and transform",
+    "text": "Application: subset and transform\nThe base::subset function is like dplyr::filter and provides an option to add a select argument that is similar to dplyr::select. The basic implementation for these ideas can be found in the functions below.\n\nsubset2 &lt;- function(data, rows) {\n  rows &lt;- rlang::enquo(rows)\n  rows_val &lt;- rlang::eval_tidy(rows, data)\n  data[rows_val, , drop = FALSE]\n}\n\nsubset2(mtcars, mpg &gt; 33)\n#&gt;                 mpg cyl disp hp drat    wt qsec vs am gear carb\n#&gt; Toyota Corolla 33.9   4 71.1 65 4.22 1.835 19.9  1  1    4    1\n\nselect2 &lt;- function(data, ...) {\n  dots &lt;- rlang::enquos(...)\n  vars &lt;- as.list(rlang::set_names(seq_along(data), names(data)))\n  cols &lt;- unlist(purrr::map(dots, rlang::eval_tidy, vars))\n  data[, cols, drop = FALSE]\n}\n\nmtcars %&gt;%\n  subset2(mpg &gt; 33) %&gt;%\n  select2(mpg:wt)\n\n#&gt;                 mpg cyl disp hp drat    wt\n#&gt; Toyota Corolla 33.9   4 71.1 65 4.22 1.835\n\nThe base transform function acts like dplyr::mutate, allowing you to add new variables or modify existing ones in a data frame.\n\ntransform2 &lt;- function(.data, ...) {\n  dots &lt;- rlang::enquos(...)\n  for (i in seq_along(dots)) {\n    name &lt;- names(dots)[[i]]\n    dot &lt;- dots[[i]]\n    .data[[name]] &lt;- rlang::eval_tidy(dot, .data)\n  }\n  .data\n}\n\ndf &lt;- data.frame(x = 1:5, y = 6:10)\ntransform2(df, x = -x, z = 11:15)\n#&gt;    x  y  z\n#&gt; 1 -1  6 11\n#&gt; 2 -2  7 12\n#&gt; 3 -3  8 13\n#&gt; 4 -4  9 14\n#&gt; 5 -5 10 15"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#using-tidy-evaluation",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#using-tidy-evaluation",
+    "title": "Meta-Programming",
+    "section": "Using Tidy Evaluation",
+    "text": "Using Tidy Evaluation\nMost of the time you will use tidy evaluation indirectly by calling a function that uses rlang::eval_tidy. It is common to quote and unquote arguments from the user whenever you call a quoting function. For example, cond is quoted in subsample before unquoted in subset2 in this function that resamples and subsets a dataset.\n\ndf &lt;- data.frame(x = c(1, 1, 1, 2, 2), y = 1:5)\n\nresample &lt;- function(df, n) {\n  idx &lt;- sample(nrow(df), n, replace = TRUE)\n  df[idx, , drop = FALSE]\n}\n\nsubsample &lt;- function(df, cond, n = nrow(df)) {\n  cond &lt;- rlang::enquo(cond)\n  df &lt;- subset2(df, !!cond)\n  resample(df, n)\n}\n\nset.seed(12)\nsubsample(df, x == 1)\n#&gt;     x y\n#&gt; 2   1 2\n#&gt; 2.1 1 2\n#&gt; 3   1 3"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#handling-ambiguity",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#handling-ambiguity",
+    "title": "Meta-Programming",
+    "section": "Handling Ambiguity",
+    "text": "Handling Ambiguity\nEven a simple wrapper around a quoting function using tidy evaluation can be problematic when there are no arguments to quote. This wrapper around subset2 can return incorrect results whenx exists in the calling environment and not in the data frame or when val exists in the data frame.\n\nx &lt;- 10\nno_x &lt;- data.frame(y = 1:3)\n\nthreshold_x &lt;- function(df, val) {\n  subset2(df, x &gt;= val)\n}\n\nthreshold_x(no_x, 2)\n#&gt;   y\n#&gt; 1 1\n#&gt; 2 2\n#&gt; 3 3\n\nhas_val &lt;- data.frame(x = 1:3, val = 9:11)\nthreshold_x(has_val, 2)\n#&gt; [1] x   val\n#&gt; &lt;0 rows&gt; (or 0-length row.names)\n\nInstead, we need to be more specific and use pronouns.\n\nthreshold_x &lt;- function(df, val) {\n  subset2(df, .data$x &gt;= .env$val)\n}\n\nx &lt;- 10\nthreshold_x(no_x, 2)\n#&gt; Error in `.data$x`:\n#&gt; ! Column `x` not found in `.data`.\n\nthreshold_x(has_val, 2)\n#&gt;   x val\n#&gt; 2 2  10\n#&gt; 3 3  11"
+  },
+  {
+    "objectID": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quoting-and-ambiguity",
+    "href": "presentations/AdvancedR/SpecialTopics/meta-programming.html#quoting-and-ambiguity",
+    "title": "Meta-Programming",
+    "section": "Quoting and Ambiguity",
+    "text": "Quoting and Ambiguity\nWe may also need to handle both quoting and ambiguity as in this threshold_var function that allows the user to choose the variable and the threshold.\n\nthreshold_var &lt;- function(df, var, val) {\n  var &lt;- rlang::as_string(rlang::ensym(var))\n  subset2(df, .data[[var]] &gt;= !!val)\n}\n\ndf &lt;- data.frame(x = 1:10)\nthreshold_var(df, x, 8)\n#&gt;     x\n#&gt; 8   8\n#&gt; 9   9\n#&gt; 10 10\n\nIt is not always the role of the developer to avoid ambiguity. It is the user’s responsibility to avoid ambiguity with any expressions that he/she creates as would be the case for the example below that allows expressions to be evaluated.\n\nthreshold_expr &lt;- function(df, expr, val) {\n  expr &lt;- rlang::enquo(expr)\n  subset2(df, !!expr &gt;= !!val)\n}\n\ndf &lt;- data.frame(x = 1:5, y = 1:5)\nthreshold_expr(df, x + y, 8)\n#&gt;   x y\n#&gt; 4 4 4\n#&gt; 5 5 5"
   }
 ]
