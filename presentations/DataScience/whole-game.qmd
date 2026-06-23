@@ -48,7 +48,6 @@ options(
 
 ::: {.highlight-box}
 **Goal:** get just enough of every major data science tool to tackle a real dataset, start to finish.
-
 :::
 
 . . .
@@ -116,6 +115,7 @@ You *can’t* plate raw ingredients, and you *shouldn’t* cook before you chop.
 If code only makes sense *right now*, it will absolutely fail you in 2 weeks.
 :::
 :::
+:::
 
 ```{r}
 #| echo: true
@@ -134,6 +134,7 @@ primes <- c(2, 3, 5, 7, 11, 13)
 short_flights <- flights %>%
   filter(air_time < 60)
 ```
+
 :::
 
 ::: {.column width="50%"}
@@ -144,6 +145,7 @@ short_flights <- flights %>%
 SHORTFLIGHTS <- flights %>%
   filter(air_time < 60)
 ```
+
 :::
 :::
 
