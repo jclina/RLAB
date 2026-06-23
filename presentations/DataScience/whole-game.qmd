@@ -425,9 +425,8 @@ We'll go much deeper on each of these tools in upcoming lessons — today was ab
 ## In-Class Activity: Your First GitHub Push {.pattern-dots}
 
 ::: {.highlight-box}
-Goal for the remainder of the meeting:
+Goal for the remainder of the meeting: Everyone will...
 
-Everyone will:
 - Edit a file in *their own folder*
 - Push it to GitHub
 - See it render online
@@ -435,10 +434,11 @@ Everyone will:
 
 ## Step 1: Fork the Repository
 
-1. Open the class repo on GitHub
-2. Click **Fork**
-3. Accept all defaults
-4. Wait for GitHub to finish
+Open the class repo on Github:
+
+1. Click **Fork**
+2. Accept all defaults
+3. Wait for GitHub to finish
 
 You should now see the repo under **your username**
 
@@ -456,6 +456,7 @@ From *your fork* on GitHub:
 ## Step 3: Navigate to Your Folder
 
 Inside the project (on your computer in Positron), go to:
+
 - attendees/
 - YourName/
 - code
@@ -468,12 +469,18 @@ Create a file called:
 whole-game.qmd
 
 Paste this: as the YAML
+
+```yaml
 ---
 title: "The Whole Game Practice"
 format: html
 ---
+```
+
 Create an R Code Chunk and enter:
 ```{r}
+#| echo: true
+#| eval: false
 # Hello R-LAB
 
 message("My first GitHub push worked!")
@@ -506,9 +513,9 @@ Within **your fork** on GitHub.com
 
 1. Click *Settings*
 2. Click *Pages*
-3. Under *Source*
- - Branch: main
- - Folder: /(root)
+3. Under *Source*  
+ \+ Branch: main  
+ \+ Folder: /(root)  
 4. Click *Save*
 
 You should get a Pages URL, which you can preview. Navigate to your folder to preview it! 
@@ -516,12 +523,13 @@ You should get a Pages URL, which you can preview. Navigate to your folder to pr
 ## Step 8: Create a Pull Request
 This will allow you to merge your work into the class repository. 
 From **your fork** on GitHub
+
 1. Click *Contribute*
 2. Click *Open pull request*
 3. Confirm the information is correct
 4. Click *Create pull request*
-5. Add a title and description with a clear message
-  ex. Title: Whole Game Practice (Your Name)
-      Description: - added whole-game.qmd 
+5. Add a title and description with a clear message   
+  \+ Title: Whole Game Practice (Your Name)  
+  \+ Description: - added whole-game.qmd 
 
 
