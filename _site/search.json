@@ -2384,7 +2384,7 @@
     "href": "presentations/DataScience.html",
     "title": "R for Data Science",
     "section": "",
-    "text": "Transform\n\n\nTools to Work with Common Variable Types\n\n\n\n\n\n\n\n\nJul 1, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nVisualization\n\n\nIntroduction to ggplot2\n\n\n\n\n\n\n\n\nJul 8, 2026\n\n\nAshlyn Barry\n\n\n\n\n\nNo matching items"
+    "text": "Whole Game\n\n\nR for Data Science Chapters 1-8\n\n\n\n\n\n\n\n\nJun 24, 2026\n\n\nJulianne Clina\n\n\n\n\n\n\n\n\n\n\n\n\nTransform\n\n\nTools to Work with Common Variable Types\n\n\n\n\n\n\n\n\nJul 1, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nVisualization\n\n\nIntroduction to ggplot2\n\n\n\n\n\n\n\n\nJul 8, 2026\n\n\nAshlyn Barry\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "presentations/DataScience/visualization.html#what-is-ggplot2",
@@ -2602,5 +2602,110 @@
     "title": "Advanced R Special Topics",
     "section": "",
     "text": "Functional Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 7, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nObject Oriented Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 14, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nMeta-Programming\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 21, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\n\n\n\n\n\n\n\nMeasuring and Improving Performance\n\n\nApplying R to Lifestyle and Brain Health Research\n\n\n\n\n\n\n\n\nOct 28, 2026\n\n\nBrian C. Helsel, PhD\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#welcome-to-the-r-lab",
+    "href": "presentations/DataScience/whole-game.html#welcome-to-the-r-lab",
+    "title": "Whole Game",
+    "section": "Welcome to the R-Lab!!!",
+    "text": "Welcome to the R-Lab!!!\n\nGoal: get just enough of every major data science tool to tackle a real dataset, start to finish.\n\n\nThe data science cycle:\nImport → Tidy → Transform ⇄ Visualize ⇄ Model → Communicate"
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#todays-plan",
+    "href": "presentations/DataScience/whole-game.html#todays-plan",
+    "title": "Whole Game",
+    "section": "Today’s Plan",
+    "text": "Today’s Plan\n\n\nWorkflow basics\n\nNaming, style, scripts, projects\nThese habits show up in every lesson going forward, so we won’t repeat them\n\n\nThe four tools\n\nImport data → readr\nTidy data → tidyr\nTransform data → dplyr\nVisualize data → ggplot2\n\n\n\nWe’re covering this in import → tidy → transform → visualize order today (rather than the book’s order) because that’s the order you actually touch a new dataset."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#naming-things-and-writing-code",
+    "href": "presentations/DataScience/whole-game.html#naming-things-and-writing-code",
+    "title": "Whole Game",
+    "section": "Naming Things and Writing Code",
+    "text": "Naming Things and Writing Code\n\n# Assignment uses &lt;- (shortcut: Alt/Option + -)\nx &lt;- 3 * 4\nprimes &lt;- c(2, 3, 5, 7, 11, 13)\n\n\n\nStrive for:\n\nshort_flights &lt;- flights %&gt;%\n  filter(air_time &lt; 60)\n\n\nAvoid:\n\nSHORTFLIGHTS &lt;- flights %&gt;%\n  filter(air_time &lt; 60)\n\n\n\nsnake_case, spaces around &lt;- and operators, and %&gt;% at the end of a line (not the start) — these three habits make code dramatically easier to read later."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#scripts-and-projects",
+    "href": "presentations/DataScience/whole-game.html#scripts-and-projects",
+    "title": "Whole Game",
+    "section": "Scripts and Projects",
+    "text": "Scripts and Projects\n\nWrite code in the script editor, not just the console — Cmd/Ctrl + Enter runs a line, Cmd/Ctrl + Shift + S runs the whole script\nKeep every project (data, scripts, outputs) together using an RStudio Project (.Rproj) — never setwd()\nUse relative paths (data/students.csv), never absolute ones (/Users/you/...) — relative paths work on anyone’s machine\n\n\n# Good — relative to the project folder\nwrite_csv(diamonds, \"data/diamonds.csv\")\n\n\nRestart R often (Cmd/Ctrl + Shift + 0) and re-run your script from scratch. If it still works, your script, not your environment, is the real source of truth."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#reading-data-in-with-readr",
+    "href": "presentations/DataScience/whole-game.html#reading-data-in-with-readr",
+    "title": "Whole Game",
+    "section": "Reading Data In With readr",
+    "text": "Reading Data In With readr\n\nlibrary(tidyverse)\n\nstudents &lt;- read_csv(\n  \"data/students.csv\",\n  na = c(\"N/A\", \"\") # treat \"N/A\" strings as real missing values\n)\n\nreadr guesses each column’s type (logical → number → date → string) from a sample of rows, and prints what it guessed — always worth a glance.\n\nCommon cleanup after import:\n\njanitor::clean_names() → tidy up column names to snake_case\nmutate(x = factor(x)) → turn categorical text into a factor\nparse_number() → pull a number out of a messy string column\n\n\nOther formats: read_tsv(), read_delim(), multiple files at once with read_csv(list.files(...), id = \"file\")."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#what-makes-data-tidy",
+    "href": "presentations/DataScience/whole-game.html#what-makes-data-tidy",
+    "title": "Whole Game",
+    "section": "What Makes Data “Tidy”?",
+    "text": "What Makes Data “Tidy”?\n\n“Tidy datasets are all alike, but every messy dataset is messy in its own way.” — Hadley Wickham\n\n\nThree rules:\n\nEach variable is a column.\nEach observation is a row.\nEach value is a cell.\n\n\nTidy data is what lets dplyr and ggplot2 “just work” — most real-world data isn’t tidy yet, which is why tidyr exists."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#reshaping-with-pivot_longer-pivot_wider",
+    "href": "presentations/DataScience/whole-game.html#reshaping-with-pivot_longer-pivot_wider",
+    "title": "Whole Game",
+    "section": "Reshaping With pivot_longer() / pivot_wider()",
+    "text": "Reshaping With pivot_longer() / pivot_wider()\n\n\nToo wide — values trapped in column names (e.g. a column per week)\n\nbillboard %&gt;%\n  pivot_longer(\n    cols = starts_with(\"wk\"),\n    names_to = \"week\",\n    values_to = \"rank\",\n    values_drop_na = TRUE\n  )\n\n\nToo long — one observation spread across multiple rows\n\ncms_patient_experience %&gt;%\n  pivot_wider(\n    id_cols = starts_with(\"org\"),\n    names_from = measure_cd,\n    values_from = prf_rate\n  )"
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#dplyr-one-grammar-for-rows-columns-and-groups",
+    "href": "presentations/DataScience/whole-game.html#dplyr-one-grammar-for-rows-columns-and-groups",
+    "title": "Whole Game",
+    "section": "dplyr: One Grammar for Rows, Columns, and Groups",
+    "text": "dplyr: One Grammar for Rows, Columns, and Groups\nEvery dplyr verb: (1) takes a data frame first, (2) refers to columns by bare name, (3) returns a new data frame.\n\n\n\n\n\n\n\nActs on\nVerbs\n\n\n\n\nRows\nfilter(), arrange(), distinct()\n\n\nColumns\nmutate(), select(), rename(), relocate()\n\n\nGroups\ngroup_by(), summarize(), slice_max() / slice_min()\n\n\n\n\nflights |&gt;\n  filter(dest == \"IAH\") %&gt;%\n  mutate(speed = distance / air_time * 60) %&gt;%\n  select(year:day, dep_time, carrier, speed) %&gt;%\n  arrange(desc(speed))\n\n\nRead %&gt;% or |&gt; as “then.” This pipeline reads: take flights, then filter, then mutate, then select, then arrange."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#grouped-summaries",
+    "href": "presentations/DataScience/whole-game.html#grouped-summaries",
+    "title": "Whole Game",
+    "section": "Grouped Summaries",
+    "text": "Grouped Summaries\n\nflights %&gt;%\n  group_by(month) %&gt;%\n  summarize(\n    avg_delay = mean(dep_delay, na.rm = TRUE),\n    n = n()\n  )\n\n\n💡 Always include n() alongside any summary statistic. A mean from 3 observations and a mean from 3,000 observations look identical in a table — but you should trust them very differently.\n\n\n# Newer shortcut — group for just this one operation\nflights %&gt;%\n  summarize(delay = mean(dep_delay, na.rm = TRUE), n = n(), .by = month)"
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#ggplot2-the-grammar-of-graphics",
+    "href": "presentations/DataScience/whole-game.html#ggplot2-the-grammar-of-graphics",
+    "title": "Whole Game",
+    "section": "ggplot2: The Grammar of Graphics",
+    "text": "ggplot2: The Grammar of Graphics\n\n“The simple graph has brought more information to the data analyst’s mind than any other device.” — John Tukey\n\nEvery plot: data + mapping (aes()) + geom.\n\nlibrary(palmerpenguins)\nggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +\n  geom_point(aes(color = species, shape = species)) +\n  geom_smooth(method = \"lm\")"
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#matching-plot-type-to-question",
+    "href": "presentations/DataScience/whole-game.html#matching-plot-type-to-question",
+    "title": "Whole Game",
+    "section": "Matching Plot Type to Question",
+    "text": "Matching Plot Type to Question\n\n\n\n\n\n\n\nQuestion\nGeom(s)\n\n\n\n\nOne categorical variable\ngeom_bar()\n\n\nOne numerical variable\ngeom_histogram(), geom_density()\n\n\nNumerical vs. categorical\ngeom_boxplot()\n\n\nTwo numerical variables\ngeom_point(), geom_smooth()\n\n\n3+ variables\nextra aesthetics (color, shape) or facet_wrap()\n\n\n\n\n# Faceting beats cramming too many aesthetics onto one plot\nggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +\n  geom_point(aes(color = species)) +\n  facet_wrap(~island)\n\n\nmap a variable to an aesthetic when you want it to vary by data; set it (color = \"blue\") when you just want a fixed look."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#polishing-and-saving",
+    "href": "presentations/DataScience/whole-game.html#polishing-and-saving",
+    "title": "Whole Game",
+    "section": "Polishing and Saving",
+    "text": "Polishing and Saving\n\nggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +\n  geom_point(aes(color = species, shape = species)) +\n  geom_smooth(method = \"lm\") +\n  labs(\n    title = \"Body mass and flipper length\",\n    x = \"Flipper length (mm)\",\n    y = \"Body mass (g)\",\n    color = \"Species\",\n    shape = \"Species\"\n  )\n\nggsave(\"penguin-plot.png\")\n\n\nSame styling rules from the workflow section apply here: treat + like %&gt;% — space before it, end of the line, one argument per line once it gets long."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#a-realistic-pipeline",
+    "href": "presentations/DataScience/whole-game.html#a-realistic-pipeline",
+    "title": "Whole Game",
+    "section": "A Realistic Pipeline",
+    "text": "A Realistic Pipeline\n\nlibrary(tidyverse)\n\nflights_summary &lt;- read_csv(\"data/flights.csv\") %&gt;% # import\n  drop_na(dep_delay, arr_delay) %&gt;% # tidy / clean\n  filter(month %in% 6:8) %&gt;% # transform\n  group_by(carrier) %&gt;%\n  summarize(avg_delay = mean(dep_delay), n = n())\n\nggplot(flights_summary, aes(x = carrier, y = avg_delay)) + # visualize\n  geom_col()\n\n\nThis is the whole game in five lines: import → tidy → transform → visualize. Everything else in the book is depth on one of these four steps."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#when-youre-stuck",
+    "href": "presentations/DataScience/whole-game.html#when-youre-stuck",
+    "title": "Whole Game",
+    "section": "When You’re Stuck",
+    "text": "When You’re Stuck\n\n\nGoogle it — add “R” or a package name to your search\nSearch Stack Overflow — include the [R] tag\nStill stuck? Build a reprex — a minimal, self-contained example someone else can copy, paste, and run\n\n\n\nreprex::reprex()\n\n\n80% of the time, just writing a clean minimal example reveals the bug yourself before anyone has to answer it."
+  },
+  {
+    "objectID": "presentations/DataScience/whole-game.html#summary",
+    "href": "presentations/DataScience/whole-game.html#summary",
+    "title": "Whole Game",
+    "section": "Summary",
+    "text": "Summary\n\nThe four tools: readr (import) → tidyr (tidy) → dplyr (transform) → ggplot2 (visualize)\n\nThe habits that make it sustainable: descriptive names, consistent style, RStudio projects with relative paths, restarting R often, and knowing how to ask for help.\nWe’ll go much deeper on each of these tools in upcoming lessons — today was about seeing how they fit together."
   }
 ]
