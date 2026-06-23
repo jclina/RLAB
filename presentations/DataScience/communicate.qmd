@@ -1,0 +1,817 @@
+---
+title: "Communicate"
+subtitle: "Introduction to Quarto"
+author: "Morgan Brucks"
+institute: "University of Kansas Medical Center"
+date: 2026-07-08
+image: "../../images/thumbnails/image-template.png"
+format:
+  revealjs:
+    theme: [default, "../../styles/styleReveal.scss"]
+    slide-number: true
+    preview-links: auto
+    logo: https://brand.ku.edu/sites/brand/files/styles/wide_col_xl_6/public/images/2020/KUMarksLogo.png
+    footer: "R for Lifestyle and Brain Health (R-LAB)"
+    transition: slide
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: true
+    code-block-bg: true
+    incremental: false
+    date-format: long
+    embed-resources: true
+execute: 
+  freeze: auto
+---
+
+## Instructor Notes
+
+This deck is designed for:
+- 45-minute lecture
+- 45-minute hands-on workshop
+- Mixed audience (beginner to advanced researchers)
+- Brain health and health sciences examples
+
+::: notes
+Key teaching goal: Communication and reproducibility, not memorization of syntax.
+Many participants will remember concepts better than commands.
+:::
+
+
+## Opening Question
+
+How many of you have:
+
+- copied a figure from R into PowerPoint?
+- copied a table into Word?
+- had to recreate a figure months later?
+- struggled to remember how results were generated?
+
+::: notes
+Spend 2-3 minutes discussing.
+This creates buy-in for reproducibility.
+:::
+
+---
+
+# Why Communication Matters
+
+R4DS argues that communication is part of data science.
+
+Data science is not:
+
+Data → Analysis → Done
+
+It is:
+
+Data → Analysis → Communication → Impact
+
+::: notes
+Ask: "If nobody understands your work, did the analysis accomplish its goal?"
+:::
+
+---
+
+## Three Audiences for Quarto
+
+According to R4DS:
+
+1. Decision makers
+2. Collaborators
+3. Future you
+
+---
+
+## Decision Makers
+
+Need:
+
+- conclusions
+- recommendations
+- key findings
+
+Usually do NOT need:
+
+- every line of code
+- every model output
+
+::: notes
+Examples:
+Department chairs, grant reviewers, clinicians, leadership.
+:::
+
+---
+
+## Collaborators
+
+Need:
+
+- code
+- methods
+- assumptions
+- outputs
+
+Goal: transparency.
+
+---
+
+## Future You
+
+Perhaps the most important audience.
+
+Questions future-you asks:
+
+- What did I do?
+- Why did I do it?
+- Can I reproduce it?
+
+---
+
+## Brain Health Example
+
+Imagine updating:
+
+- recruitment reports
+- cognitive outcomes
+- MRI summaries
+- grant progress reports
+
+Manual workflow:
+
+- find figure
+- recreate figure
+- update figure
+
+Reproducible workflow:
+
+- rerun code
+- render report
+
+---
+
+# What is Quarto?
+
+Quarto combines:
+
+- narrative
+- code
+- figures
+- tables
+- citations
+
+into a single document.
+
+---
+
+# Why Quarto?
+
+Benefits:
+
+- reproducibility
+- transparency
+- efficiency
+- flexibility
+
+---
+
+# One Source, Many Outputs
+
+A single `.qmd` file can create:
+
+- HTML
+- PDF
+- Word
+- presentations
+- websites
+- books
+
+::: notes
+This idea becomes important in Chapter 29.
+:::
+
+---
+
+# Anatomy of a Quarto File
+
+Three pieces:
+
+1. YAML
+2. Markdown
+3. Code chunks
+
+---
+
+# YAML
+
+Think of YAML as settings.
+
+```yaml
+---
+title: "Brain Health Report"
+author: "Morgan Brucks"
+format: html
+---
+```
+
+---
+
+# Markdown
+
+Think of markdown as storytelling.
+
+```markdown
+# Results
+
+## Recruitment
+
+**Important finding**
+```
+
+---
+
+# Code Chunks
+
+Think of code chunks as analysis.
+
+````markdown
+```{r}
+summary(mtcars)
+```
+````
+
+---
+
+# Rendering Workflow
+
+```text
+.qmd
+ ↓
+knitr
+ ↓
+markdown
+ ↓
+pandoc
+ ↓
+final output
+```
+
+::: notes
+Many people click Render for years without understanding this workflow.
+:::
+
+---
+
+# Demo #1
+
+Open a blank Quarto document.
+
+Show:
+
+- YAML
+- markdown
+- chunk
+- Render button
+
+::: notes
+Switch to RStudio here.
+5 minutes.
+:::
+
+---
+
+# Visual Editor
+
+Advantages:
+
+- beginner friendly
+- Word-like
+- point and click
+
+---
+
+# Source Editor
+
+Advantages:
+
+- faster
+- more flexible
+- easier debugging
+
+---
+
+# Discussion
+
+Which editor would you choose and why?
+
+---
+
+# Markdown Basics
+
+Headers:
+
+```markdown
+# Header
+## Subheader
+### Smaller Header
+```
+
+---
+
+# Text Formatting
+
+```markdown
+**bold**
+
+*italic*
+
+`code`
+```
+
+---
+
+# Lists
+
+```markdown
+- item 1
+- item 2
+```
+
+and
+
+```markdown
+1. first
+2. second
+```
+
+---
+
+# Links
+
+```markdown
+[Posit](https://posit.co)
+```
+
+---
+
+# Block Quotes
+
+```markdown
+> Reproducibility matters.
+```
+
+---
+
+# Why Markdown?
+
+Advantages:
+
+- simple
+- readable
+- portable
+- fast
+
+---
+
+# Code Chunks
+
+Basic example:
+
+```{r}
+summary(cars)
+```
+
+---
+
+# Running Code
+
+```{r}
+summary(mtcars)
+```
+
+---
+
+# Chunk Labels
+
+```r
+#| label: demographics-summary
+```
+
+Benefits:
+
+- organization
+- references
+- navigation
+
+---
+
+# Chunk Options
+
+```r
+#| echo: false
+```
+
+Hide code.
+
+---
+
+# Additional Options
+
+```r
+#| warning: false
+#| message: false
+```
+
+---
+
+# Figure Size
+
+```r
+#| fig-width: 8
+#| fig-height: 5
+```
+
+---
+
+# Global Options
+
+```r
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+---
+
+# Inline Code
+
+Source:
+
+```markdown
+There are `r nrow(mtcars)` observations.
+```
+
+Result:
+
+There are `r nrow(mtcars)` observations.
+
+---
+
+# Why Inline Code Matters
+
+Examples:
+
+- sample size
+- mean age
+- enrollment counts
+- dates
+
+Automatically updates.
+
+---
+
+# Demo #2
+
+Add:
+
+```{r}
+summary(cars)
+```
+
+Render.
+
+::: notes
+Show code/output relationship.
+:::
+
+---
+
+# Figures
+
+```{r}
+library(ggplot2)
+
+ggplot(mpg, aes(class)) +
+  geom_bar()
+```
+
+---
+
+# Why Figures in Quarto?
+
+Traditional:
+
+- create
+- save
+- copy
+- paste
+
+Quarto:
+
+- update code
+- render
+
+---
+
+# Tables
+
+```{r}
+knitr::kable(head(mtcars))
+```
+
+---
+
+# Research Examples
+
+Possible tables:
+
+- demographics
+- recruitment
+- cognition outcomes
+- intervention adherence
+
+---
+
+# Citations
+
+Chapter 28 introduces references.
+
+YAML:
+
+```yaml
+bibliography: references.bib
+```
+
+---
+
+# Cross References
+
+Example:
+
+```markdown
+See @fig-recruitment.
+```
+
+Useful for manuscripts.
+
+---
+
+# Callouts
+
+```markdown
+::: {.callout-note}
+Important point.
+:::
+```
+
+---
+
+# Parameters
+
+```yaml
+params:
+  visit: baseline
+```
+
+---
+
+# Why Parameters Matter
+
+Generate:
+
+- participant reports
+- visit reports
+- study reports
+
+from one template.
+
+---
+
+# Common Errors
+
+- missing package
+- YAML spacing
+- missing parentheses
+- unclosed chunks
+
+---
+
+# Debugging Advice
+
+1. Read the error
+2. Find the line
+3. Fix one thing
+4. Render again
+
+---
+
+# Discussion
+
+What feature seems most useful for your work?
+
+---
+
+# Chapter 29: Formats
+
+Core idea:
+
+One source → many outputs
+
+---
+
+# HTML
+
+```yaml
+format: html
+```
+
+Best for:
+
+- interactivity
+- online sharing
+
+---
+
+# PDF
+
+```yaml
+format: pdf
+```
+
+Best for:
+
+- printing
+- manuscripts
+
+---
+
+# Word
+
+```yaml
+format: docx
+```
+
+Best for:
+
+- tracked changes
+- collaborators
+
+---
+
+# RevealJS
+
+```yaml
+format: revealjs
+```
+
+Best for:
+
+- teaching
+- conference talks
+- lab meetings
+
+---
+
+# Multiple Formats
+
+```yaml
+format:
+  html: default
+  pdf: default
+  docx: default
+```
+
+---
+
+# Websites
+
+```yaml
+project:
+  type: website
+```
+
+---
+
+# Books
+
+```yaml
+project:
+  type: book
+```
+
+---
+
+# Brain Health Applications
+
+Potential uses:
+
+- study reports
+- MRI summaries
+- grant updates
+- recruitment tracking
+- conference presentations
+
+::: notes
+Customize with GETActive examples.
+This is where your own examples will shine.
+:::
+
+---
+
+# Best Practices
+
+- render often
+- keep files organized
+- write narrative
+- document decisions
+- embrace reproducibility
+
+---
+
+# Transition to Workshop
+
+Now let's build a Quarto presentation.
+
+---
+
+# Workshop Activity 1
+
+Create a RevealJS presentation.
+
+Tasks:
+
+- render
+- change title
+- change theme
+
+---
+
+# Workshop Activity 2
+
+Create slides with:
+
+- heading
+- bold text
+- italic text
+- bullets
+
+---
+
+# Workshop Activity 3
+
+Add:
+
+```{r}
+summary(cars)
+```
+
+---
+
+# Workshop Activity 4
+
+Add a plot.
+
+```{r}
+library(ggplot2)
+
+ggplot(mpg, aes(class)) +
+  geom_bar()
+```
+
+---
+
+# Workshop Activity 5
+
+Create:
+
+- title
+- plot
+- table
+- interpretation sentence
+
+---
+
+# Reflection
+
+Discuss:
+
+- What surprised you?
+- What seems useful?
+- Where could you use Quarto?
+
+---
+
+# Final Takeaways
+
+Quarto helps us:
+
+- communicate
+- reproduce
+- automate
+- collaborate
+- publish
+
+---
+
+# Questions

@@ -2597,6 +2597,7 @@
     "text": "Next steps\n\nDevlop instructions for individual practice time: Bring back geometrical object layer (geom_) table layer\n\nHave them create a different type of plot (ie, not scatterplot) with penguins\n~30 minutes of independent work time, Ashlyn/Brian/Julianne/others available for questions/help\n~10-15 minutes of share time\n\nBack up: Ashlyn will have another plot created with code that she can walk through if nobody wants to share"
   },
   {
+<<<<<<< Updated upstream
     "objectID": "presentations/SpecialTopics.html",
     "href": "presentations/SpecialTopics.html",
     "title": "Advanced R Special Topics",
@@ -2707,5 +2708,26 @@
     "title": "Whole Game",
     "section": "Summary",
     "text": "Summary\n\nThe four tools: readr (import) → tidyr (tidy) → dplyr (transform) → ggplot2 (visualize)\n\nThe habits that make it sustainable: descriptive names, consistent style, RStudio projects with relative paths, restarting R often, and knowing how to ask for help.\nWe’ll go much deeper on each of these tools in upcoming lessons — today was about seeing how they fit together."
+=======
+    "objectID": "presentations/DataScience/communicate.html#instructor-notes",
+    "href": "presentations/DataScience/communicate.html#instructor-notes",
+    "title": "Communicate",
+    "section": "Instructor Notes",
+    "text": "Instructor Notes\nThis deck is designed for: - 45-minute lecture - 45-minute hands-on workshop - Mixed audience (beginner to advanced researchers) - Brain health and health sciences examples\n\nKey teaching goal: Communication and reproducibility, not memorization of syntax. Many participants will remember concepts better than commands."
+  },
+  {
+    "objectID": "presentations/DataScience/communicate.html#opening-question",
+    "href": "presentations/DataScience/communicate.html#opening-question",
+    "title": "Communicate",
+    "section": "Opening Question",
+    "text": "Opening Question\nHow many of you have:\n\ncopied a figure from R into PowerPoint?\ncopied a table into Word?\nhad to recreate a figure months later?\nstruggled to remember how results were generated?\n\n\nSpend 2-3 minutes discussing. This creates buy-in for reproducibility."
+  },
+  {
+    "objectID": "presentations/DataScience/communicate.html#brain-health-example",
+    "href": "presentations/DataScience/communicate.html#brain-health-example",
+    "title": "Communicate",
+    "section": "Brain Health Example",
+    "text": "Brain Health Example\nImagine updating:\n\nrecruitment reports\ncognitive outcomes\nMRI summaries\ngrant progress reports\n\nManual workflow:\n\nfind figure\nrecreate figure\nupdate figure\n\nReproducible workflow:\n\nrerun code\nrender report"
+>>>>>>> Stashed changes
   }
 ]
