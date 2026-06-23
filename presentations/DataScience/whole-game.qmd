@@ -83,9 +83,39 @@ Import → Tidy → **Transform ⇄ Visualize ⇄ Model** → Communicate
 We're covering this in **import → tidy → transform → visualize** order today (rather than the book's order) because that's the order you actually touch a new dataset.
 :::
 
+## The Whole Game, Explained Like a Kitchen {.pattern-dots}
+
+::: {.highlight-box}
+Think of data science like cooking a meal:
+:::
+
+| Data science step | Kitchen analogy |
+|---|---|
+| Import | Grocery shopping |
+| Tidy | Washing & chopping ingredients |
+| Transform | Cooking & seasoning |
+| Visualize | Plating the dish |
+| Communicate | Serving it to others |
+
+You *can’t* plate raw ingredients, and you *shouldn’t* cook before you chop.
+
 # Workflow: The Habits That Make This Easier {background-color="#2c3e50"}
 
 ## Naming Things and Writing Code {.pattern-dots}
+::: {.columns}
+::: {.column width="50%"}
+### Who are you writing code for?
+
+- Not your professor  
+- Not your classmates  
+- **Future you (who has forgotten everything)**  
+:::
+
+::: {.column width="50%"}
+::: {.tip-box}
+If code only makes sense *right now*, it will absolutely fail you in 2 weeks.
+:::
+:::
 
 ```{r}
 #| echo: true
@@ -124,7 +154,8 @@ SHORTFLIGHTS <- flights %>%
 ## Scripts and Projects
 
 - Write code in the **script editor**, not just the console — Cmd/Ctrl + Enter runs a line, Cmd/Ctrl + Shift + S runs the whole script
-- Keep every project (data, scripts, outputs) together using an **RStudio Project** (`.Rproj`) — never `setwd()`
+- Keep every project (data, scripts, outputs) together using an **RStudio Project** (`.Rproj`)
+- For those using Positron, this is set up for you by working in a specific workspace (folder)
 - Use **relative paths** (`data/students.csv`), never absolute ones (`/Users/you/...`) — relative paths work on anyone's machine
 
 ```{r}
@@ -389,6 +420,106 @@ We'll go much deeper on each of these tools in upcoming lessons — today was ab
 
 ---
 
-**Questions?**
+## In-Class Activity: Your First GitHub Push {.pattern-dots}
 
-Contact: jclina@kumcs.edu
+::: {.highlight-box}
+Goal for the remainder of the meeting:
+
+Everyone will:
+- Edit a file in *their own folder*
+- Push it to GitHub
+- See it render online
+:::
+
+## Step 1: Fork the Repository
+
+1. Open the class repo on GitHub
+2. Click **Fork**
+3. Accept all defaults
+4. Wait for GitHub to finish
+
+You should now see the repo under **your username**
+
+## Step 2: Clone Your Fork
+
+From *your fork* on GitHub:
+
+1. Click **Code**
+2. Copy the HTTPS URL or Open it GitHub Desktop
+3. In RStudio or Positron:
+   - Clone repository
+   - Paste the URL
+   - Open the project
+
+## Step 3: Navigate to Your Folder
+
+Inside the project (on your computer in Positron), go to:
+- attendees/
+- YourName/
+- code
+
+## Step 4: Create a Simple Quarto Document
+
+Inside your `code/` folder:
+
+Create a file called:
+whole-game.qmd
+
+Paste this: as the YAML
+---
+title: "The Whole Game Practice"
+format: html
+---
+Create an R Code Chunk and enter:
+```{r}
+# Hello R-LAB
+
+message("My first GitHub push worked!")
+
+x <- 1:10
+mean(x)
+```
+
+And Save the file! 
+
+## Step 5: Render with Quarto Locally
+- Opem your .qmd files
+- In the terminal or console, run:
+
+`quarto render`
+
+- This creates the HTML and confirms it's correct!
+
+## Step 6: Commit & Push!
+- Open GitHub Desktop
+- You should see your  .qmd file listed as a change
+- Add a message and description
+- Click **Commmit to Main**
+- ClicK **Push Origin**
+
+You should now see your file on GitHub! 
+
+## Step 7: Enable GitHub Pages
+Within **your fork** on GitHub.com
+
+1. Click *Settings*
+2. Click *Pages*
+3. Under *Source*
+ - Branch: main
+ - Folder: /(root)
+4. Click *Save*
+
+You should get a Pages URL, which you can preview. Navigate to your folder to preview it! 
+
+## Step 8: Create a Pull Request
+This will allow you to merge your work into the class repository. 
+From **your fork** on GitHub
+1. Click *Contribute*
+2. Click *Open pull request*
+3. Confirm the information is correct
+4. Click *Create pull request*
+5. Add a title and description with a clear message
+  ex. Title: Whole Game Practice (Your Name)
+      Description: - added whole-game.qmd 
+
+
