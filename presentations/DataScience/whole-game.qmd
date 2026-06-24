@@ -1,7 +1,7 @@
 ---
 title: "Whole Game"
 subtitle: "R for Data Science Chapters 1-8"
-author: "Julianne Clina"
+author: "Julianne G. Clina, PhD"
 institute: "University of Kansas Medical Center"
 date: 2026-06-24
 image: "../../images/thumbnails/whole-game.png"
@@ -144,6 +144,12 @@ short_flights <- flights %>%
 #| eval: false
 SHORTFLIGHTS <- flights %>%
   filter(air_time < 60)
+
+short.flights <- flights %>%
+  filter(air_time < 60)
+
+ShortFlights <- flights %>%
+  filter(air_time < 60)
 ```
 
 :::
@@ -263,14 +269,34 @@ Every dplyr verb: (1) takes a data frame first, (2) refers to columns by bare na
 | **Columns** | `mutate()`, `select()`, `rename()`, `relocate()` |
 | **Groups** | `group_by()`, `summarize()`, `slice_max()` / `slice_min()` |
 
+**Before** — `flights`, untouched:
+
 ```{r}
 #| echo: true
-#| eval: false
-flights |>
+#| eval: true
+head(flights)
+```
+
+## dplyr in Action: Before → After
+
+**The pipeline:**
+
+```{r}
+#| echo: true
+#| eval: true
+fast_iah <- flights |>
   filter(dest == "IAH") %>%
   mutate(speed = distance / air_time * 60) %>%
   select(year:day, dep_time, carrier, speed) %>%
   arrange(desc(speed))
+```
+
+**After** — filtered to `IAH`, new `speed` column, fewer columns, sorted:
+
+```{r}
+#| echo: true
+#| eval: true
+head(fast_iah)
 ```
 
 ::: {.highlight-box}
@@ -310,16 +336,70 @@ flights %>%
 
 Every plot: **data** + **mapping** (`aes()`) + **geom**.
 
+::: {.tip-box}
+Let's build one up layer by layer so you can see exactly what each piece adds.
+:::
+
+## Building a Plot, Layer by Layer (1/4)
+
+Start with **data** + **mapping** — `aes()` just sets up the coordinate system, no geometry yet:
+
 ```{r}
 #| echo: true
 #| eval: true
 #| fig-width: 7
 #| fig-height: 4
 library(palmerpenguins)
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g))
+```
+
+::: {.tip-box}
+Nothing plots yet — `ggplot()` + `aes()` only declares *what goes where*, not *how to draw it*.
+:::
+
+## Building a Plot, Layer by Layer (2/4)
+
+Add a **geom** — now there's something to look at:
+
+```{r}
+#| echo: true
+#| eval: true
+#| fig-width: 7
+#| fig-height: 4
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+## Building a Plot, Layer by Layer (3/4)
+
+Map **species** to `color` and `shape` — a third variable, no new geom required:
+
+```{r}
+#| echo: true
+#| eval: true
+#| fig-width: 7
+#| fig-height: 4
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species))
+```
+
+## Building a Plot, Layer by Layer (4/4)
+
+Add a second **geom** — `geom_smooth()` layers a trend line on top:
+
+```{r}
+#| echo: true
+#| eval: true
+#| fig-width: 7
+#| fig-height: 4
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point(aes(color = species, shape = species)) +
   geom_smooth(method = "lm")
 ```
+
+::: {.highlight-box}
+Every plot is **data** + **mapping** (`aes()`) + one or more **geoms** — each `+` stacks another layer on the same coordinate system.
+:::
 
 ## Matching Plot Type to Question
 
@@ -333,7 +413,9 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
 
 ```{r}
 #| echo: true
-#| eval: false
+#| eval: true
+#| fig-width: 7
+#| fig-height: 4
 # Faceting beats cramming too many aesthetics onto one plot
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point(aes(color = species)) +
@@ -492,7 +574,7 @@ mean(x)
 And Save the file! 
 
 ## Step 5: Render with Quarto Locally
-- Opem your .qmd files
+- Open your .qmd files
 - In the terminal or console, run:
 
 `quarto render`
@@ -531,5 +613,3 @@ From **your fork** on GitHub
 5. Add a title and description with a clear message   
   \+ Title: Whole Game Practice (Your Name)  
   \+ Description: - added whole-game.qmd 
-
-
